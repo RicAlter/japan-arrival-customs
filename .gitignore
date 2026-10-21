@@ -1,0 +1,39 @@
+# Real business inputs, historical workbooks, and generated delivery artifacts
+/inputs/
+/outputs/
+/reports/
+/历史数据/
+/Codex 项目开发启动资料包/
+/local-data/
+/runtime/
+/deliveries/
+/analysis/
+/AGENTS.md
+
+# Legacy project documents and regression tests refer to local business assets.
+# Only the repository-safe documentation and synthetic smoke test below are tracked.
+/docs/*
+!/docs/REPOSITORY_HYGIENE.md
+/tests/*
+!/tests/test_repository_smoke.py
+
+# Per-run state, decision libraries, and credentials
+**/runs/
+**/security/trusted_sessions.json
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+.env
+.env.*
+!.env.example
+
+# Build and editor by-products
+__pycache__/
+*.py[cod]
+**/node_modules/
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+{
+  "engine": "python",
+  "node_executable": null,
+  "module_root": null,
+  "status": "P1-C默认Python/openpyxl，无需此配置；仅显式engine=artifact-tool时才需Node及模块目录，不自动安装"
+}
