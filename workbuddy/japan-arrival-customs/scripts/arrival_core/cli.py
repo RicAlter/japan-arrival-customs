@@ -29,6 +29,37 @@ def main(argv=None):
             cmd.add_argument('--criteria',required=True,help='商品类型/用途/组成/构造条件JSON；仅检索')
             cmd.add_argument('--realm',choices=['formal','test','quarantine'],default='formal')
         if name in ('knowledge-backup','knowledge-restore'):cmd.add_argument('--backup',required=True)
+    d2=sub.add_parser('d2-report',help='只读发现候选/冲突；不发布规则')
+    d2.add_argument('--library',required=True);d2.add_argument('--as-of',required=True)
+    d2r=sub.add_parser('d2-replay',help='按事件时间输出回放可用性；不使用未来知识')
+    d2r.add_argument('--library',required=True);d2r.add_argument('--as-of',required=True)
+    for cmd in (d2,d2r): cmd.add_argument('--realm',choices=['formal','test'],default='formal')
+    for name in ('rule-draft','rule-publish','rule-transition','rule-match','rule-apply','rule-impact'):
+        cmd=sub.add_parser(name);cmd.add_argument('--registry',required=True);cmd.add_argument('--library',required=True)
+        cmd.add_argument('--as-of',required=True);cmd.add_argument('--realm',choices=['formal','test'],default='formal')
+        cmd.add_argument('--batch');cmd.add_argument('--session-token-env')
+        if name=='rule-draft':
+            cmd.add_argument('--candidate-id',required=True)
+        elif name in ('rule-publish','rule-transition'):
+            cmd.add_argument('--rule-id',required=True);cmd.add_argument('--reference',required=True);cmd.add_argument('--expected-version',required=True,type=int)
+            if name=='rule-transition':cmd.add_argument('--status',required=True,choices=['suspended','revoked'])
+        elif name in ('rule-match','rule-apply'):
+            cmd.add_argument('--facts',required=True);cmd.add_argument('--allow-automatic',action='store_true')
+            if name=='rule-apply':
+                cmd.add_argument('--row',required=True);cmd.add_argument('--reference',required=True);cmd.add_argument('--expected-hash',required=True)
+    sources=sub.add_parser('source-status',help='来源状态；未配置来源不视为已接通')
+    sources.add_argument('--config')
+    source_read=sub.add_parser('source-read',help='有权限及真实字段映射后只读采集来源证据')
+    source_read.add_argument('--config',required=True);source_read.add_argument('--kind',required=True,choices=['feishu_product','feishu_purchase','official_web'])
+    source_read.add_argument('--url');source_read.add_argument('--identity-evidence')
+    flow=sub.add_parser('workbuddy',help='单一业务入口，复用已有受控命令和B2审核')
+    flow.add_argument('--request',required=True)
+    intent=sub.add_parser('workbuddy-route',help='自然语言只映射到既有受控步骤')
+    intent.add_argument('--message',required=True);intent.add_argument('--files',nargs='*')
+    brief=sub.add_parser('batch-brief',help='业务化批次状态摘要');brief.add_argument('--batch',required=True)
+    sync=sub.add_parser('d1-sync',help='审核已保存后可重试的D1索引同步');sync.add_argument('--batch',required=True);sync.add_argument('--library',required=True)
+    reference=sub.add_parser('historical-references',help='只读展示D1正式案例候选；不是自动归类')
+    reference.add_argument('--library',required=True);reference.add_argument('--criteria',required=True);reference.add_argument('--as-of',required=True)
     imp = sub.add_parser("import-stage3")
     imp.add_argument("--source", required=True)
     imp.add_argument("--currency", required=True)
@@ -71,12 +102,60 @@ def main(argv=None):
         if name=='return-commit':
             for field in ('preview-id','confirmed-hash','reference','session-token-env'):cmd.add_argument('--'+field,required=True)
             cmd.add_argument('--confirm',action='store_true',help='业务明确确认已展示的预览和操作范围后才能传入')
+            cmd.add_argument('--library',help='外置D1库；提交成功后同步，失败仅标记可重试，不回滚审核决定')
         if name=='return-events':cmd.add_argument('--file',required=True)
         if name=='return-lock':
             cmd.add_argument('--reference',required=True);cmd.add_argument('--session-token-env',required=True)
     args = parser.parse_args(argv)
     store = Store(args.output)
     try:
+        if args.command in ('d2-report','d2-replay'):
+            from .decision_library import DecisionLibrary
+            from .d2_candidates import analyze_library
+            analysis=analyze_library(DecisionLibrary(args.library),as_of=args.as_of,realm=args.realm)
+            value=analysis['discovery' if args.command=='d2-report' else 'validation']
+            print(json.dumps(value,ensure_ascii=False));return 0
+        if args.command.startswith('rule-'):
+            import os
+            from .return_auth import load_session
+            from .rule_registry import RuleRegistry
+            registry=RuleRegistry(args.registry,library=args.library)
+            batch=store.load(args.batch) if args.batch else None
+            session=load_session(store.root,os.environ.get(args.session_token_env,'')) if args.session_token_env else None
+            if args.command=='rule-draft':value=registry.draft(args.candidate_id,as_of=args.as_of,realm=args.realm)
+            elif args.command=='rule-publish':value=registry.publish(args.rule_id,session=session,batch=batch,reference=args.reference,as_of=args.as_of,expected_version=args.expected_version)
+            elif args.command=='rule-transition':value=registry.transition(args.rule_id,args.status,session=session,batch=batch,reference=args.reference,as_of=args.as_of,expected_version=args.expected_version)
+            elif args.command=='rule-impact':value=registry.impact_report(as_of=args.as_of)
+            elif args.command=='rule-apply':value=registry.apply(store,args.batch,args.row,facts=read(args.facts),as_of=args.as_of,session=session,reference=args.reference,expected_hash=args.expected_hash,realm=args.realm)
+            else:value=registry.match(read(args.facts),as_of=args.as_of,allow_automatic=args.allow_automatic,session=session,batch=batch,realm=args.realm)
+            print(json.dumps(value,ensure_ascii=False));return 0
+        if args.command=='workbuddy':
+            from .workflow import execute
+            print(json.dumps(execute(args.output,read(args.request)),ensure_ascii=False));return 0
+        if args.command=='source-read':
+            from .source_adapters import read_feishu,read_official,archive_evidence
+            if Path(args.config).resolve()!=store.root/'security/source_config.json':
+                raise Rejected('读取权限和字段映射只能来自宿主管理员保护的security/source_config.json')
+            config=read(args.config)[args.kind]
+            if args.kind=='official_web':value=read_official(args.url,config,identity_evidence=read(args.identity_evidence))
+            else:value=read_feishu(args.kind,config)
+            print(json.dumps(archive_evidence(store.root/'source_evidence',value),ensure_ascii=False));return 0
+        if args.command=='source-status':
+            from .source_adapters import status
+            print(json.dumps(status(read(args.config) if args.config else None),ensure_ascii=False));return 0
+        if args.command=='workbuddy-route':
+            from .workbuddy_router import route,inspect_workbooks
+            value=route(args.message);value['preflight']=inspect_workbooks(args.files) if args.files else None
+            print(json.dumps(value,ensure_ascii=False));return 0
+        if args.command=='batch-brief':
+            from .workbuddy_router import batch_brief
+            print(json.dumps(batch_brief(args.output,args.batch),ensure_ascii=False));return 0
+        if args.command=='d1-sync':
+            from .workbuddy_router import sync_d1
+            print(json.dumps(sync_d1(args.output,args.library,args.batch),ensure_ascii=False));return 0
+        if args.command=='historical-references':
+            from .workbuddy_router import historical_references
+            print(json.dumps(historical_references(args.library,read(args.criteria),args.as_of),ensure_ascii=False));return 0
         if args.command.startswith('knowledge-'):
             from .decision_library import DecisionLibrary
             if args.command=='knowledge-init':
@@ -153,6 +232,11 @@ def main(argv=None):
                 session=load_session(store.root,os.environ.get(args.session_token_env,''))
                 value=service.commit(args.preview_id,confirmed_hash=args.confirmed_hash,explicit_confirmation=args.confirm,
                     reference=args.reference,session=session)
+                if args.library:
+                    from .workbuddy_router import sync_d1
+                    value['knowledge_sync']=sync_d1(store.root,args.library,args.batch)
+                else:
+                    value['knowledge_sync']={'status':'not_requested','automatic_adoption':False}
             elif args.command=='return-events':
                 target=Path(args.file).resolve();Store(target.parent).guard(batch)
                 if target.exists() or target.suffix!='.json':raise Rejected('事件导出须为新的JSON文件')

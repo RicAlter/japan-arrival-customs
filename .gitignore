@@ -16,10 +16,17 @@
 !/docs/REPOSITORY_HYGIENE.md
 /tests/*
 !/tests/test_repository_smoke.py
+!/tests/test_v070_core.py
+!/tests/test_workbuddy_router.py
+!/tests/test_v070_workflow.py
+!/docs/V070_TECHNICAL_DELIVERY.md
 
 # Per-run state, decision libraries, and credentials
 **/runs/
 **/security/trusted_sessions.json
+**/security/
+**/rule_registry.json
+**/source_evidence/
 *.sqlite3
 *.sqlite3-*
 *.db

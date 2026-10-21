@@ -8,7 +8,7 @@
 
 - 0.6.0 包含批次导入、三页精简审核工作簿、回传差异预览/明确确认、版本化最终选择，以及独立 D1 决策库的导入、检索、备份和重建。
 - D1 检索只返回带条件与依据的历史案例候选，**不会批准归类或自动采用税号/税率**。
-- 跨 JAN 规则发现、授权发布和自动归类（D2/D3）尚未实现。
+- 0.7.0-rc.1 已实现 D2 条件候选/时间及商品留出回放、D3 可信授权规则生命周期、只读来源适配与统一自然语言操作路由。D3 生产开关保持关闭；飞书/官网尚未实机接通。
 - 正式外发始终关闭。输出前仍会检查审核、金额、数量、箱号、重量、材质、税号和税率等业务门禁。
 
 ## 安装
@@ -26,13 +26,15 @@ Skill 入口和命令约束见 [SKILL.md](workbuddy/japan-arrival-customs/SKILL.
 
 ## 开发校验
 
-仓库仅保留不依赖业务资料的合成冒烟测试：
+仓库提供不依赖业务资料的技术回归与隔离夹具：
 
 ```powershell
-python -m unittest discover -s tests -p "test_*.py"
+python -B tools/run_v070_tests.py --output C:/ArrivalTestEvidence/0.7.0-rc.1
 ```
 
 历史回归和真实 WorkBuddy 验收只能在受保护的本地资料环境完成；其结果不应提交到本仓库。
+
+0.7.0统一业务调用与安装/回滚见[操作说明](workbuddy/japan-arrival-customs/references/v070-operation.md)；模块技术状态见[交付说明](docs/V070_TECHNICAL_DELIVERY.md)。0.6.0明日测试分支和安装包继续独立冻结，0.7.0仅作为技术候选。
 
 ## 数据与凭据规则
 
