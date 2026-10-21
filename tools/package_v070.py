@@ -2,7 +2,7 @@
 import argparse,hashlib,json,subprocess,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-VERSION='0.7.0-rc.1'
+VERSION='0.7.0-rc.2'
 def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
 def sha(data):return hashlib.sha256(data).hexdigest()
 def main():

@@ -55,8 +55,9 @@ class D2Tests(unittest.TestCase):
         r=report(self.records)['discovery']['candidates'][0]
         self.assertEqual(r['identity_count'],3);self.assertEqual(len(r['support']),3);self.assertFalse(r['automatic_adoption'])
     def test_unknown_condition_is_not_wildcard(self):
-        self.records[0]['decision']['facts']['construction']=''
-        self.assertEqual(report(self.records[:1])['discovery']['candidates'],[])
+        for value in ('','未知','unknown','待确认','*'):
+            self.records[0]['decision']['facts']['construction']=value
+            self.assertEqual(report(self.records[:1])['discovery']['candidates'],[])
     def test_conflicting_targets_are_quarantined(self):
         self.records[1]['decision']['human_final']['classification_code']='TEST-DIFFERENT'
         r=report(self.records)['discovery'];self.assertEqual(len(r['conflicts']),1)

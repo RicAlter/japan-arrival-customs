@@ -5,6 +5,7 @@ from .declaration_decisions import FACT_FIELDS, FINAL_FIELDS, validate_values
 
 CONDITIONS = tuple(sorted(FACT_FIELDS | {'jurisdiction', 'origin_conditions', 'trade_conditions', 'tariff_schedule_version'}))
 TARGET = ('declaration_material', 'classification_code', 'duty_rate', 'vat_rate', 'tariff_schedule_version')
+UNKNOWN = {'unknown','未知','待确认','未确认','不详','null','none','n/a','na','?','*'}
 
 def timestamp(value):
     try:
@@ -23,6 +24,8 @@ def contract(decision):
     conditions = {k: facts.get(k) if k in FACT_FIELDS else final.get(k) for k in CONDITIONS}
     if any(not isinstance(v, str) or not v.strip() for v in conditions.values()):
         raise Rejected('归类条件缺失；未知不能作为通配')
+    if any(v.strip().casefold() in UNKNOWN for v in conditions.values()):
+        raise Rejected('归类条件仍是未知或占位文字，不能形成可执行范围')
     if any(not isinstance(final.get(k), str) or not final[k].strip() for k in FINAL_FIELDS):
         raise Rejected('申报材质、税号、税率及有效条件须完整')
     validate_values({**facts, **final})
