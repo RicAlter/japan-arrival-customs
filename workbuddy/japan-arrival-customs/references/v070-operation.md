@@ -1,10 +1,10 @@
-# 0.7.0-rc.2 操作与部署
+# 0.7.0-rc.3 操作与部署
 
 本版交付核心技术候选，L1以本地回归证据为准；WorkBuddy实测/L2、真实业务/L3、正式生产/L4单独验收。明日保底0.6.0包与分支不被本版替换。
 
 ## 安装与依赖
 
-将ZIP中的japan-arrival-customs目录安装为一个WorkBuddy Skill，目录根须可见SKILL.md。保留scripts、references及requirements.txt的相对位置。使用WorkBuddy宿主提供的Python执行scripts/run.py；安装依赖命令为python -m pip install -r requirements.txt。依赖openpyxl==3.1.5，sqlite3/urllib为标准库。要求Python3.11及以上，本地验收Python3.14；其他宿主Python版本仍须实测。
+安装ZIP根直接包含SKILL.md、scripts、references及requirements.txt，不含仓库外壳；在WorkBuddy添加本地Skill时选择安装ZIP。手工解压则放入一个japan-arrival-customs目录，保持相对位置。使用WorkBuddy宿主提供的Python执行scripts/run.py；安装依赖命令为python -m pip install -r requirements.txt。依赖openpyxl==3.1.5，sqlite3/urllib为标准库。要求Python3.11及以上，本地验收Python3.14；其他宿主Python版本仍须实测。
 
 批次目录、交付目录、原始输入目录、D1库各自独立，均在Skill安装目录之外。升级安装仅换源码，保留原运行目录；业务运行不修改代码、结构或规则。trusted_sessions.json、rule_policy.json位于批次目录security下，由宿主管理员保护，不属于附件上传区。不能从Excel、自然语言、OS用户名或本文件创建真实身份。
 
@@ -24,7 +24,30 @@
 python scripts/run.py --output C:/ArrivalRuntime/batches workbuddy --request C:/ArrivalRequests/request.json
 ```
 
-附件通过固定单元格结构识别；同类多文件、多个箱重页或未知文件要求澄清。新输入重建批次，原批审核不覆盖；相同输入恢复已有批次。完整原表和箱重齐全时自动建立未签核合同，仍须真实D07/D08签核。仅第3步文件可预导入，不能冒充审核资料齐备。
+附件通过固定单元格结构识别；同类多文件、多个箱重页或未知文件要求澄清。真实主入口要求日方原表、权威金额表和箱重齐备，缺项直接列待办。未签核仅待审/草稿；CLI import-stage3只作预导入，不能提交业务审核。相同完整合同及宿主配置恢复原批；新签核/源版本生成新批，不修改已提交事实。
+
+## 首次配置与合同（rc.3）
+
+业务不编辑合同JSON、快照或身份配置。WorkBuddy把对话中的明确单位转换为受控settings，Python生成不可覆盖的合同文件；文件路径/哈希由程序返回并串接。先发送“检查这批能否开始”，可附files或batch、library、session_token_env，一次列出todos。身份配置失效也只显示待办，不代签。
+
+仅可信管理员在独立批次目录的security/runtime.json配置execution_mode（business或synthetic_technical_test）、quantity_units（本环境已确认的数量单位清单，不提供默认业务口径）、responsibilities（business/identity/amount/material/packaging/customs/logistics/release名单，未知为null）、signing_key_env（宿主随机签核密钥的环境变量名）。密钥至少32字符，不写日志或请求。security/trusted_sessions.json继续用原B2格式：sessions中含principal、roles、mode、credential_ref、token_sha256、expires_at。签核人须有contract角色，审核人须同时符合D08职责与可信会话角色。配置及环境只能由宿主/管理员维护，必须用OS ACL与上传、普通用户和Agent隔离；本地文件不是WorkBuddy SSO服务，实际宿主注入和隔离仍待验证。安装包不提供可用身份/令牌/密钥，也不自动配置。
+
+数量单位在已批准清单内仍须业务明确本票口径，不按文件名、名称或价格猜测；清单未确认由管理员联系业务，不由Agent扩充。业务职责缺失只阻断相应域。配置或模式变更后旧批保持只读，重新准备签核新批；合成记录永不升级为真实审核。签核证据绑定合同全部内容、宿主策略及执行模式，用宿主密钥封存，外部JSON声称已批准也不能替代签核。
+
+WorkBuddy依次构造以下请求，均调用同一个workbuddy入口：
+
+```json
+{"message":"准备这批业务合同","files":["C:/ArrivalInput/stage3.xlsx","C:/ArrivalInput/japanese.xlsx"]}
+{"message":"填写这批业务合同","contract":"<上一步file>","settings":{"authority_quantity_unit":"<业务明确的单位>","invoice_quantity_unit":"<业务明确的采购单位>"}}
+{"message":"签核这批业务合同","contract":"<填写结果file>","confirmed_hash":"<填写结果contract_hash>","confirm":true,"reference":"<实际签核依据>","session_token_env":"<宿主提供的会话变量名>"}
+{"message":"处理这批日本到货","contract":"<签核结果file>"}
+```
+
+填写前先问清默认计价单位适用范围；混合单位可在settings.row_quantity_units按第3步原始行号提供例外。不得让业务复制改写JSON；上述是Agent传输合同，不是新的业务表格。签核前必须展示summary及来源版本，并取得明确确认。正式CLI对应init-contract → fill-contract --authority-unit ... --invoice-unit ... → sign-contract --session-token-env ... --confirmed-hash ... --confirm --evidence ... → import-batch。签核不再接受actor/permissions自报身份。init/import/填写重跑幂等；已签核合同不原地编辑。
+
+计价单位不是换算系数。盒规继续走原packaging审核：先可信确认身份，再“预览这批单位换算”，提供batch、row和conversion（source_unit/declaration_unit/internal_unit、declaration_factor、pieces_per_box、internal_quantity、internal_boxes、source）；展示差异后“确认这批单位换算”，提供preview_id/confirmed_hash/confirm/reference/session_token_env。Python复用原换算校验和不可变版本/CAS，数量比例不符、来源缺失、旧预览及权限不足均拒绝。特殊补录或身份/金额审核使用原apply，但现在只接受--session-token-env，request不含actor/roles/permissions；敏感申报材质/税号税率仍必须用B2回传。
+
+业务启动预检报告解释器及openpyxl版本、原件、合同与单位、身份、输出和D1库，不替代后续逐行/分域校验。ready_for_review_submission仅表示配置具备提交条件，不是审核通过；D1暂不可用允许先保存B2，必须显示待同步。两份文件始终为草稿，formal_output_allowed恒为false。旧scripts/workbuddy_integration.py为无可信身份的历史预演，rc.3不再执行该旧鉴权路径；按本节通过真实宿主运行新合同和Excel流程。
 
 “生成这批到货的审核表”：请求增加batch、material_history、file；可提供recommendations/official_materials的现有JSON文件，或source_evidence的已归档官网证据路径列表。只生成总览、问题、明细三页，业务仍改问题页两列。
 

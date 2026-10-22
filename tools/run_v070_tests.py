@@ -11,7 +11,7 @@ from arrival_core.core import digest
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);args=parser.parse_args()
     out=Path(args.output).resolve();out.mkdir(parents=True,exist_ok=True)
-    modules=['test_repository_smoke','test_v070_core','test_workbuddy_router','test_v070_workflow']
+    modules=['test_repository_smoke','test_v070_core','test_workbuddy_router','test_v070_workflow','test_business_setup']
     suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(m) for m in modules if (ROOT/'tests'/(m+'.py')).exists())
     result=unittest.TextTestRunner(verbosity=2).run(suite)
     manifest={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
@@ -37,7 +37,7 @@ def main():
         atomic_json(out/'D3_TEST_ONLY_report.json',{'published_rule':rule,'match':case.match(),
                     'production_automatic_enabled':False,'technical_only':True,
                     'formal_learning_samples':case.library.statistics(as_of=as_of)['formal_learning_samples']})
-    finally:case.tearDown()
+    finally:case.tearDown();case.doCleanups()
     from test_v070_workflow import WorkflowTests
     flow=WorkflowTests();flow.setUp()
     try:
@@ -50,6 +50,7 @@ def main():
             shutil.copyfile(path,target);retained.append({'file':str(target),'sha256':hashlib.sha256(target.read_bytes()).hexdigest()})
         batch=__import__('arrival_core.storage',fromlist=['Store']).Store(flow.output).load(flow.batch_id)
         atomic_json(out/'workflow_TEST_ONLY_receipt.json',{'stage':'B2_commit_D1_sync_two_drafts',
+                    'controlled_contract_setup':flow.setup_receipt,
                     'batch_id':batch['id'],'revision':batch['revision'],'state_hash':digest(batch),
                     'decision_events':[{k:e[k] for k in ('event_id','type','decision_id','decision_version')} for e in batch.get('decision_events',[])],
                     'artifacts':retained,'authority':'synthetic_technical_test','real_business_approval':False})

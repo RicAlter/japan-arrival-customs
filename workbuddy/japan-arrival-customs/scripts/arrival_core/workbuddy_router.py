@@ -7,7 +7,10 @@ from .storage import Store
 ROUTES=(('生成海关和内部到货表','render-drafts'),('生成海关和内部到货','render-drafts'),
  ('查看这批还有哪些问题','status'),('这是我修改后的审核表，继续处理','return-preview'),
  ('生成这批到货的审核表','return-export'),('生成审核表','return-export'),('处理这批日本到货','import-stage3'),
- ('确认提交这批审核','return-commit'),('应用已授权归类规则','rule-apply'))
+ ('确认提交这批审核','return-commit'),('应用已授权归类规则','rule-apply'),
+ ('准备这批业务合同','prepare-contract'),('填写这批业务合同','fill-contract'),
+ ('签核这批业务合同','sign-contract'),('检查这批能否开始','preflight'),
+ ('预览这批单位换算','preview-conversion'),('确认这批单位换算','confirm-conversion'))
 def route(message):
     text=''.join(str(message).split())
     matches=[command for phrase,command in ROUTES if phrase in text]

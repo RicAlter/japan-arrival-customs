@@ -57,7 +57,7 @@ def load_session(root, token):
                    entry['expires_at'], str(root), digest(config), token_hash, _SEAL)
 
 
-def authorize(root, session, batch, role):
+def validate_session(root, session, execution_mode):
     if not isinstance(session, Session) or session._seal is not _SEAL or session.root != str(Path(root).resolve()):
         raise Rejected('禁止请求数据伪造可信执行身份')
     try:
@@ -66,10 +66,18 @@ def authorize(root, session, batch, role):
         raise Rejected('可信配置读取失败') from exc
     if digest(config) != session.config_hash or datetime.fromisoformat(session.expires_at) <= datetime.now(timezone.utc):
         raise Rejected('可信会话已失效或权限配置已变化')
-    if session.mode == 'synthetic_technical_test' and batch.get('execution_mode') != session.mode:
+    if session.mode == 'synthetic_technical_test' and execution_mode != session.mode:
         raise Rejected('合成权限只能用于明确标记的技术测试批次')
-    if session.mode == 'business' and batch.get('execution_mode') == 'synthetic_technical_test':
+    if session.mode == 'business' and execution_mode == 'synthetic_technical_test':
         raise Rejected('技术测试批次不能升级为真实业务审核')
+
+
+def authorize(root, session, batch, role):
+    from .business_setup import require_contract, require_managed_review
+    require_contract(batch)
+    validate_session(root,session,batch.get('execution_mode'))
+    if batch.get('runtime_context'):
+        require_managed_review(root,batch)
     permissions = effective_permissions(batch, {session.principal: list(session.roles)})
     require_actor(session.principal, role, permissions)
     return permissions

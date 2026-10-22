@@ -42,10 +42,40 @@ def execute(root,request):
     allowed={'message','files','batch','currency','quantity_unit','contract','material_history','file',
              'operations','recommendations','official_materials','preview_id','confirmed_hash','confirm',
              'reference','session_token_env','library','criteria','as_of','registry','source_config','source_evidence',
-             'facts','row','expected_hash','realm'}
+             'facts','row','expected_hash','realm','settings','conversion'}
     if not isinstance(request,dict) or set(request)-allowed: raise Rejected('请求字段未知')
     intent=route(request.get('message','')); command=intent['command']; files=request.get('files',[])
     store=Store(root); batch_id=request.get('batch'); value={}
+    if command in ('prepare-contract','fill-contract','sign-contract','preflight'):
+        from .business_setup import save_contract,fill_contract,sign_filled_contract,preflight
+        contract=json.loads(Path(request['contract']).read_text(encoding='utf-8-sig')) if request.get('contract') else None
+        if command=='prepare-contract':
+            from .contracts import create_contract
+            inspection=inspect_workbooks(files)
+            roles={k:[f for f in inspection['files'] if k in f['roles']] for k in ('invoice','stage3_authority','weight')}
+            missing=[k for k,v in roles.items() if not v]
+            if missing or not inspection['ready']:
+                return {'status':'needs_input','missing':missing,'preflight':inspection,'formal_output':False}
+            weight=roles['weight'][0]
+            if len(weight['weight_sheets'])!=1: raise Rejected('存在多个箱重页，请提供唯一明确的箱重资料')
+            value=save_contract(root,create_contract(roles['invoice'][0]['path'],roles['stage3_authority'][0]['path'],weight['path'],weight['weight_sheets'][0]))
+        elif command=='fill-contract':
+            if not contract: raise Rejected('先准备本批业务合同，填写操作引用程序返回的合同文件，不编辑JSON')
+            value=fill_contract(root,contract,request.get('settings'))
+        else:
+            import os
+            from .return_auth import load_session
+            if command=='preflight':
+                try:session=load_session(root,os.environ.get(request['session_token_env'],'')) if request.get('session_token_env') else None
+                except Rejected:session=None
+            else:session=load_session(root,os.environ.get(request['session_token_env'],'')) if request.get('session_token_env') else None
+            if command=='sign-contract':
+                if not contract: raise Rejected('先准备并填写本批合同')
+                value=sign_filled_contract(root,contract,session=session,reference=request.get('reference'),confirmed_hash=request.get('confirmed_hash'),confirm=request.get('confirm'))
+            else:
+                batch=store.load(batch_id) if batch_id else None
+                value=preflight(root,files=files,contract=contract,batch=batch,library=request.get('library'),session=session)
+        return {'status':'ok','controlled_command':command,'result':value,'formal_output':False}
     if command=='return-preview':
         file=request.get('file') or (files[0] if len(files)==1 else None)
         if not file: raise Rejected('请提供一份修改后的审核Excel')
@@ -76,35 +106,35 @@ def execute(root,request):
             value={'batch':batch_id,'resumed':True}
         else:
             if request.get('contract'):
-                from .batchflow import import_batch
                 contract=json.loads(Path(request['contract']).read_text(encoding='utf-8-sig'))
-                batch=import_batch(contract)
             else:
                 preflight=inspect_workbooks(files)
                 if not preflight['ready']: return {'status':'needs_input','preflight':preflight,'formal_output':False}
                 roles={kind:[f for f in preflight['files'] if kind in f.get('roles',[])] for kind in ('stage3_authority','invoice','weight')}
                 if roles['invoice'] and roles['weight']:
                     from .contracts import create_contract
-                    from .batchflow import import_batch
                     weight=roles['weight'][0]
                     if len(weight['weight_sheets'])!=1: raise Rejected('存在多个箱重工作表，须明确选择')
                     contract=create_contract(roles['invoice'][0]['path'],roles['stage3_authority'][0]['path'],weight['path'],weight['weight_sheets'][0])
-                    batch=import_batch(contract)  # unsigned by design; draft only
                 else:
-                    from .importer import import_stage3
-                    if request.get('currency')!='JPY': raise Rejected('请明确本票币种JPY；未知单位保留空值')
-                    batch=import_stage3(roles['stage3_authority'][0]['path'],currency='JPY',quantity_unit=request.get('quantity_unit',''))
-            batch_id=batch['id']
-            if (store.folder(batch_id)/'head.json').exists():
-                current=store.load(batch_id);check_sources(current);value={'batch':batch_id,'resumed':True}
-            else:
-                store.save(batch);value={'batch':batch_id,'resumed':False}
+                    return {'status':'needs_input','missing':[k for k in ('invoice','weight') if not roles[k]],
+                            'notice':'真实业务主入口须完整合同。单独第3步文件仅支持CLI预导入，不可替代业务导入。','formal_output':False}
+            from .business_setup import managed_import
+            value=managed_import(root,contract);batch_id=value['batch']
     else:
         if not batch_id:
             batches=[p.parent.name for p in store.root.glob('*/head.json') if len(p.parent.name)==24]
             if len(batches)!=1: raise Rejected('无法唯一恢复批次，请明确本批记录')
             batch_id=batches[0]
         if command=='status': value=describe(root,batch_id)
+        elif command in ('preview-conversion','confirm-conversion'):
+            from .business_setup import conversion_preview,conversion_commit
+            if command=='preview-conversion':value=conversion_preview(root,batch_id,request.get('row'),request.get('conversion'))
+            else:
+                import os
+                from .return_auth import load_session
+                session=load_session(root,os.environ.get(request.get('session_token_env',''),''))
+                value=conversion_commit(root,batch_id,request.get('preview_id'),confirmed_hash=request.get('confirmed_hash'),confirm=request.get('confirm'),session=session,reference=request.get('reference'))
         elif command=='return-export':
             if not store.load(batch_id).get('input_contract'):
                 raise Rejected('生成精简审核表还需要日方原表和明确箱重工作表；补齐文件后按完整来源重新建批')

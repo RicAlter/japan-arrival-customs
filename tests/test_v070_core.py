@@ -202,6 +202,14 @@ class SourceTests(unittest.TestCase):
 class D1LifecycleIntegration(unittest.TestCase):
     """Actual D1 bundles/commits feed D2 then D3; authority stays TEST-only."""
     def setUp(self):
+        # The replay fixture is explicitly dated 2026-10-21. Keep event/import
+        # clocks on that date too; real wall-clock rollover must not manufacture
+        # future evidence or require weakening production time cutoffs.
+        import itertools
+        tick=itertools.count()
+        def fixture_now():return (datetime(2026,10,21,tzinfo=timezone.utc)+timedelta(seconds=next(tick))).isoformat()
+        for module in ('core','declaration_decisions','decision_library','rule_registry'):
+            clock=patch('arrival_core.'+module+'.now',side_effect=fixture_now);clock.start();self.addCleanup(clock.stop)
         D3Tests.setUp(self);self.mock.stop()
         config=json.loads((self.store.root/'security/trusted_sessions.json').read_text(encoding='utf-8'))
         config['purpose']='authorized_test_fixture';config['sessions'][0]['mode']='business'

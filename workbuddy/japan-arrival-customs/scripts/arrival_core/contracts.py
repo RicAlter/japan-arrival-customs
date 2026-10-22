@@ -31,6 +31,10 @@ def create_contract(invoice, authority, weights, weight_sheet, *, customs_refere
 
 
 def validate_contract(contract):
+    if not isinstance(contract, dict) or not isinstance(contract.get('sources'), dict):
+        raise Rejected('缺少有效输入合同或来源清单；请通过init-contract/准备这批业务合同生成，不手工拼写JSON')
+    if not isinstance(contract.get('responsibilities'),dict) or not isinstance(contract.get('row_quantity_units',{}),dict):
+        raise Rejected('合同职责或逐行单位格式无效；请重新通过受控合同填写生成')
     if contract.get("schema") != "japan-arrival/contract-1" or contract.get("purpose") != "controlled_test_draft":
         raise Rejected("不支持的首票合同或输出用途")
     if contract.get("currency") != "JPY" or contract.get("weight_unit") != "KG":
@@ -40,6 +44,8 @@ def validate_contract(contract):
     if not {"invoice", "authority", "weights"} <= set(contract["sources"]) or set(contract["sources"]) - set(expected):
         raise Rejected("源合同必须包含日方原表、第3步金额表和明确的箱重表")
     for key, item in contract["sources"].items():
+        if not isinstance(item,dict) or not all(item.get(k) for k in ('path','sha256','kind')):
+            raise Rejected('合同源文件记录不完整：'+key+'；请重新准备原始Excel合同')
         if item.get("kind") != expected[key]:
             raise Rejected("模板类型不匹配: " + key)
         path = Path(item["path"]).resolve(strict=True)

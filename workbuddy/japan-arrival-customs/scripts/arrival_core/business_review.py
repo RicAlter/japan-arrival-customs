@@ -6,6 +6,8 @@ from .core import digest, validate
 from .storage import check_sources
 
 def identity_checklist(batch):
+    from .business_setup import require_contract
+    require_contract(batch)
     validate(batch);check_sources(batch)
     source=batch['input_contract']['sources']['invoice']
     _,originals=read_stage(source['path'],1)
@@ -39,7 +41,8 @@ def identity_checklist(batch):
             'notice':'填写清单仅收集人工判断；D06身份映射合同未批准，不能据此自动改码或解除原表身份争议。'}
 
 def input_decisions(batch):
-    contract=batch['input_contract'];rows=[]
+    from .business_setup import require_contract
+    contract=require_contract(batch);rows=[]
     def add(key,scope,observed,action,owner,impact):
         rows.append([key,scope,observed,action,owner,impact,None,None,None,None])
     add('D07-01','日方采购单位',contract.get('invoice_quantity_unit'),

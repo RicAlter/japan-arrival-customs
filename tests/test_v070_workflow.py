@@ -16,6 +16,13 @@ class WorkflowTests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
         self.delivery=self.root/'delivery';self.delivery.mkdir()
         self.inputs=self.root/'inputs';self.inputs.mkdir();self.output=self.root/'store'
+        from arrival_core.contracts import ROLES
+        (self.output/'security').mkdir(parents=True)
+        # Administrator-only fixture provisioning, never a business request.
+        atomic_json(self.output/'security/runtime.json',{'execution_mode':'synthetic_technical_test',
+                    'quantity_units':['件','盒','套'],'responsibilities':{role:['TECH'] for role in ROLES},
+                    'signing_key_env':'TECH_SIGNING_KEY'})
+        self.env=patch.dict(os.environ,{'TECH_SIGNING_KEY':'TECH-ONLY-NOT-PRODUCTION-KEY-000001'});self.env.start()
         self.stage=self.inputs/'any-name.xlsx'
         w=Workbook();s=w.active
         for cell,value in {'C1':'ProductCode(JANCode)','J1':'Qty','K1':'UnitPrice(日本JPY)','L1':'Subtotal',
@@ -30,27 +37,39 @@ class WorkflowTests(unittest.TestCase):
         s['C2']='TEST0001';s['F2']='TEST商品';s['E2']='v1';s['J2']='PVC、铁、纸等';w.save(self.history);w.close()
         self.imported=execute(self.output,{'message':'处理这批日本到货','files':[str(self.stage),str(self.invoice)],'currency':'JPY'})
         self.batch_id=self.imported['batch']['batch_id']
-    def tearDown(self):self.tmp.cleanup()
+    def tearDown(self):self.env.stop();self.tmp.cleanup()
     def export(self):
         return execute(self.output,{'message':'生成这批到货的审核表','batch':self.batch_id,'material_history':str(self.history),'file':str(self.delivery/'review.xlsx')})
     def configure_synthetic(self):
-        store=Store(self.output);batch=store.load(self.batch_id)
-        # New technical batch from an unchanged source, never upgrade a stored revision.
-        synthetic=copy.deepcopy(batch);synthetic['id']=digest(['explicit-synthetic',batch['id']])[:24]
-        from arrival_core.contracts import sign_contract,ROLES
-        ctr=synthetic['input_contract'];ctr['responsibilities']={role:['TECH'] for role in ROLES}
-        ctr.update(authority_quantity_unit='件',invoice_quantity_unit='件')
-        synthetic['input_contract']=sign_contract(ctr,actor='TECH',evidence='TEST ONLY D08',permissions={'TECH':['contract']})
-        synthetic['execution_mode']='synthetic_technical_test';store.save(synthetic);self.batch_id=synthetic['id']
-        config={'purpose':'synthetic_technical_test','sessions':[{'principal':'TECH','roles':['material','customs'],
+        config={'purpose':'synthetic_technical_test','sessions':[{'principal':'TECH','roles':['contract','business','identity','amount','packaging','material','customs'],
                 'mode':'synthetic_technical_test','credential_ref':'TECH-NOT-REAL-D08',
                 'token_sha256':hashlib.sha256(b'TECH-ONLY').hexdigest(),
                 'expires_at':(datetime.now(timezone.utc)+timedelta(days=1)).isoformat()}]}
-        (self.output/'security').mkdir();atomic_json(self.output/'security/trusted_sessions.json',config)
+        atomic_json(self.output/'security/trusted_sessions.json',config)
+        prepared=execute(self.output,{'message':'准备这批业务合同','files':[str(self.stage),str(self.invoice)]})['result']
+        filled=execute(self.output,{'message':'填写这批业务合同','contract':prepared['file'],
+                    'settings':{'authority_quantity_unit':'件','invoice_quantity_unit':'件'}})['result']
+        with patch.dict(os.environ,{'TECH_SESSION':'TECH-ONLY'}):
+            request={'message':'签核这批业务合同','contract':filled['file'],'confirm':True,
+                    'confirmed_hash':filled['contract_hash'],'reference':'TEST ONLY D08','session_token_env':'TECH_SESSION'}
+            signed=execute(self.output,request)['result']
+            replay=execute(self.output,request)['result']
+            self.assertEqual(replay['file'],signed['file']);self.assertTrue(replay['replayed'])
+        imported=execute(self.output,{'message':'处理这批日本到货','contract':signed['file']})
+        self.batch_id=imported['batch']['batch_id']
+        self.setup_receipt={'authority':'synthetic_technical_test','business_edited_JSON_or_snapshot':False,
+                            'host_configuration':'administrator_fixture_only',
+                            'steps':['prepare-contract','fill-contract','sign-contract','import-batch'],
+                            'prepared_hash':prepared['contract_hash'],'filled_hash':filled['contract_hash'],
+                            'signed_hash':signed['contract_hash'],'sign_retry_reused_file':replay['file']==signed['file'],
+                            'batch_id':self.batch_id,'formal_output_authorized':False}
     def modified_preview(self):
-        self.export();w=load_workbook(self.delivery/'review.xlsx');s=w['待处理问题']
+        exported=self.export()
+        registration=json.loads((self.output/'exports'/(exported['result']['export_id']+'.json')).read_text(encoding='utf-8'))
+        material_ids={i['id'] for i in registration['issues'] if i['domain']=='material'}
+        w=load_workbook(self.delivery/'review.xlsx');s=w['待处理问题']
         for row in s.iter_rows(min_row=7):
-            if '材质' in str(row[2].value) or '材质' in str(row[3].value):
+            if str(row[0].value).split('｜')[0] in material_ids:
                 row[5].value='补充资料';row[6].value='范围=本组全部；申报材质=TEST人工草稿塑料；原因=TEST核实，待审';break
         else:raise AssertionError('material question missing')
         w.save(self.delivery/'modified.xlsx');w.close()
@@ -84,6 +103,9 @@ class WorkflowTests(unittest.TestCase):
         with patch.dict(os.environ,{'TECH_SESSION':'TECH-ONLY'}):
             saved=execute(self.output,req);again=execute(self.output,req)
         self.assertTrue(again['result']['replayed']);self.assertTrue(saved['result']['knowledge_sync']['batch_saved'])
+        self.assertEqual(len(saved['result']['decision_event_ids']),1)
+        self.assertEqual(saved['result']['knowledge_sync']['knowledge']['received_events'],1)
+        self.assertEqual(lib.import_batch(self.batch_id)['new_events'],0)
         self.assertEqual(lib.statistics(as_of='2026-10-21')['formal_learning_samples'],0)
         direct=invoke(self.output,'render-drafts','--batch',self.batch_id)
         pair=execute(self.output,{'message':'生成海关和内部到货表','batch':self.batch_id})

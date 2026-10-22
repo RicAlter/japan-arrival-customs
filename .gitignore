@@ -19,6 +19,7 @@
 !/tests/test_v070_core.py
 !/tests/test_workbuddy_router.py
 !/tests/test_v070_workflow.py
+!/tests/test_business_setup.py
 !/docs/V070_TECHNICAL_DELIVERY.md
 
 # Per-run state, decision libraries, and credentials

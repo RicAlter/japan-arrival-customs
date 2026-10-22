@@ -71,8 +71,14 @@ def main(argv=None):
     contract.add_argument("--customs-reference")
     contract.add_argument("--internal-reference")
     sign = sub.add_parser("sign-contract")
-    for name in ("contract", "actor", "evidence", "permissions"):
+    for name in ("contract", "evidence", "session-token-env", "confirmed-hash"):
         sign.add_argument("--"+name, required=True)
+    sign.add_argument('--confirm',action='store_true')
+    fill=sub.add_parser('fill-contract',help='受控填写单位；不直接编辑合同或快照')
+    fill.add_argument('--contract',required=True);fill.add_argument('--authority-unit',required=True);fill.add_argument('--invoice-unit',required=True)
+    pre=sub.add_parser('preflight',help='真实业务启动检查；不批准审核')
+    pre.add_argument('--batch');pre.add_argument('--contract');pre.add_argument('--files',nargs='*',default=[])
+    pre.add_argument('--library');pre.add_argument('--session-token-env')
     incoming = sub.add_parser("import-batch"); incoming.add_argument("--contract", required=True)
     for name in ("review-package", "status", "apply", "customs-preview", "calculation-preview", "check-amounts",
                  "professional-queue", "group-review-package", "identity-checklist", "export-intermediate", "export-compact", "reconcile-logistics", "reconcile-quantities", "render-drafts", "formal-export",
@@ -80,7 +86,7 @@ def main(argv=None):
         cmd = sub.add_parser(name); cmd.add_argument("--batch", required=True)
         if name == "apply":
             cmd.add_argument("--request", required=True)
-            cmd.add_argument("--permissions", required=True, help="本机可信管理员维护的审核人角色配置")
+            cmd.add_argument('--session-token-env',required=True,help='只引用宿主会话环境变量；不能用actor/permissions自报身份')
         if name == "check-amounts":
             cmd.add_argument("--proposed", required=True, help="完整的技术行ID到待核对金额的JSON映射")
         if name == "render-drafts":
@@ -109,6 +115,16 @@ def main(argv=None):
     args = parser.parse_args(argv)
     store = Store(args.output)
     try:
+        if args.command in ('fill-contract','preflight'):
+            from .business_setup import fill_contract,preflight
+            if args.command=='fill-contract':value=fill_contract(store.root,read(args.contract),{'authority_quantity_unit':args.authority_unit,'invoice_quantity_unit':args.invoice_unit})
+            else:
+                import os
+                from .return_auth import load_session
+                try:session=load_session(store.root,os.environ.get(args.session_token_env,'')) if args.session_token_env else None
+                except Rejected:session=None
+                value=preflight(store.root,files=args.files,contract=read(args.contract) if args.contract else None,batch=store.load(args.batch) if args.batch else None,library=args.library,session=session)
+            print(json.dumps(value,ensure_ascii=False));return 0
         if args.command in ('d2-report','d2-replay'):
             from .decision_library import DecisionLibrary
             from .d2_candidates import analyze_library
@@ -159,6 +175,10 @@ def main(argv=None):
         if args.command.startswith('knowledge-'):
             from .decision_library import DecisionLibrary
             if args.command=='knowledge-init':
+                from .business_setup import runtime
+                mode=runtime(store.root)['execution_mode']
+                expected='business' if mode=='business' else 'synthetic'
+                if args.source_kind!=expected:raise Rejected('D1来源类型必须与可信运行环境一致；不能将技术库标为真实业务库')
                 library=DecisionLibrary.create(args.library,source_root=args.output,source_kind=args.source_kind)
                 value={'library':str(library.root),'created':True,'source_kind':args.source_kind}
             elif args.command=='knowledge-restore':
@@ -175,39 +195,38 @@ def main(argv=None):
                 else:value=library.upgrade()
             print(json.dumps(value,ensure_ascii=False));return 0
         if args.command in ("init-contract", "sign-contract"):
-            from .contracts import create_contract, sign_contract
+            from .contracts import create_contract
+            from .business_setup import save_contract,sign_filled_contract
             if args.command == "init-contract":
                 value = create_contract(args.invoice,args.authority,args.weights,args.weight_sheet,
                                         customs_reference=args.customs_reference,internal_reference=args.internal_reference)
             else:
-                value = sign_contract(read(args.contract),actor=args.actor,evidence=args.evidence,permissions=read(args.permissions))
-            # Reuse the same source/output path guard, without creating a business state.
-            from .core import new_batch, new_row
-            src = next(iter(value["sources"].values()))
-            guard_row = new_row(dict(src,sheet="contract-path-guard",row=0,stage=3),{},currency="JPY",quantity_unit="")
-            store.guard(new_batch([guard_row],list(value["sources"].values())))
-            store.root.mkdir(parents=True,exist_ok=True)
-            target = store.root/("contract-"+digest(value)[:24]+".json")
-            if target.exists(): raise Rejected("合同输出已存在，拒绝覆盖")
-            atomic_json(target,value)
-            print(json.dumps({"file":str(target),"contract_hash":digest(value)},ensure_ascii=False))
+                import os
+                from .return_auth import load_session
+                value=sign_filled_contract(store.root,read(args.contract),session=load_session(store.root,os.environ.get(args.session_token_env,'')),reference=args.evidence,confirmed_hash=args.confirmed_hash,confirm=args.confirm)
+                print(json.dumps(value,ensure_ascii=False));return 0
+            print(json.dumps(save_contract(store.root,value),ensure_ascii=False))
             return 0
         if args.command == "import-batch":
-            from .batchflow import import_batch
-            batch = import_batch(read(args.contract)); folder=store.save(batch)
-            print(json.dumps({"batch":batch["id"],"rows":len(batch["rows"]),"folder":str(folder)},ensure_ascii=False))
+            from .business_setup import managed_import
+            print(json.dumps(managed_import(store.root,read(args.contract)),ensure_ascii=False))
             return 0
         if args.command == "import-stage3":
             batch = import_stage3(args.source, currency=args.currency, quantity_unit=args.quantity_unit)
             if args.p0_evidence:
                 batch = attach_p0_findings(batch, args.p0_evidence)
             folder = store.save(batch)
-            print(json.dumps({"batch": batch["id"], "rows": len(batch["rows"]), "folder": str(folder)}, ensure_ascii=False))
+            print(json.dumps({"batch": batch["id"], "rows": len(batch["rows"]), "folder": str(folder),
+                              'purpose':'pre_import_only','business_review_allowed':False,
+                              'next_step':'补齐原始表/箱重表后init-contract → fill-contract → sign-contract → import-batch；不可在快照补造input_contract'}, ensure_ascii=False))
             return 0
         batch = store.load(args.batch)
         check_sources(batch)
         folder = store.folder(args.batch)
         if args.command.startswith('return-'):
+            from .business_setup import require_contract,require_managed_review
+            if args.command in ('return-export','return-preview','return-commit','return-lock'):require_contract(batch)
+            if args.command in ('return-commit','return-lock'):require_managed_review(store.root,batch)
             from .excel_return import ReturnService,decision_event_stream
             service=ReturnService(store.root)
             if args.command=='return-export':
@@ -251,10 +270,17 @@ def main(argv=None):
             print(json.dumps(value,ensure_ascii=False));return 0
         if args.command == "apply":
             req = read(args.request)
+            from .business_setup import require_managed_review
+            require_managed_review(store.root,batch)
+            if any(k in req for k in ('actor','permissions','execution_mode','roles')):raise Rejected('身份/权限/模式只能来自可信宿主，不接受请求自报')
             if req["state_hash"] != digest(batch):
                 raise Rejected("请求版本已过期")
-            from .contracts import effective_permissions
-            common = {"actor": req["actor"], "evidence": req["evidence"], "permissions": effective_permissions(batch,read(args.permissions))}
+            import os
+            from .return_auth import load_session,authorize
+            session=load_session(store.root,os.environ.get(args.session_token_env,''))
+            roles={'identity':'identity','price':'amount','material':'material','packaging':'packaging','tax':'customs'}
+            role=roles.get(req.get('domain') or req.get('package',{}).get('domain'),'business')
+            common = {"actor": session.principal, "evidence": req["evidence"], "permissions": authorize(store.root,session,batch,role)}
             if req["action"] == "supplement":
                 updated = supplement(batch, req["row_id"], req["values"], **common)
             elif req["action"] == "supplement-group":

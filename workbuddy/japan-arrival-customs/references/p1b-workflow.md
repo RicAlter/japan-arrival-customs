@@ -10,14 +10,15 @@
 python scripts/run.py --output <原件目录之外的独立目录> init-contract --invoice <日方原表> --authority <第3步表> --weights <箱重文件> --weight-sheet <明确工作表名> --customs-reference <可选第5步历史表> --internal-reference <可选第6步历史表>
 ```
 
-合同生成时锁定源路径/SHA、模板类型和表名。JPY、KG是当前KMT表头明确的观察单位，不代表本票已签核。数量单位和实际审核人均为null，不能填“默认件”、测试人员、未知/待确认占位词。可由业务逐商品填写row_quantity_units，键为第3步原始行号；authority_quantity_unit仅在业务明确全票同一单位时填写。
+合同生成时锁定源路径/SHA、模板类型和表名。JPY、KG是当前KMT表头明确的观察单位，不代表本票已签核。数量单位和实际审核人均为null，不能填“默认件”、测试人员、未知/待确认占位词。rc.3通过[受控填写接口](v070-operation.md)收集业务明确单位及逐源行例外，不直接编辑JSON；D08名单来自管理员保护配置。
 
 实际责任为business（商品）、identity（身份）、amount（金额）、material（材质）、packaging（盒规）、customs（税费）、logistics（物流）、release（最终复核），各填实际人员名单。不要求一个人承担全部职责；本程序不自动分配。职责只是一份本地可信配置，不能冒充登录鉴权。
 
 明确输入版本与至少商品责任人后，由可信管理员配置contract角色并签核：
 
 ```text
-python scripts/run.py --output <独立目录> sign-contract --contract <已填写合同JSON> --actor <实际签核人> --evidence <真实签核依据> --permissions <可信角色配置JSON>
+python scripts/run.py --output <独立目录> fill-contract --contract <程序返回的合同文件> --authority-unit <已确认计价单位> --invoice-unit <已确认采购单位>
+python scripts/run.py --output <独立目录> sign-contract --contract <填写结果文件> --evidence <真实签核依据> --session-token-env <宿主会话变量名> --confirmed-hash <填写结果哈希> --confirm
 python scripts/run.py --output <独立目录> import-batch --contract <签核合同或明确待确认的测试合同>
 ```
 
@@ -56,7 +57,7 @@ runtime JSON显式配置`node_executable`及包含`@oai/artifact-tool`的`module
 原43＋24基线保留，只补原生Skill触发和D1误批拒绝过程。原生触发必须由WorkBuddy界面/原始Skill调用记录证明，单独运行脚本或声称“已读取SKILL.md”不足。
 
 ```text
-python scripts/workbuddy_integration.py --output <全新独立测试目录> --operator-session <实际会话标识> --context workbuddy
+python scripts/run.py --output <本次独立运行目录> preflight --batch <批次ID> --library <外置D1库> --session-token-env <宿主会话变量名>
 ```
 
-脚本只使用N1/N2/D1合成数据，保存混入D1请求、原始返回码/错误、前后所有状态文件SHA，再确认普通N1/N2并保留D1待定。会话标识与context是操作者声明，本身不证明实机环境；仍需提交WorkBuddy原生触发与脚本工具调用记录。local-rehearsal只能作为本地预演，不能升级为实机通过。新渲染依赖另需在WorkBuddy实测，既有Python/Excel探针不重跑。
+rc.3不再执行无可信身份的旧workbuddy_integration.py预演。按v070-operation.md使用宿主配置、受控合同、B2差异确认和双草稿链路留证。合成技术结果不代表真实D08批准，仍需WorkBuddy原生触发与工具调用记录。
