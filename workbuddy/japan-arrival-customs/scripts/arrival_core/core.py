@@ -56,7 +56,8 @@ def context(row):
     return {k: row["identity"][k] for k in ("code", "version", "specification")}
 
 
-def new_row(source, raw, *, currency, quantity_unit):
+def new_row(source, raw, *, currency, quantity_unit, authority_stage=3,
+            authority_status=None, amount_basis=None):
     row_id = digest([source["sha256"], source["sheet"], source["row"]])[:24]
     unavailable = {"#N/A", "#VALUE!", "#REF!", "#DIV/0!", "#NUM!", "#NAME?", "#NULL!", "未找到", ""}
     def value(key):
@@ -72,9 +73,15 @@ def new_row(source, raw, *, currency, quantity_unit):
                     "yd": value("yd"), "yd_absence_reason": "",
                     "frontend_status": "unknown", "frontend_absence_reason": "",
                     "procurement": "unknown", "internal_note": ""},
-        "authority": {"stage": 3, "amount": str(raw.get("amount") or ""), "currency": currency,
+        "arrival": {"quantity_raw": str(raw.get("qty") or ""), "unit_raw": quantity_unit,
+                    "unit_status": "observed" if quantity_unit else "pending_product_or_purchase_lookup",
+                    "unit_price_jpy_raw": str(raw.get("price") or ""),
+                    "subtotal_jpy_raw": str(raw.get("amount") or ""), "source": source},
+        "authority": {"stage": authority_stage, "amount": str(raw.get("amount") or ""), "currency": currency,
                       "quantity": str(raw.get("qty") or ""), "quantity_unit": quantity_unit,
-                      "unit_price_observed": str(raw.get("price") or ""), "source": source},
+                      "unit_price_observed": str(raw.get("price") or ""), "source": source,
+                      "status": authority_status or ("business_confirmed_stage3" if authority_stage == 3 else "preliminary"),
+                      "amount_basis": amount_basis or ("stage3_business_source" if authority_stage == 3 else "raw_source")},
         "material": {"candidate": value("material"), "selected": None, "candidates": []},
         "packaging": None, "tax": None,
         "logistics": {"carton_raw": value("carton"), "origin": value("origin")},
@@ -97,17 +104,26 @@ def validate(batch):
     if len(ids) != len(set(ids)) or not ids:
         raise Rejected("明细必须存在且源行标识不得重复")
     for r in batch["rows"]:
-        if r["authority"]["stage"] != 3 or r["authority"]["source"] != r["source"]:
-            raise Rejected("金额权威必须绑定第3步源行")
+        authority = r["authority"]
+        stage = authority.get("stage")
+        if stage not in (1, 3) or authority["source"] != r["source"]:
+            raise Rejected("金额/数量观察值必须绑定原始源行")
+        if stage == 1 and (authority.get("status") != "preliminary_from_raw_invoice"
+                           or authority.get("amount_basis") != "raw_invoice_subtotal"):
+            raise Rejected("日方原表金额只能作为未确认的到货Subtotal观察值")
         if set(r["reviews"]) != set(DOMAINS):
             raise Rejected("审核域不完整")
         if (r["authority"]["amount"] != (r["raw"].get("amount") or "")
                 or r["authority"]["quantity"] != (r["raw"].get("qty") or "")):
-            raise Rejected("第3步金额/数量不能脱离原始值")
+            raise Rejected("金额/数量观察值不能脱离原始值")
         for key, field in (("amount", "amount"), ("quantity", "qty")):
             cell = r["source"].get("cells", {}).get(field)
             if cell and r["authority"][key] != cell["value"]:
                 raise Rejected("金额/数量与原始单元格证据不一致")
+        arrival = r.get("arrival")
+        if arrival is not None and (arrival.get("quantity_raw") != r["authority"]["quantity"]
+                                    or arrival.get("subtotal_jpy_raw") != r["authority"]["amount"]):
+            raise Rejected("原始到货Qty/Subtotal记录与源行观察值不一致")
     return batch
 
 
@@ -275,11 +291,13 @@ def _apply_domain_row(row, domain, payload, *, actor, evidence, _declaration_com
         raise Rejected('已有申报决策，请通过B2版本化审核；身份变更需新的明确版本流程')
     if domain == "price":
         a = row["authority"]
+        if a.get("status") == "preliminary_from_raw_invoice":
+            raise Rejected("当前仅为日方原表Subtotal初步到货金额；最终申报金额确认节点尚未批准，不能完成价格域批准")
         if p != {k: a[k] for k in ("amount", "currency", "quantity", "quantity_unit")}:
-            raise Rejected("价格审核不能改写第3步金额/币种/数量单位")
+            raise Rejected("价格审核不能改写来源金额/币种/数量单位")
         decimal(a["amount"]); positive(a["quantity"])
         if not a["currency"] or not a["quantity_unit"]:
-            raise Rejected("第3步币种及计价单位待确认")
+            raise Rejected("来源币种及计价单位待确认")
     elif domain == "identity":
         if not all(isinstance(p.get(k), str) and p[k].strip() for k in ("version", "specification")):
             raise Rejected("身份需明确版本和规格（无版本亦需明示）")
@@ -304,7 +322,7 @@ def _apply_domain_row(row, domain, payload, *, actor, evidence, _declaration_com
             if not all(p.get(k) for k in ("source_unit", "declaration_unit", "internal_unit", "source")):
                 raise Rejected("盒规各层单位和来源必填")
             if p["source_unit"] != row["authority"]["quantity_unit"]:
-                raise Rejected("盒规采购单位不匹配第3步计价单位")
+                raise Rejected("盒规采购单位不匹配当前已确认的原始到货单位")
             positive(p.get("declaration_factor")); positive(p.get("pieces_per_box"))
             positive(p.get("internal_quantity")); positive(p.get("internal_boxes"))
             if (Fraction(positive(p["internal_quantity"])) / Fraction(positive(p["internal_boxes"]))

@@ -9,11 +9,16 @@ def identity_checklist(batch):
     from .business_setup import require_contract
     require_contract(batch)
     validate(batch);check_sources(batch)
+    pending=[row for row in batch['rows'] if row.get('original_purchase',{}).get('status')=='identity_pending']
+    if not pending:
+        return {'schema':'japan-arrival/identity-checklist-1','state_hash':digest(batch),'batch_id':batch['id'],
+                'rows':[],'pending_rows':0,'decision_groups':0,'automatic_links_created':0,
+                'notice':'本批直接来自日方原始行；未创建改码/拆分连接。商品资料和版本仍按各自待补项审核。'}
     source=batch['input_contract']['sources']['invoice']
     _,originals=read_stage(source['path'],1)
     unassigned=set(batch['original_input_summary']['unassigned_original_rows'])
     result=[]
-    for row in batch['rows']:
+    for row in pending:
         purchase=row.get('original_purchase',{})
         if purchase.get('status')!='identity_pending':continue
         candidates=purchase.get('candidates',[])
@@ -45,13 +50,14 @@ def input_decisions(batch):
     contract=require_contract(batch);rows=[]
     def add(key,scope,observed,action,owner,impact):
         rows.append([key,scope,observed,action,owner,impact,None,None,None,None])
-    add('D07-01','日方采购单位',contract.get('invoice_quantity_unit'),
-        '明确原始Qty是件/盒/套及适用行范围，不由名称或价格推断','采购/日本对接负责人（待指定）','影响原始数量核对')
-    add('D07-02',f'第3步 {len(batch["rows"])} 行计价单位',contract.get('authority_quantity_unit'),
+    raw=contract.get('input_mode')=='raw_invoice_preliminary'
+    add('D07-01','原始到货Qty单位',contract.get('invoice_quantity_unit'),
+        '按开定/采购资料明确每条原始Qty的最大到货单位，不由名称或价格推断','采购/日本对接负责人（待指定）','影响原始数量核对')
+    add('D07-02',(f'原始到货 {len(batch["rows"])} 行单位' if raw else f'第3步 {len(batch["rows"])} 行计价单位'),contract.get('authority_quantity_unit'),
         '提供统一单位适用范围；混合单位按源行区间/逐行列出例外','业务金额确认人（待指定）','影响价格审核和盒规换算')
     add('D07-03','币种JPY、重量KG','文件表头观测，尚无业务签核',
         '确认本票采用的币种、重量单位及源文件SHA版本','业务签核人（待指定）','表头观测不替代签核')
-    names={'business':'商品基础资料','identity':'改码/版本/拆分','amount':'第3步金额','material':'材质及历史审核范围',
+    names={'business':'商品基础资料','identity':'改码/版本/拆分','amount':'初步到货金额/后续申报金额' if raw else '第3步金额','material':'材质及历史审核范围',
            'packaging':'盒规换算','customs':'税号税率与公式适用性','logistics':'箱号/总重','release':'最终放行'}
     for role,title in names.items():
         add('D08-'+role,title,'、'.join(contract['responsibilities'].get(role) or []) or None,

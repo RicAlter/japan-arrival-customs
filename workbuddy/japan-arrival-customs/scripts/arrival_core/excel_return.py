@@ -171,7 +171,8 @@ class ReturnService:
         batch=self.store.load(batch_id);check_sources(batch)
         folder=Path(folder);manifest=read_json(folder/'export_manifest.json');plan=read_json(folder/'review_plan.json')
         if manifest['workbook_sha256']!=sha((folder/FILENAME).read_bytes()):raise Rejected('原导出文件哈希失配')
-        if digest(batch)!=plan['base_hash'] or plan!=build_plan(batch,material_catalog(plan['source_catalog']['path'])):
+        catalog=material_catalog(plan['source_catalog'].get('path'))
+        if digest(batch)!=plan['base_hash'] or plan!=build_plan(batch,catalog):
             raise Rejected('B1导出镜像不是当前可信版本')
         destination=Path(destination).resolve();Store(destination.parent).guard(batch)
         if destination.suffix.lower()!='.xlsx':raise Rejected('审核导出必须为.xlsx')

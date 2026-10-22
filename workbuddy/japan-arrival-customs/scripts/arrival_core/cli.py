@@ -95,9 +95,9 @@ def main(argv=None):
         if name == 'group-review-package':
             cmd.add_argument('--domain',required=True,choices=['identity','material','packaging','tax'])
         if name == 'export-compact':
-            cmd.add_argument('--material-history',required=True,help='只读第2步材质查询记录；不进行在线查询')
+            cmd.add_argument('--material-history',help='可选只读历史材质查询记录；缺失时正常输出0条候选')
         if name=='return-export':
-            cmd.add_argument('--material-history',required=True)
+            cmd.add_argument('--material-history',help='可选；未提供时保持材质候选为空')
             cmd.add_argument('--file',required=True)
             cmd.add_argument('--recommendations',help='Skill生成的推荐JSON；仅候选，不是审核')
             cmd.add_argument('--official-materials',help='独立官方参考JSON；不能冒充最终申报选择')

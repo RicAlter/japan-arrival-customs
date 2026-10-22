@@ -60,6 +60,14 @@ def private_tokens(batch):
 def draft_payload(batch):
     validate(batch)
     status = workflow_status(batch)
+    raw=batch.get('input_mode')=='raw_invoice_preliminary'
+    customs_headers=list(CUSTOMS_HEADERS);internal_headers=list(INTERNAL_HEADERS)
+    warning=("受控测试草稿，不得外发；日方原表Subtotal仅为初步到货金额，未知Qty单位不作换算；未确认规则不参与计算"
+             if raw else WARNING)
+    if raw:
+        customs_headers[9]='原始Subtotal（初步到货金额）'
+        internal_headers[7]='原始到货Qty';internal_headers[8]='原始到货单位（待查）'
+        internal_headers[13]='原始Subtotal（初步到货金额）'
     tokens = private_tokens(batch)
     customs, internal, suppressed = [], [], []
     for ordinal, row in enumerate(batch["rows"], 1):
@@ -87,7 +95,7 @@ def draft_payload(batch):
         for col, value in enumerate(c):
             if isinstance(value, str) and any(token in value for token in tokens):
                 c[col] = None
-                suppressed.append({"ordinal": ordinal, "column": CUSTOMS_HEADERS[col]})
+                suppressed.append({"ordinal": ordinal, "column": customs_headers[col]})
         customs.append(c)
         selected = selected_material(row,approved_only=False) if row.get('declaration') else (row["material"]["selected"] or {}).get("translation") or row["material"]["candidate"]
         t = row["tax"] if row["reviews"]["tax"] else None
@@ -110,9 +118,9 @@ def draft_payload(batch):
                 suppressed.append({"scope": "weights", "column": i})
     basis = digest(batch)
     return {"schema": "japan-arrival/draft-pair-1", "basis_hash": basis, "revision": batch["revision"],
-            "warning": WARNING, "formal_output": False,
-            "customs": {"headers": CUSTOMS_HEADERS, "rows": customs},
-            "internal": {"headers": INTERNAL_HEADERS, "rows": internal},
+            "warning": warning, "formal_output": False,
+            "customs": {"headers": customs_headers, "rows": customs},
+            "internal": {"headers": internal_headers, "rows": internal},
             "weights": {"headers": WEIGHT_HEADERS, "rows": weight_rows},
             "summary": {"rows": len(batch["rows"]), "cartons": status["logistics"].get("physical_cartons"),
                         "weight_kg": optional_number(status["logistics"].get("total_weight_kg")),
@@ -152,11 +160,11 @@ def verify_pair(batch, directory, payload):
             if any(c.get("type") == "e" or c.get("f") for c in sheet.cells.values()):
                 raise Rejected("草稿出现公式/错误；确定性结果快照不应执行用户文本")
         main = book.sheets[0]
-        if main.v(3,"A") != WARNING or main.v(4,"A") != "明细版本SHA256："+payload["basis_hash"]:
+        if main.v(3,"A") != payload["warning"] or main.v(4,"A") != "明细版本SHA256："+payload["basis_hash"]:
             raise Rejected("草稿标记或版本失配")
         for sheet, view in ((main,payload[kind]),(book.sheets[1],payload["weights"])):
             allowed = {"A2","A3","A4","A5"}
-            if sheet.v(3,"A") != WARNING or sheet.v(4,"A") != "明细版本SHA256："+payload["basis_hash"]:
+            if sheet.v(3,"A") != payload["warning"] or sheet.v(4,"A") != "明细版本SHA256："+payload["basis_hash"]:
                 raise Rejected("草稿附表标记或版本失配")
             for ri, record in enumerate([view["headers"], *view["rows"]], 6):
                 for ci, expected in enumerate(record):

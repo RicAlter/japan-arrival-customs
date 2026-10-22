@@ -37,6 +37,9 @@ def text(value):
 
 def material_catalog(path):
     """Historical query text is not original Japanese composition or a live lookup."""
+    if not path:
+        return {'path':None,'sha256':None,'stage':2,'index':{},'records':0,
+                'status':'not_provided','notice':'未提供历史材质资料；不创建空文件，不生成虚假候选'}
     path = Path(path).resolve(); data = path.read_bytes()
     book = p0.Book(data, str(path)); records = p0.records(book, 2)
     index = defaultdict(list)
@@ -115,8 +118,10 @@ def build_plan(batch, catalog):
                 or r['authority']['amount'] for r in rows}
     amount_check = reconcile_amounts(rows, proposed)
     changed_amount_ids = [r['id'] for r in amount_check['lines'] if r['delta'] != '0']
-    add('contract', all_ids, '首票单位及输入签核（D07）', '币种JPY、重量KG来自表头；金额保留第3步结果',
-        '日方采购单位、第3步计价单位及混合单位例外未签核',
+    raw=batch.get('input_mode')=='raw_invoice_preliminary'
+    amount_label='日方原表Subtotal初步到货金额' if raw else '第3步业务金额'
+    add('contract', all_ids, '首票单位及输入签核（D07）', f'币种JPY、重量KG来自表头；{amount_label}原值保留',
+        ('原始Qty最大到货单位及混合单位例外未从开定/采购资料确认' if raw else '日方采购单位、第3步计价单位及混合单位例外未签核'),
         '采购/金额负责人给出单位及适用范围、例外行；签核文件版本与记录号')
     add('responsibilities', all_ids, '审核责任（D08）', '基础资料、身份、金额、材质、盒规、关务、物流、放行八类角色',
         '当前未指定审核责任；不让业务在每条商品填写审核人',
@@ -124,8 +129,8 @@ def build_plan(batch, catalog):
     add('release', all_ids, '海关外发白名单（D05）', '正式输出继续关闭',
         '对外字段及品牌来源尚未批准，不阻止基础资料候选核对',
         '关务/业务批准允许字段、来源与格式', priority='正式输出前处理')
-    add('price', changed_amount_ids or all_ids, '尾差规则（D01）',
-        f"第3步金额原样保留；历史第5步金额有{len(changed_amount_ids)}行不同，不自动采用",
+    add('price', changed_amount_ids or all_ids, '金额确认节点与尾差规则（D01）',
+        ((f"日方原表Subtotal原样保留为初步到货金额；最终申报金额尚未确认" if raw else f"第3步金额原样保留；历史第5步金额有{len(changed_amount_ids)}行不同，不自动采用")),
         f"历史整批差额{amount_check['batch_delta']}不代表逐商品通过；尚无获批尾差算法",
         '关务/财务批准精度、顺序、范围；无差额行无需逐行填尾差规则', priority='遇到差额时处理')
     # Reuse the exact P1-C identity investigation; display grouping never executes mapping.
@@ -138,7 +143,8 @@ def build_plan(batch, catalog):
         lines = [f"原表行{r['row']} 编码{text(r.get('code'))} {text(r.get('variant'))} 数量{text(r.get('qty'))}\n日文名：{text(r.get('ja'))}"
                  for r in candidates]
         add('identity', [r['id'] for r in members], members[0]['issue'], '\n'.join(lines) or '无可靠连接候选',
-            '；'.join(sorted({m['candidate_method'] for m in members})) + '；日方原表与第3步身份未闭合',
+            '；'.join(sorted({m['candidate_method'] for m in members})) +
+            ('；原始日方发票商品尚未与开定/商品档案闭合' if raw else '；日方原表与第3步身份未闭合'),
             '核定映射、改码/拆分依据及各行版本规格；不同版本分别核对。D06未批准不执行改码', grouping=key)
     no_yd = [r['id'] for r in rows if not r['product']['yd'] and not r['product']['yd_absence_reason']]
     if no_yd:
@@ -162,7 +168,7 @@ def build_plan(batch, catalog):
         # Never coalesce ambiguous observations as a common fact. Full per-row evidence
         # and exact scopes survive; URLs differ within a text navigation group.
         key = (m['business'], m['history6'], m['query'], m['match'],
-               row['id'] if m['match'] == 'ambiguous' else '')
+               row['id'] if raw and m['match'] != 'exact_unreviewed' else '')
         material_groups[key].append(row['id'])
     for key, ids in material_groups.items():
         business, old, queried, match, _ = key
@@ -200,7 +206,9 @@ def build_plan(batch, catalog):
         'actual_product_reviews': sum(bool(r['reviews']['product']) for r in rows),
         'new_reviews_created': 0, 'frontend_manual_fields': 0, 'review_request_fields': 0,
         'editable_columns': 2, 'editable_cell_capacity': 2 * len(issues),
-        'authority_amount': str(sum(Decimal(r['authority']['amount']) for r in rows))}
+        'authority_amount': str(sum((Decimal(r['authority']['amount']) for r in rows if r['authority']['amount']),Decimal(0))),
+        'amount_label':amount_label,'amount_status':'preliminary_not_final' if raw else 'legacy_stage3_business_source',
+        'material_history_records':catalog['records']}
     stats['historical_amount_changed_rows'] = len(changed_amount_ids)
     stats['historical_batch_amount_delta'] = amount_check['batch_delta']
     return {'schema': 'japan-arrival/compact-review-1', 'batch_id': batch['id'], 'revision': batch['revision'],
@@ -229,7 +237,9 @@ def _write(plan, target):
     by_id = {r['id']: r for r in b['rows']}
     wb = Workbook(); wb.remove(wb.active)
     warning = '仅供内部审核；填写不等于批准。本阶段不导入修改、不签核、不生成正式报单。'
-    basis = '本批来源：第2步材质查询记录、第3步业务确认资料、第5步海关历史、第6步内部历史；均保留原件。'
+    raw=b.get('input_mode')=='raw_invoice_preliminary'
+    basis = ('本批直接来自日方原始发票及同工作簿箱重页；历史/开定资料未提供时保持待补。原件只读。'
+             if raw else '本批来源：第2步材质查询记录、第3步业务确认资料、第5步海关历史、第6步内部历史；均保留原件。')
     overview = [
         ['先做什么', '普通商品基础资料', s['ordinary_product_candidates'], '行候选可选一次批量确认',
          '名称/品类/YD/渠道预填，申报名来自历史；专业审核独立，不要求前台状态。D08可信身份到位后由Skill记录明确范围。'],
@@ -240,7 +250,7 @@ def _write(plan, target):
         ['证据有限', '历史材质查询网址', s['material_query_with_url_rows'], '行', '网址为旧查询记录，未访问或验证当前页面；文本不同不等于已证明实质冲突。'],
         ['专业审核', '材质 / 盒规 / 税率', f"{s['issue_groups_by_domain'].get('material',0)} / {s['issue_groups_by_domain'].get('packaging',0)} / {s['issue_groups_by_domain'].get('tax',0)}", '导航组',
          '相同文本仅便于集中看；证据须覆盖所选商品版本/规格，不保证一组一个批准动作。'],
-        ['金额基准', '第3步金额合计', float(Decimal(s['authority_amount'])), 'JPY', '原金额不改；逐商品差异不许互相抵消；尾差算法待批准。'],
+        ['到货金额', s['amount_label']+'合计', float(Decimal(s['authority_amount'])), 'JPY', '原始Subtotal不改；这不是最终申报金额批准。逐商品差异不得互相抵消，尾差算法待批准。'],
         ['当前状态', '本次自动批准', 0, '项', '全部保留待审核。本表不要求2688行×六域逐行点击；也不把缺证据事项隐藏。'],
         ['安全门禁', '正式输出', '关闭', 'D05尚未批准', '单位、责任、身份及专业证据均按原门禁核验。'],
         ['重复到货', '未来审核知识复用', '有条件减少', '尚未实施P2-D', '同身份/版本/包装且凭据有效时可减少查名、抄材质、重复找证据；单位数量金额物流仍须核对，盒规免审规则未批准。'],
@@ -254,7 +264,7 @@ def _write(plan, target):
     issue_rows = []
     for i in plan['issues']:
         ids = i['row_ids']; samples = ids[:2]
-        sample = '\n'.join(f"{ordinals[rid]:04d}｜{by_id[rid]['identity']['code']}｜{by_id[rid]['product']['internal_name'].splitlines()[0]}" for rid in samples)
+        sample = '\n'.join(f"{ordinals[rid]:04d}｜{by_id[rid]['identity']['code']}｜{(by_id[rid]['product']['internal_name'].splitlines() or ['待补中文名'])[0]}" for rid in samples)
         if i['domain']=='identity':
             sample = '\n'.join(f"{ordinals[rid]:04d}｜本批编码{by_id[rid]['identity']['code']}\n"
                 f"描述：{by_id[rid]['identity']['version']}；数量{by_id[rid]['authority']['quantity']}（单位待签）\n"
@@ -289,7 +299,9 @@ def _write(plan, target):
             m['query_url'], ' '.join(plan['memberships'].get(rid,[]))])
     ws = sheet(wb,SHEETS[2], '完整商品明细｜查看与筛选',
         ['本表序号','基础资料处理方式','箱号','商品编码','内部商品名（本批候选）','申报品名候选','品类','YD（允许空缺）','渠道',
-         '本批版本/包装描述','本批材质填写','历史查询材质（未验证）','历史每盒件数（未审）','历史税率（未审）','第3步数量（单位待签）','第3步金额JPY','申报名来源','历史材质查询网址','相关问题'],
+         '本批版本/包装描述','本批材质填写','历史查询材质（未验证）','历史每盒件数（未审）','历史税率（未审）',
+         '原始到货Qty（单位待查）' if raw else '第3步数量（单位待签）',
+         '原始Subtotal JPY（初步）' if raw else '第3步金额JPY','申报名来源','历史材质查询网址','相关问题'],
         detail,[10,23,14,20,64,36,16,24,18,26,26,36,18,18,20,23,30,48,39], warning=warning,
         basis=basis,summary='此页以查看为主；修改仅填问题页必要内容。序号只在本导出版导航，底层稳定行ID和版本映射另行保存。')
     ws.sheet_view.zoomScale=75
@@ -340,8 +352,8 @@ def export_compact(batch, material_history, directory):
     check_sources(batch); before=digest(batch)
     catalog=material_catalog(material_history)
     target=Path(directory).resolve(); Store(target).guard(batch)
-    history=Path(catalog['path'])
-    if target.is_relative_to(history.parent) or history.is_relative_to(target):
+    history=Path(catalog['path']) if catalog.get('path') else None
+    if history and (target.is_relative_to(history.parent) or history.is_relative_to(target)):
         raise Rejected('输出目录必须与材质源文件目录分离')
     if target.exists(): raise Rejected('拒绝覆盖已有业务审核文件，请选择新目录')
     target.parent.mkdir(parents=True,exist_ok=True)
@@ -356,7 +368,7 @@ def export_compact(batch, material_history, directory):
             'note':'Excel中的文字选择不构成审核批准；B2尚未实施，可信操作者身份不从表格取得。'}
         atomic_json(folder/'export_manifest.json',manifest)
         check_sources(batch)
-        if hashlib.sha256(history.read_bytes()).hexdigest()!=catalog['sha256'] or digest(batch)!=before:
+        if ((history and hashlib.sha256(history.read_bytes()).hexdigest()!=catalog['sha256']) or digest(batch)!=before):
             raise Rejected('导出过程中输入或批次发生变化')
         os.replace(folder,target)
     return dict(manifest,directory=str(target),workbook=str(target/FILENAME))

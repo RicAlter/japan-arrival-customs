@@ -1,10 +1,93 @@
-"""KMT stage-3 adapter around the unchanged P0 OOXML parser."""
+"""KMT stage-3 and genuine raw-invoice adapters around the frozen OOXML parser."""
 import csv
 import json
 from pathlib import Path
 
 from . import _p0_frozen as p0
 from .core import Rejected, new_batch, new_row
+
+RAW_SHEET = "invoice (計算)"
+RAW_HEADERS = {"C": "ProductCode(JANCode)", "D": "DescriptionofGoods",
+               "G": "Origin", "H": "UnitPrice(日本JPY)", "I": "Qty", "K": "Subtotal"}
+RAW_COLUMNS = {"carton": "A", "code": "C", "ja": "D", "origin": "G",
+               "price": "H", "qty": "I", "amount": "K"}
+
+
+def raw_invoice_layout(book):
+    sheet = next((s for s in book.sheets if s.name == RAW_SHEET), None)
+    if sheet is None:
+        return None
+    if any(p0.clean(sheet.v(17, col)) != label for col, label in RAW_HEADERS.items()):
+        return None
+    return sheet
+
+
+def import_raw_invoice(path, *, currency="JPY", quantity_unit=""):
+    """Read the genuine Japanese workbook without inventing a stage-3 authority file.
+
+    Qty and Subtotal are source observations.  The unit remains unknown until an
+    exact product/procurement record or a controlled contract supplies it.
+    """
+    if currency != "JPY":
+        raise Rejected("当前日方原表明确为日本JPY；其他币种须建立新模板合同")
+    path = Path(path).resolve(strict=True); data = path.read_bytes()
+    book = p0.Book(data, str(path)); sheet = raw_invoice_layout(book)
+    if sheet is None:
+        raise Rejected("不匹配KMT日方原始发票模板：需要invoice (計算)第17行C/D/G/H/I/K表头")
+    rows=[]; carry=None
+    for ri in sorted(sheet.rows):
+        if ri < 18: continue
+        carton = sheet.v(ri, "A")
+        if p0.present(carton): carry=carton
+        code=sheet.v(ri,"C"); description=sheet.v(ri,"D")
+        qty=sheet.v(ri,"I"); amount=sheet.v(ri,"K")
+        # TOTAL and auxiliary calculation rows are not商品明细.  A legitimate
+        # no-code purchase is retained when it has a description and Qty/Subtotal.
+        if p0.clean(sheet.v(ri,"G")).upper()=="TOTAL": continue
+        if not (p0.present(code) or p0.present(description)): continue
+        if not (p0.present(qty) or p0.present(amount)): continue
+        raw={field:sheet.v(ri,col) for field,col in RAW_COLUMNS.items()}
+        raw.update(internal=None,variant=None,category=None,material=None,channel=None,yd=None)
+        if not p0.present(raw["carton"]): raw["carton"]=carry
+        cells={}
+        for field,col in RAW_COLUMNS.items():
+            cell=sheet.cells.get(f"{col}{ri}",{})
+            cells[field]={"cell":f"{col}{ri}","column":col,
+                          "value":p0.text(cell.get("v")),"formula":cell.get("f"),"type":cell.get("type")}
+        source={"path":str(path),"sha256":book.sha256,"sheet":sheet.name,"row":ri,
+                "stage":1,"template":"kmt-raw-invoice-v1","cells":cells}
+        serialized={k:(p0.text(v) if v is not None else None) for k,v in raw.items()}
+        row=new_row(source,serialized,currency=currency,quantity_unit=quantity_unit,
+                    authority_stage=1,authority_status="preliminary_from_raw_invoice",
+                    amount_basis="raw_invoice_subtotal")
+        row["identity"]["code_type"]="raw_source_identifier" if row["identity"]["code"] else "absent_not_fabricated"
+        row["arrival"]["quantity_meaning"]="warehouse_counted_largest_received_unit"
+        row["arrival"]["unit_evidence"] = None
+        row["arrival"]["packaging_content"] = None
+        row["arrival"]["declaration_quantity"] = None
+        row["arrival"]["declaration_unit"] = None
+        row["product_lookup"]={"status":"not_configured","matched_records":[],
+                               "notice":"未配置已授权的开定/商品资料来源；中文名、品类、YD、材质及单位保持待补"}
+        if not row["identity"]["code"]:
+            row["disputes"].append({"id":"no_source_code","domain":"identity",
+                                    "reason":"日方原表无商品编码；保留原行，不能虚构JAN"})
+        for key in ("qty","amount"):
+            if p0.numeric_text(raw[key]) is None:
+                row["disputes"].append({"id":"invalid_raw_"+key,"domain":"price",
+                                        "reason":"日方原表"+("Qty" if key=="qty" else "Subtotal")+"不是有效数值"})
+        rows.append(row)
+    if not rows: raise Rejected("日方原表未发现商品明细")
+    if p0.sha(path.read_bytes()) != book.sha256: raise Rejected("读取期间原件发生变化")
+    batch=new_batch(rows,[{"path":str(path),"sha256":book.sha256,"stage":1,
+                           "kind":"kmt-raw-invoice-v1","sheet":sheet.name}])
+    batch["input_mode"]="raw_invoice_preliminary"
+    batch["arrival_summary"]={"rows":len(rows),"subtotal_jpy":str(sum((p0.numeric_text(r["raw"]["amount"])
+        for r in rows if p0.numeric_text(r["raw"]["amount"]) is not None),p0.Decimal(0))),
+        "qty_numeric_sum":str(sum((p0.numeric_text(r["raw"]["qty"])
+        for r in rows if p0.numeric_text(r["raw"]["qty"]) is not None),p0.Decimal(0))),
+        "qty_common_unit":None,"amount_status":"preliminary_arrival_subtotal_not_final_declaration_amount",
+        "product_reference_matches":0,"product_reference_pending":len(rows)}
+    return batch
 
 
 def import_stage3(path, *, currency, quantity_unit):

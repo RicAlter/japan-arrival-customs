@@ -9,7 +9,7 @@ from . import __version__
 from .contracts import contract_status, quantity_unit, validate_contract
 from .core import (DOMAINS, Rejected, box_tax, decimal, digest, exact_price, product_errors,
                    review_package, validate, product_errors_for_batch)
-from .importer import import_stage3
+from .importer import import_stage3, import_raw_invoice
 from .logistics import read_weights, reconcile_logistics
 
 
@@ -47,6 +47,8 @@ def serial(record):
 def import_batch(contract):
     contract = copy.deepcopy(validate_contract(contract))
     files = contract["sources"]
+    if contract.get("input_mode")=="raw_invoice_preliminary":
+        return import_raw_batch(contract)
     batch = import_stage3(files["authority"]["path"], currency=contract["currency"], quantity_unit="")
     batch["phase"] = "P1-B-controlled-draft"
     batch["input_contract"] = contract
@@ -96,6 +98,51 @@ def import_batch(contract):
     return validate(batch)
 
 
+def import_raw_batch(contract):
+    """Build the unified detail directly from the unprocessed Japanese workbook."""
+    contract=copy.deepcopy(validate_contract(contract));files=contract["sources"]
+    batch=import_raw_invoice(files["invoice"]["path"],currency=contract["currency"],quantity_unit="")
+    batch["phase"]="P0-raw-preliminary-draft"
+    batch["product_review_profile"]="exception-first-v1"
+    batch["input_contract"]=contract
+    batch["sources"]=[dict(v,role=k) for k,v in files.items()]
+    batch["id"]=digest({"sources":batch["sources"],"contract":contract,"adapter_version":__version__})[:24]
+    for row in batch["rows"]:
+        unit=quantity_unit(contract,row["source"]["row"])
+        row["authority"]["quantity_unit"]=unit
+        row["arrival"]["unit_raw"]=unit
+        row["arrival"]["unit_status"]="contract_confirmed" if unit else "pending_product_or_purchase_lookup"
+        record={"stage":1,"file":files["invoice"]["path"],"sha256":files["invoice"]["sha256"],
+                "sheet":row["source"]["sheet"],"row":row["source"]["row"],
+                "code":row["identity"]["code"],"ja":row["identity"]["japanese_name"],
+                "carton":row["logistics"]["carton_raw"],"origin":row["logistics"]["origin"],
+                "qty":row["authority"]["quantity"],"price":row["authority"]["unit_price_observed"],
+                "amount":row["authority"]["amount"]}
+        row["original_purchase"]={"status":"raw_invoice_source","record":record,"quantity_unit":unit,
+                                  "notice":"原始Qty为仓库点收最大到货单位；单位未确认时不得解释为件"}
+    numeric=[p0.numeric_text(r["authority"]["quantity"]) for r in batch["rows"]]
+    batch["original_input_summary"]={"rows":len(batch["rows"]),"unique_alignments":len(batch["rows"]),
+        "unresolved_authority_rows":0,"unassigned_original_rows":[],
+        "source_quantity_observed":str(sum((v for v in numeric if v is not None),p0.Decimal(0))),
+        "authority_quantity_observed":str(sum((v for v in numeric if v is not None),p0.Decimal(0))),
+        "invalid_authority_quantity_rows":[r["source"]["row"] for r,v in zip(batch["rows"],numeric) if v is None],
+        "quantity_unit_comparison_approved":False,"quantity_common_unit":None,
+        "notice":"数值合计不代表共同物理单位；逐行单位待开定/采购资料或合同确认"}
+    left=[{"code":r["identity"]["code"],"carton_key":p0.carton(r["logistics"]["carton_raw"]),
+           "ja":r["identity"]["japanese_name"],"row":r["source"]["row"]} for r in batch["rows"]]
+    for key,stage in (("customs_reference",5),("internal_reference",6)):
+        if key not in files:continue
+        _,observations=read_stage(files[key]["path"],stage)
+        for row,(_,found,meta) in zip(batch["rows"],p0.link(left,observations,["code","carton_key"])):
+            row.setdefault("historical",{})[key]={"match":meta["status"],"review_status":"candidate_only",
+                "record":serial(found) if found is not None and meta["status"]=="unique" and row["identity"]["code"] else None}
+    batch["weight_data"]=read_weights(files["weights"]["path"],files["weights"]["sheet"])
+    batch["logistics_check"]=reconcile_logistics(batch["rows"],batch["weight_data"])
+    batch["arrival_summary"].update({"product_reference_matches":sum(r["product_lookup"]["status"]=="matched_candidate" for r in batch["rows"]),
+                                     "product_reference_pending":sum(r["product_lookup"]["status"]!="matched_candidate" for r in batch["rows"])})
+    return validate(batch)
+
+
 def conversion(row):
     if not row["reviews"]["packaging"]:
         return {"status": "pending", "declaration_quantity": None, "declaration_unit": None,
@@ -129,7 +176,11 @@ def reconcile_quantities(batch):
         record=original.get("record") or {}
         original_unit=original.get("quantity_unit")
         authority_unit=row["authority"]["quantity_unit"]
-        if original.get("status")!="unique_source_alignment_not_approval":pending.append("original_identity_pending")
+        # A raw invoice row is already its own traceable source row.  It has not
+        # been enriched or approved, but it does not need a second identity
+        # alignment before the received quantity can be shown.
+        if original.get("status") not in ("unique_source_alignment_not_approval", "raw_invoice_source"):
+            pending.append("original_identity_pending")
         if not original_unit or not authority_unit:pending.append("quantity_units_pending")
         raw_equal=None
         if record and original_unit and authority_unit:

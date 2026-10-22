@@ -2,7 +2,7 @@
 import argparse,hashlib,json,subprocess,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-VERSION='0.7.0-rc.3'
+VERSION='0.7.0-rc.4'
 def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
 def sha(data):return hashlib.sha256(data).hexdigest()
 def main():
@@ -15,7 +15,8 @@ def main():
         if name.startswith('workbuddy/japan-arrival-customs/') or name in (
             'README.md','.gitignore','docs/REPOSITORY_HYGIENE.md','docs/V070_TECHNICAL_DELIVERY.md',
             'tests/test_repository_smoke.py','tests/test_workbuddy_router.py','tests/test_v070_core.py',
-            'tests/test_v070_workflow.py','tests/test_business_setup.py','tools/run_v070_tests.py','tools/package_v070.py'):
+            'tests/test_v070_workflow.py','tests/test_business_setup.py','tests/test_raw_intake.py',
+            'tools/run_v070_tests.py','tools/package_v070.py'):
             p=ROOT/name
             if p.is_symlink() or any(x in p.parts for x in ('__pycache__','security','inputs','outputs','runs')) or p.suffix in ('.xlsx','.sqlite3','.db','.pyc','.zip'):
                 raise RuntimeError('Unexpected source file: '+name)

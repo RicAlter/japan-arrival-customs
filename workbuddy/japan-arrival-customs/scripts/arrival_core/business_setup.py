@@ -18,7 +18,7 @@ from .storage import Store, atomic_json
 
 def require_contract(batch):
     if not isinstance(batch.get('input_contract'), dict):
-        raise Rejected('缺少批次合同：import-stage3仅作预导入。请补齐第3步金额表、日方原表及箱重表，使用“准备这批业务合同”→“填写这批业务合同”→“签核这批业务合同”→“处理这批日本到货”；不能编辑旧快照补签。')
+        raise Rejected('缺少批次合同/来源记录：请从日方原始工作簿重新执行“处理这批日本到货”；系统会记录原表和箱重页。提交真实审核前再通过受控单位填写及可信签核，不能编辑旧快照补签。')
     return batch['input_contract']
 
 
@@ -77,14 +77,18 @@ def save_contract(root,contract):
 def fill_contract(root,contract,settings):
     if contract.get('approval'): raise Rejected('已签核合同不可修改；请从原始文件重新准备合同，新签核产生新批次。')
     config=runtime(root)
-    if not isinstance(settings,dict) or not settings or set(settings)-{'authority_quantity_unit','invoice_quantity_unit','row_quantity_units'}:
-        raise Rejected('合同填写只接受计价单位、采购单位、逐源行单位；身份、执行模式、金额及税率不能由请求声明。')
-    out=copy.deepcopy(contract);out.update(settings);out['responsibilities']=copy.deepcopy(config['responsibilities'])
+    if not isinstance(settings,dict) or not settings or set(settings)-{'authority_quantity_unit','arrival_quantity_unit','invoice_quantity_unit','row_quantity_units'}:
+        raise Rejected('合同填写只接受原始到货/计价单位、采购单位、逐源行单位；身份、执行模式、金额及税率不能由请求声明。')
+    out=copy.deepcopy(contract);settings=copy.deepcopy(settings)
+    if 'arrival_quantity_unit' in settings:
+        if 'authority_quantity_unit' in settings: raise Rejected('原始到货单位参数重复')
+        settings['authority_quantity_unit']=settings.pop('arrival_quantity_unit')
+    out.update(settings);out['responsibilities']=copy.deepcopy(config['responsibilities'])
     overrides=out.get('row_quantity_units',{})
-    if not isinstance(overrides,dict): raise Rejected('逐行单位须按第3步原始行号填写')
+    if not isinstance(overrides,dict): raise Rejected('逐行单位须按来源原始行号填写')
     from .batchflow import import_batch
     valid={str(r['source']['row']) for r in import_batch(contract)['rows']}
-    if set(overrides)-valid: raise Rejected('逐行计价单位含不存在的第3步源行')
+    if set(overrides)-valid: raise Rejected('逐行单位含不存在的来源原始行')
     validate_contract(out);_units(out,config)
     return save_contract(root,out)
 
@@ -141,6 +145,23 @@ def managed_import(root,contract):
     batch=import_batch(contract)
     batch['execution_mode']=config['execution_mode']
     batch['runtime_context']={'mode':config['execution_mode'],'policy_hash':digest(config),'contract_hash':digest(contract)}
+    batch['id']=digest({'source_batch':batch['id'],'runtime_context':batch['runtime_context']})[:24]
+    store=Store(root)
+    if (store.folder(batch['id'])/'head.json').exists():
+        from .storage import check_sources
+        check_sources(store.load(batch['id']));return {'batch':batch['id'],'resumed':True}
+    store.save(batch);return {'batch':batch['id'],'resumed':False}
+
+
+def preliminary_import(root,contract):
+    """Persist an unsigned raw-input draft; no identity or business approval is created."""
+    from .batchflow import import_batch
+    validate_contract(contract)
+    if contract.get('input_mode')!='raw_invoice_preliminary' or contract.get('approval'):
+        raise Rejected('初步导入只接受未签核的日方原表合同；已签核合同使用正式受控导入')
+    batch=import_batch(contract);batch['execution_mode']='preliminary_untrusted'
+    batch['runtime_context']={'mode':'preliminary_untrusted','contract_hash':digest(contract),
+                              'approval':False,'review_submission_allowed':False}
     batch['id']=digest({'source_batch':batch['id'],'runtime_context':batch['runtime_context']})[:24]
     store=Store(root)
     if (store.folder(batch['id'])/'head.json').exists():
@@ -210,10 +231,12 @@ def preflight(root,*,files=(),contract=None,batch=None,library=None,session=None
     def check_files():
         from .workbuddy_router import inspect_workbooks
         result=inspect_workbooks(files)
-        missing=[k for k in ('stage3_authority','invoice','weight') if not any(k in f['roles'] for f in result['files'])]
+        raw=any('raw_invoice' in f['roles'] for f in result['files'])
+        required=('raw_invoice','weight') if raw else ('stage3_authority','invoice','weight')
+        missing=[k for k in required if not any(k in f['roles'] for f in result['files'])]
         if missing or not result['ready']: raise Rejected('缺少或冲突的Excel资料：'+','.join(missing or result['conflicts'] or result['unknown']))
-        return {'required_sources_present':True}
-    check('files',check_files,'补齐第3步金额表、日方原表和箱重表')
+        return {'required_sources_present':True,'input_mode':'raw_invoice_preliminary' if raw else 'legacy_stage3_authority'}
+    check('files',check_files,'提供包含invoice (計算)及重さとサイズ页的日方原工作簿；兼容旧流程时才需独立第3步表')
     def check_contract():
         if not contract: require_contract({})
         verify_contract(root,contract)
