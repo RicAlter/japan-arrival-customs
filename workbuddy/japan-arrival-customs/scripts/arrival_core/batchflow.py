@@ -95,6 +95,9 @@ def import_batch(contract):
                 "record": serial(found) if found is not None and meta["status"] == "unique" and row["identity"]["code"] else None}
     batch["weight_data"] = read_weights(files["weights"]["path"], files["weights"]["sheet"])
     batch["logistics_check"] = reconcile_logistics(batch["rows"], batch["weight_data"])
+    if contract.get("product_library"):
+        from .product_library import apply_candidates
+        apply_candidates(batch, contract["product_library"]["path"])
     return validate(batch)
 
 
@@ -104,6 +107,7 @@ def import_raw_batch(contract):
     batch=import_raw_invoice(files["invoice"]["path"],currency=contract["currency"],quantity_unit="")
     batch["phase"]="P0-raw-preliminary-draft"
     batch["product_review_profile"]="exception-first-v1"
+    batch["product_data_policy"]="single-person-v1"
     batch["input_contract"]=contract
     batch["sources"]=[dict(v,role=k) for k,v in files.items()]
     batch["id"]=digest({"sources":batch["sources"],"contract":contract,"adapter_version":__version__})[:24]
@@ -138,8 +142,12 @@ def import_raw_batch(contract):
                 "record":serial(found) if found is not None and meta["status"]=="unique" and row["identity"]["code"] else None}
     batch["weight_data"]=read_weights(files["weights"]["path"],files["weights"]["sheet"])
     batch["logistics_check"]=reconcile_logistics(batch["rows"],batch["weight_data"])
-    batch["arrival_summary"].update({"product_reference_matches":sum(r["product_lookup"]["status"]=="matched_candidate" for r in batch["rows"]),
-                                     "product_reference_pending":sum(r["product_lookup"]["status"]!="matched_candidate" for r in batch["rows"])})
+    if contract.get("product_library"):
+        from .product_library import apply_candidates
+        apply_candidates(batch, contract["product_library"]["path"])
+    if not contract.get("product_library"):
+        batch["arrival_summary"].update({"product_reference_matches":0,
+                                         "product_reference_pending":len(batch["rows"])})
     return validate(batch)
 
 

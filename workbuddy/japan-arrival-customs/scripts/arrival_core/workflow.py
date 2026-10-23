@@ -31,7 +31,7 @@ def _initial_raw_artifacts(root,batch_id):
         seed=folder/'review_seed';export_compact(batch,None,seed)
         review_result=service.register_b1(batch_id,seed,review)
     return {'preliminary':preliminary_result,'review':review_result,
-            'notice':'初步整理与审核表均未形成批准；提交仍需可信合同、D08身份、差异预览和明确确认。'}
+            'notice':'初步整理与审核表均未形成批准；基础资料采用差异预览后单人明确确认，专业及正式放行仍须原受控条件。'}
 
 def invoke(root,command,*arguments):
     from .cli import main
@@ -88,13 +88,13 @@ def describe(root,batch_id):
                                 if raw else '保留第3步逐行业务金额；不得以合计抵消商品差异')},
             'available_files':['精简业务审核Excel','海关受控草稿','内部到货受控草稿'],
             'formal_output':False,'blockers':blocker_summary,
-            'next_step':'查看差异并明确确认；由可信身份提交' if pending else '处理问题页例外并按明确范围确认普通商品'}
+            'next_step':'查看差异并明确确认保存基础资料；专业事项继续待审' if pending else '处理问题页例外并按明确范围确认普通商品'}
 
 def execute(root,request):
     allowed={'message','files','batch','currency','quantity_unit','contract','material_history','file',
              'operations','recommendations','official_materials','preview_id','confirmed_hash','confirm',
              'reference','session_token_env','library','criteria','as_of','registry','source_config','source_evidence',
-             'facts','row','expected_hash','realm','settings','conversion'}
+             'facts','row','expected_hash','realm','settings','conversion','product_library'}
     if not isinstance(request,dict) or set(request)-allowed: raise Rejected('请求字段未知')
     intent=route(request.get('message','')); command=intent['command']; files=request.get('files',[])
     store=Store(root); batch_id=request.get('batch'); value={}
@@ -113,7 +113,7 @@ def execute(root,request):
             if len(weight['weight_sheets'])!=1: raise Rejected('存在多个箱重页，请提供唯一明确的箱重资料')
             if inspection['input_mode']=='raw_invoice_preliminary':
                 from .contracts import create_raw_contract
-                value=save_contract(root,create_raw_contract(roles['raw_invoice'][0]['path'],weight['weight_sheets'][0]))
+                value=save_contract(root,create_raw_contract(roles['raw_invoice'][0]['path'],weight['weight_sheets'][0],product_library=request.get('product_library')))
             else:value=save_contract(root,create_contract(roles['invoice'][0]['path'],roles['stage3_authority'][0]['path'],weight['path'],weight['weight_sheets'][0]))
         elif command=='fill-contract':
             if not contract: raise Rejected('先准备本批业务合同，填写操作引用程序返回的合同文件，不编辑JSON')
@@ -146,6 +146,18 @@ def execute(root,request):
                'base_is_current':preview['base_is_current'],'commit_executed':False}
     elif command=='return-commit':
         if not batch_id or request.get('confirm') is not True: raise Rejected('须明确确认已展示的差异及范围')
+        if not request.get('session_token_env'):
+            from .excel_return import ReturnService,read_json
+            from .single_person import commit_business_confirmation
+            service=ReturnService(root)
+            pending=read_json(service._path('previews',request.get('preview_id','')))
+            if pending.get('batch_id')!=batch_id: raise Rejected('预览不属于指定批次')
+            value=commit_business_confirmation(service,request.get('preview_id',''),
+                                               confirmed_hash=request.get('confirmed_hash'),explicit_confirmation=True,
+                                               reference=request.get('reference',''))
+            value['knowledge_sync']={'status':'not_applicable','reason':'本次仅保存商品基础资料，不产生D1最终归类事件'}
+            response={'status':'ok','controlled_command':command,'result':value,'batch':describe(root,batch_id),'formal_output':False}
+            return response
         arguments=['--batch',batch_id,'--confirm']
         for key,flag in (('preview_id','preview-id'),('confirmed_hash','confirmed-hash'),('reference','reference'),('session_token_env','session-token-env')):
             if not request.get(key): raise Rejected('缺少确认凭据：'+key)
@@ -171,7 +183,7 @@ def execute(root,request):
                     from .contracts import create_raw_contract
                     weight=roles['weight'][0]
                     if len(weight['weight_sheets'])!=1: raise Rejected('存在多个箱重工作表，须明确选择')
-                    contract=create_raw_contract(roles['raw_invoice'][0]['path'],weight['weight_sheets'][0])
+                    contract=create_raw_contract(roles['raw_invoice'][0]['path'],weight['weight_sheets'][0],product_library=request.get('product_library'))
                     from .business_setup import save_contract
                     contract_file=save_contract(root,contract)['file']
                 elif roles['invoice'] and roles['weight']:
@@ -256,13 +268,19 @@ def execute(root,request):
             if request.get('library'):value['knowledge_sync']=sync_d1(root,request['library'],batch_id)
         elif command=='render-drafts':
             batch=store.load(batch_id);check_sources(batch)
-            folder=store.folder(batch_id)/'drafts'/('r'+str(batch['revision'])+'-'+digest(batch)[:12])
+            from .report_templates import target_name,load_preview
+            candidate=load_preview(root,batch,request['preview_id']) if request.get('preview_id') else None
+            name=target_name(batch,request.get('preview_id')) if batch.get('input_mode')=='raw_invoice_preliminary' else 'r'+str(batch['revision'])+'-'+digest(batch)[:12]
+            folder=store.folder(batch_id)/'drafts'/name
             if folder.exists():
                 from .drafts import draft_payload,verify_pair
-                payload=draft_payload(batch);comparison=verify_pair(batch,folder,payload)
+                payload=draft_payload(batch,candidate_preview=candidate);comparison=verify_pair(batch,folder,payload)
                 comparison['excel_engine']='python'
                 value={'directory':str(folder),'comparison':comparison,'summary':payload['summary']}
-            else:value=invoke(root,'render-drafts','--batch',batch_id)
+            else:
+                arguments=['--batch',batch_id]
+                if request.get('preview_id'):arguments+=['--preview-id',request['preview_id']]
+                value=invoke(root,'render-drafts',*arguments)
     response={'status':'ok','controlled_command':command,'result':value,'batch':describe(root,batch_id),'formal_output':False}
     if request.get('library') and request.get('criteria') and request.get('as_of'):
         response['historical_references']=historical_references(request['library'],request['criteria'],request['as_of'])

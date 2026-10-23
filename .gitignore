@@ -20,7 +20,10 @@
 !/tests/test_workbuddy_router.py
 !/tests/test_v070_workflow.py
 !/tests/test_business_setup.py
+!/tests/test_report_templates.py
+!/tests/test_single_person_mode.py
 !/docs/V070_TECHNICAL_DELIVERY.md
+!/docs/RC6_TEMPLATE_INTEGRATION.md
 
 # Per-run state, decision libraries, and credentials
 **/runs/

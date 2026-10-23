@@ -57,7 +57,12 @@ def private_tokens(batch):
     return tokens
 
 
-def draft_payload(batch):
+def draft_payload(batch, *, candidate_preview=None):
+    if batch.get('input_mode') == 'raw_invoice_preliminary':
+        from .report_templates import payload
+        return payload(batch, candidate_preview)
+    if candidate_preview:
+        raise Rejected('历史兼容草稿不支持候选预览叠加；请使用原始日方工作簿路径')
     validate(batch)
     status = workflow_status(batch)
     raw=batch.get('input_mode')=='raw_invoice_preliminary'
@@ -128,6 +133,9 @@ def draft_payload(batch):
 
 
 def verify_pair(batch, directory, payload):
+    if payload.get('schema') == 'japan-arrival/accepted-draft-pair-1':
+        from .report_templates import verify
+        return verify(batch, directory, payload)
     directory = Path(directory)
     results = {}
     tokens = private_tokens(batch)
@@ -200,7 +208,7 @@ def verify_pair(batch, directory, payload):
     return results
 
 
-def render_pair(batch, folder, runtime=None, *, previews=False):
+def render_pair(batch, folder, runtime=None, *, previews=False, candidate_preview=None):
     from .storage import atomic_json
     check_sources(batch)
     folder = Path(folder).resolve()
@@ -219,12 +227,18 @@ def render_pair(batch, folder, runtime=None, *, previews=False):
     folder.parent.mkdir(parents=True, exist_ok=True)
     if folder.exists():
         raise Rejected("该版本草稿目录已存在，拒绝覆盖；重新读取既有版本或审核变更后另存")
-    payload = draft_payload(batch)
+    payload = draft_payload(batch, candidate_preview=candidate_preview)
+    accepted = payload.get('schema') == 'japan-arrival/accepted-draft-pair-1'
+    if accepted and engine != 'python':
+        raise Rejected('已验收历史版式使用Python/openpyxl渲染，请移除旧Node引擎配置')
     with tempfile.TemporaryDirectory(prefix=".arrival-draft-", dir=folder.parent) as tmp:
         staging = Path(tmp)
         atomic_json(staging/"draft_payload.json", payload)
         if engine=='python':
-            from .excel_writer import write_pair
+            if accepted:
+                from .report_templates import write_pair
+            else:
+                from .excel_writer import write_pair
             write_pair(payload,staging)
         else:
             command = [node, str(Path(__file__).resolve().parents[1]/"render_drafts.mjs"), str(staging/"draft_payload.json"), str(staging), modules]

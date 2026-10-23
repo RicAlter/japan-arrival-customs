@@ -7,19 +7,29 @@ from . import _p0_frozen as p0
 from .core import Rejected, new_batch, new_row
 
 RAW_SHEET = "invoice (計算)"
-RAW_HEADERS = {"C": "ProductCode(JANCode)", "D": "DescriptionofGoods",
-               "G": "Origin", "H": "UnitPrice(日本JPY)", "I": "Qty", "K": "Subtotal"}
-RAW_COLUMNS = {"carton": "A", "code": "C", "ja": "D", "origin": "G",
-               "price": "H", "qty": "I", "amount": "K"}
+# Both layouts below are observed KMT raw-invoice layouts.  They are explicit
+# header contracts, not positional inference.  The second is the genuine KMT
+# source preserved in inputs/, while the first remains needed for rc.4 runs.
+RAW_LAYOUTS = (
+    {"headers": {"C": "ProductCode(JANCode)", "D": "DescriptionofGoods", "G": "Origin",
+                 "H": "UnitPrice(日本JPY)", "I": "Qty", "K": "Subtotal"},
+     "columns": {"carton": "A", "code": "C", "ja": "D", "origin": "G", "price": "H", "qty": "I", "amount": "K"},
+     "id": "kmt-raw-invoice-v1"},
+    {"headers": {"D": "ProductCode(JANCode)", "H": "DescriptionofGoods", "K": "Origin",
+                 "L": "UnitPrice(日本JPY)", "M": "Qty", "O": "Subtotal"},
+     "columns": {"carton": "A", "code": "D", "ja": "H", "origin": "K", "price": "L", "qty": "M", "amount": "O"},
+     "id": "kmt-raw-invoice-v2"},
+)
 
 
 def raw_invoice_layout(book):
     sheet = next((s for s in book.sheets if s.name == RAW_SHEET), None)
     if sheet is None:
         return None
-    if any(p0.clean(sheet.v(17, col)) != label for col, label in RAW_HEADERS.items()):
-        return None
-    return sheet
+    for layout in RAW_LAYOUTS:
+        if all(p0.clean(sheet.v(17, col)) == label for col, label in layout["headers"].items()):
+            return sheet, layout
+    return None
 
 
 def import_raw_invoice(path, *, currency="JPY", quantity_unit=""):
@@ -31,31 +41,32 @@ def import_raw_invoice(path, *, currency="JPY", quantity_unit=""):
     if currency != "JPY":
         raise Rejected("当前日方原表明确为日本JPY；其他币种须建立新模板合同")
     path = Path(path).resolve(strict=True); data = path.read_bytes()
-    book = p0.Book(data, str(path)); sheet = raw_invoice_layout(book)
-    if sheet is None:
-        raise Rejected("不匹配KMT日方原始发票模板：需要invoice (計算)第17行C/D/G/H/I/K表头")
+    book = p0.Book(data, str(path)); layout = raw_invoice_layout(book)
+    if layout is None:
+        raise Rejected("不匹配KMT日方原始发票模板：需要已支持的invoice (計算)第17行完整表头布局")
+    sheet, layout = layout; columns = layout["columns"]
     rows=[]; carry=None
     for ri in sorted(sheet.rows):
         if ri < 18: continue
         carton = sheet.v(ri, "A")
         if p0.present(carton): carry=carton
-        code=sheet.v(ri,"C"); description=sheet.v(ri,"D")
-        qty=sheet.v(ri,"I"); amount=sheet.v(ri,"K")
+        code=sheet.v(ri,columns["code"]); description=sheet.v(ri,columns["ja"])
+        qty=sheet.v(ri,columns["qty"]); amount=sheet.v(ri,columns["amount"])
         # TOTAL and auxiliary calculation rows are not商品明细.  A legitimate
         # no-code purchase is retained when it has a description and Qty/Subtotal.
         if p0.clean(sheet.v(ri,"G")).upper()=="TOTAL": continue
         if not (p0.present(code) or p0.present(description)): continue
         if not (p0.present(qty) or p0.present(amount)): continue
-        raw={field:sheet.v(ri,col) for field,col in RAW_COLUMNS.items()}
+        raw={field:sheet.v(ri,col) for field,col in columns.items()}
         raw.update(internal=None,variant=None,category=None,material=None,channel=None,yd=None)
         if not p0.present(raw["carton"]): raw["carton"]=carry
         cells={}
-        for field,col in RAW_COLUMNS.items():
+        for field,col in columns.items():
             cell=sheet.cells.get(f"{col}{ri}",{})
             cells[field]={"cell":f"{col}{ri}","column":col,
                           "value":p0.text(cell.get("v")),"formula":cell.get("f"),"type":cell.get("type")}
         source={"path":str(path),"sha256":book.sha256,"sheet":sheet.name,"row":ri,
-                "stage":1,"template":"kmt-raw-invoice-v1","cells":cells}
+                "stage":1,"template":layout["id"],"cells":cells}
         serialized={k:(p0.text(v) if v is not None else None) for k,v in raw.items()}
         row=new_row(source,serialized,currency=currency,quantity_unit=quantity_unit,
                     authority_stage=1,authority_status="preliminary_from_raw_invoice",
@@ -79,7 +90,7 @@ def import_raw_invoice(path, *, currency="JPY", quantity_unit=""):
     if not rows: raise Rejected("日方原表未发现商品明细")
     if p0.sha(path.read_bytes()) != book.sha256: raise Rejected("读取期间原件发生变化")
     batch=new_batch(rows,[{"path":str(path),"sha256":book.sha256,"stage":1,
-                           "kind":"kmt-raw-invoice-v1","sheet":sheet.name}])
+                           "kind":"kmt-raw-invoice-v1","layout":layout["id"],"sheet":sheet.name}])
     batch["input_mode"]="raw_invoice_preliminary"
     batch["arrival_summary"]={"rows":len(rows),"subtotal_jpy":str(sum((p0.numeric_text(r["raw"]["amount"])
         for r in rows if p0.numeric_text(r["raw"]["amount"]) is not None),p0.Decimal(0))),

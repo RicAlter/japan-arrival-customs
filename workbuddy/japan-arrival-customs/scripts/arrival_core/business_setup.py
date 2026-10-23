@@ -128,7 +128,10 @@ def sign_filled_contract(root,contract,*,session,reference,confirmed_hash,confir
 
 
 def verify_contract(root,contract):
-    config=runtime(root);validate_contract(contract);_units(contract,config)
+    # The product-library hash is an import snapshot.  A later single-person
+    # correction may append new candidate evidence to that external library;
+    # this must not rewrite or invalidate the already-imported batch.
+    config=runtime(root);validate_contract(contract,verify_product_library=False);_units(contract,config)
     proof=contract.get('approval') or {}
     if not contract_status(contract)['approved_for_business_review'] or not proof.get('host_seal'):
         raise Rejected('合同尚未通过本宿主可信签核：请填写单位并用可信合同会话签核，不能提交真实审核。')

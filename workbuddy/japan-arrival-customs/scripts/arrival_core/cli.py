@@ -29,6 +29,14 @@ def main(argv=None):
             cmd.add_argument('--criteria',required=True,help='商品类型/用途/组成/构造条件JSON；仅检索')
             cmd.add_argument('--realm',choices=['formal','test','quarantine'],default='formal')
         if name in ('knowledge-backup','knowledge-restore'):cmd.add_argument('--backup',required=True)
+    for name in ('product-library-init','product-library-import','product-library-stats','product-library-lookup'):
+        cmd=sub.add_parser(name,help='本地商品基础资料库；与D1最终申报决策库分离')
+        cmd.add_argument('--library',required=True)
+        if name=='product-library-import':
+            cmd.add_argument('--sources',required=True,nargs='+')
+            cmd.add_argument('--source-kind',default='auto',choices=['auto','purchase_order','product_archive','historical_arrival','official_reference','historical_material'])
+        if name=='product-library-lookup':
+            cmd.add_argument('--code',required=True);cmd.add_argument('--japanese-name',default='')
     d2=sub.add_parser('d2-report',help='只读发现候选/冲突；不发布规则')
     d2.add_argument('--library',required=True);d2.add_argument('--as-of',required=True)
     d2r=sub.add_parser('d2-replay',help='按事件时间输出回放可用性；不使用未来知识')
@@ -92,6 +100,7 @@ def main(argv=None):
         if name == "render-drafts":
             cmd.add_argument("--runtime", help="可选：显式选择旧Node引擎；默认Python/openpyxl")
             cmd.add_argument("--previews", action="store_true")
+            cmd.add_argument('--preview-id', help='可选：当前已登记B2预览，仅展示候选，绝不提交')
         if name == 'group-review-package':
             cmd.add_argument('--domain',required=True,choices=['identity','material','packaging','tax'])
         if name == 'export-compact':
@@ -115,6 +124,16 @@ def main(argv=None):
     args = parser.parse_args(argv)
     store = Store(args.output)
     try:
+        if args.command.startswith('product-library-'):
+            from .product_library import ProductLibrary
+            if args.command=='product-library-init':
+                library=ProductLibrary.create(args.library);value={'library':str(library.path),'created':True,'statistics':library.statistics()}
+            else:
+                library=ProductLibrary(args.library)
+                if args.command=='product-library-import':value=library.import_workbooks(args.sources,source_kind=args.source_kind)
+                elif args.command=='product-library-stats':value=library.statistics()
+                else:value=library.lookup(args.code,japanese_name=args.japanese_name)
+            print(json.dumps(value,ensure_ascii=False));return 0
         if args.command in ('fill-contract','preflight'):
             from .business_setup import fill_contract,preflight
             if args.command=='fill-contract':value=fill_contract(store.root,read(args.contract),{'authority_quantity_unit':args.authority_unit,'invoice_quantity_unit':args.invoice_unit})
@@ -316,9 +335,16 @@ def main(argv=None):
                 print(json.dumps(export_intermediate(batch,target),ensure_ascii=False))
                 return 0
             if args.command == "render-drafts":
-                from .drafts import render_pair
-                target = folder/"drafts"/("r"+str(batch["revision"])+"-"+digest(batch)[:12])
-                value = render_pair(batch,target,read(args.runtime) if args.runtime else None,previews=args.previews)
+                from .drafts import render_pair,draft_payload,verify_pair
+                from .report_templates import target_name,load_preview
+                candidate=load_preview(args.output,batch,args.preview_id) if args.preview_id else None
+                name=target_name(batch,args.preview_id) if batch.get('input_mode')=='raw_invoice_preliminary' else 'r'+str(batch['revision'])+'-'+digest(batch)[:12]
+                target = folder/'drafts'/name
+                if target.exists():
+                    payload=draft_payload(batch,candidate_preview=candidate)
+                    value={'directory':str(target),'comparison':verify_pair(batch,target,payload),'summary':payload['summary'],'replayed':True}
+                else:
+                    value = render_pair(batch,target,read(args.runtime) if args.runtime else None,previews=args.previews,candidate_preview=candidate)
                 print(json.dumps(value,ensure_ascii=False))
                 return 0
             if args.command == "review-package":

@@ -146,7 +146,8 @@ def build_plan(batch, catalog):
             '；'.join(sorted({m['candidate_method'] for m in members})) +
             ('；原始日方发票商品尚未与开定/商品档案闭合' if raw else '；日方原表与第3步身份未闭合'),
             '核定映射、改码/拆分依据及各行版本规格；不同版本分别核对。D06未批准不执行改码', grouping=key)
-    no_yd = [r['id'] for r in rows if not r['product']['yd'] and not r['product']['yd_absence_reason']]
+    no_yd = ([] if batch.get('product_data_policy') == 'single-person-v1' else
+             [r['id'] for r in rows if not r['product']['yd'] and not r['product']['yd_absence_reason']])
     if no_yd:
         add('product', no_yd, 'YD空缺原因（允许无YD）', '保留空白，不生成编码；无需填写前台记录状态',
             '缺少无YD的实际业务原因，并非认定商品不合法',
@@ -245,7 +246,8 @@ def _write(plan, target):
          '名称/品类/YD/渠道预填，申报名来自历史；专业审核独立，不要求前台状态。D08可信身份到位后由Skill记录明确范围。'],
         ['再看什么', '待处理问题', s['issue_groups'], '组（范围可能重叠）', '点击下方“待处理问题”；只处理必要决策；无修改可由Skill接收明确操作和范围，无需逐行填申请。'],
         ['身份异常', '改码/拆分', s['identity_rows'], f"行 / {s['identity_groups']}组", '需要真实映射及版本证据；不执行推测改码。'],
-        ['允许无码', 'YD空缺原因', s['yd_reason_rows'], '行', '相同实际原因可合并说明；保留YD空白，不补前台状态。'],
+        ['内部参考', 'YD为可选内部编码' if b.get('product_data_policy') == 'single-person-v1' else 'YD空缺原因',
+         s['yd_reason_rows'], '需处理行', 'YD空缺无需补齐，不作为异常或阻塞项。' if b.get('product_data_policy') == 'single-person-v1' else '相同实际原因可合并说明；保留YD空白，不补前台状态。'],
         ['已经预填', '申报品名候选', s['customs_name_prefilled'], '行', '历史第5步C列；第6步版本/内部名交叉对齐。未冒充已审核，不使用内部名替代。'],
         ['证据有限', '历史材质查询网址', s['material_query_with_url_rows'], '行', '网址为旧查询记录，未访问或验证当前页面；文本不同不等于已证明实质冲突。'],
         ['专业审核', '材质 / 盒规 / 税率', f"{s['issue_groups_by_domain'].get('material',0)} / {s['issue_groups_by_domain'].get('packaging',0)} / {s['issue_groups_by_domain'].get('tax',0)}", '导航组',

@@ -13,6 +13,14 @@ def source(path, kind, sheet=None):
     return {"path": str(path), "sha256": p0.sha(path.read_bytes()), "kind": kind, "sheet": sheet}
 
 
+def product_library_source(path):
+    """Bind a batch to one immutable local-product-library snapshot."""
+    path = Path(path).resolve(strict=True)
+    if path.suffix.lower() not in (".sqlite", ".sqlite3", ".db"):
+        raise Rejected("商品资料库必须是独立SQLite文件")
+    return {"path": str(path), "sha256": p0.sha(path.read_bytes()), "kind": "local-product-library-v1"}
+
+
 def create_contract(invoice, authority, weights, weight_sheet, *, customs_reference=None, internal_reference=None):
     files = {"invoice": source(invoice, "kmt-invoice-v1"),
              "authority": source(authority, "kmt-stage3-v1"),
@@ -30,7 +38,7 @@ def create_contract(invoice, authority, weights, weight_sheet, *, customs_refere
             "purpose": "controlled_test_draft"}
 
 
-def create_raw_contract(invoice, weight_sheet, *, customs_reference=None, internal_reference=None):
+def create_raw_contract(invoice, weight_sheet, *, customs_reference=None, internal_reference=None, product_library=None):
     """Create an unsigned source contract for a genuine raw workbook.
 
     The contract records files and observed headers only.  It is not a D07/D08
@@ -41,7 +49,7 @@ def create_raw_contract(invoice, weight_sheet, *, customs_reference=None, intern
     for key,path,kind in (("customs_reference",customs_reference,"kmt-stage5-reference"),
                           ("internal_reference",internal_reference,"kmt-stage6-reference")):
         if path: files[key]=source(path,kind)
-    return {"schema":"japan-arrival/contract-1","input_mode":"raw_invoice_preliminary","sources":files,
+    contract={"schema":"japan-arrival/contract-1","input_mode":"raw_invoice_preliminary","sources":files,
             "currency":"JPY","currency_basis":"日方原表UnitPrice(日本JPY)表头观察；未构成最终金额批准",
             "authority_quantity_unit":None,"row_quantity_units":{},"invoice_quantity_unit":None,
             "quantity_semantics":"Qty为仓库实际点收的最大到货单位数量；具体单位须查询开定/采购资料",
@@ -49,9 +57,12 @@ def create_raw_contract(invoice, weight_sheet, *, customs_reference=None, intern
             "weight_unit":"KG","weight_unit_basis":"同一原工作簿重さとサイズ页合計重量（KGS)",
             "responsibilities":{role:None for role in ROLES},"approval":None,
             "customs_whitelist_approval":None,"rounding_policy":None,"purpose":"controlled_test_draft"}
+    if product_library:
+        contract["product_library"] = product_library_source(product_library)
+    return contract
 
 
-def validate_contract(contract):
+def validate_contract(contract, *, verify_product_library=True):
     if not isinstance(contract, dict) or not isinstance(contract.get('sources'), dict):
         raise Rejected('缺少有效输入合同或来源清单；请通过init-contract/准备这批业务合同生成，不手工拼写JSON')
     if not isinstance(contract.get('responsibilities'),dict) or not isinstance(contract.get('row_quantity_units',{}),dict):
@@ -79,6 +90,13 @@ def validate_contract(contract):
         path = Path(item["path"]).resolve(strict=True)
         if p0.sha(path.read_bytes()) != item["sha256"]:
             raise Rejected("合同源文件哈希不匹配: " + key)
+    library = contract.get("product_library")
+    if library is not None:
+        if not isinstance(library, dict) or library.get("kind") != "local-product-library-v1" or not library.get("path") or not library.get("sha256"):
+            raise Rejected("商品资料库引用格式无效；请从受控本地库选择，不手工拼写")
+        library_path = Path(library["path"]).resolve(strict=True)
+        if verify_product_library and p0.sha(library_path.read_bytes()) != library["sha256"]:
+            raise Rejected("商品资料库在建批后已变化；请重新准备合同以保留可追溯快照")
     if not contract["sources"]["weights"].get("sheet"):
         raise Rejected("必须明确箱重工作表，不能猜选")
     if set(contract.get("responsibilities", {})) != set(ROLES):

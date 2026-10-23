@@ -7,7 +7,7 @@ from .storage import Store
 ROUTES=(('生成海关和内部到货表','render-drafts'),('生成海关和内部到货','render-drafts'),
  ('查看这批还有哪些问题','status'),('这是我修改后的审核表，继续处理','return-preview'),
  ('生成这批到货的审核表','return-export'),('生成审核表','return-export'),('处理这批日本到货','import-stage3'),
- ('确认提交这批审核','return-commit'),('应用已授权归类规则','rule-apply'),
+ ('确认并保存这批审核','return-commit'),('确认提交这批审核','return-commit'),('应用已授权归类规则','rule-apply'),
  ('准备这批业务合同','prepare-contract'),('填写这批业务合同','fill-contract'),
  ('签核这批业务合同','sign-contract'),('检查这批能否开始','preflight'),
  ('预览这批单位换算','preview-conversion'),('确认这批单位换算','confirm-conversion'))
@@ -15,7 +15,7 @@ def route(message):
     text=''.join(str(message).split())
     matches=[command for phrase,command in ROUTES if phrase in text]
     if len(set(matches))!=1: raise Rejected('无法唯一识别操作；请使用“处理这批日本到货”等受控表达')
-    return {'command':matches[0],'automatic_execution':False,'notice':'仅映射到受控命令；仍须完成预检、差异预览和可信审批'}
+    return {'command':matches[0],'automatic_execution':False,'notice':'仅映射到受控命令；仍须完成差异预览和明确确认。单人确认仅保存商品资料，不代替专业或正式审批。'}
 
 def inspect_workbooks(paths):
     found=[]
@@ -28,9 +28,9 @@ def inspect_workbooks(paths):
             first=wb.worksheets[0]
             cells={address:str(first[address].value or '').strip() for address in ('A1','C1','D1','J1','K1','L1','D17','M17')}
             raw=wb['invoice (計算)'] if 'invoice (計算)' in wb.sheetnames else None
-            raw_headers={c:str(raw[f'{c}17'].value or '').strip() for c in ('C','D','G','H','I','K')} if raw else {}
-            raw_match=raw_headers=={'C':'ProductCode(JANCode)','D':'DescriptionofGoods','G':'Origin',
-                                    'H':'UnitPrice(日本JPY)','I':'Qty','K':'Subtotal'}
+            from .importer import RAW_LAYOUTS
+            raw_match=bool(raw) and any(all(str(raw[f'{column}17'].value or '').strip()==label
+                                             for column,label in layout['headers'].items()) for layout in RAW_LAYOUTS)
             weight_sheets=[ws.title for ws in wb.worksheets if str(ws['A1'].value or '').strip()=='箱番' and 'KGS' in str(ws['D1'].value or '')]
         finally: wb.close()
         roles=[]

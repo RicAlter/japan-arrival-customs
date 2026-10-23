@@ -32,11 +32,14 @@ def payload(batch):
     rows=[]
     for n,row in enumerate(batch['rows'],1):
         lookup=row.get('product_lookup',{})
+        packaging_candidate=(row.get('arrival',{}).get('product_reference_packaging',{}).get('values',{}).get('packaging_label'))
+        packaging_display=(row['arrival'].get('packaging_content') or
+                           (('资料库候选（未批准，不可换算）：'+packaging_candidate) if packaging_candidate else '待查，不按商品名猜测'))
         missing=[name for name,key in (('中文名','internal_name'),('品类','category'),('YD或无YD原因','yd'),('材质','material'))
                  if not (row['product'].get(key) if key!='material' else row['material'].get('candidate'))]
         rows.append([n,row['source']['sheet'],row['source']['row'],_cell(row,'carton'),_cell(row,'code'),_cell(row,'ja'),
             _cell(row,'origin'),_cell(row,'price'),_cell(row,'qty'),row['arrival'].get('unit_raw') or '待查开定/采购资料',
-            row['arrival'].get('packaging_content') or '待查，不按商品名猜测',_cell(row,'amount'),
+            packaging_display,_cell(row,'amount'),
             row['product']['internal_name'] or None,row['product']['category'] or None,row['product']['yd'] or None,
             row['material']['candidate'] or None,lookup.get('status','not_configured'),
             '待补：'+'、'.join(missing) if missing else '候选已预填，仍待人工审核'])

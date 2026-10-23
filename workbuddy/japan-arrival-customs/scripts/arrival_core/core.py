@@ -141,7 +141,13 @@ def product_errors(row, *, require_frontend=True):
 
 def product_errors_for_batch(batch, row):
     # New business profile follows the user's explicit B1 decision: frontend presence
-    # is optional, never inferred from YD. Legacy profile remains replayable.
+    # and YD are optional internal references, never inferred from one another.
+    # Legacy batches remain replayable under their original stricter checks.
+    if batch.get("product_data_policy") == "single-person-v1":
+        # Trusted local history is reusable basic-product information, not a
+        # customs/declaration approval.  Do not recreate a task merely because
+        # the historical archive lacks a customs name or optional front-end/YD.
+        return ["missing_" + key for key in ("internal_name", "category") if not row["product"].get(key, "").strip()]
     return product_errors(row, require_frontend=batch.get("product_review_profile") != "exception-first-v1")
 
 
@@ -154,11 +160,11 @@ def product_disputes(row):
 def review_package(batch):
     validate(batch)
     ordinary = [r["id"] for r in batch["rows"] if not product_disputes(r) and not product_errors_for_batch(batch,r)
-                and not r["reviews"]["product"]]
+                and not r["reviews"]["product"] and not r.get("product_lookup", {}).get("trusted_history_reused")]
     return {"schema": "japan-arrival/review-1", "batch_id": batch["id"],
             "revision": batch["revision"], "state_hash": digest(batch),
             "ordinary_ids": ordinary,
-            "individual_ids": [r["id"] for r in batch["rows"] if not r["reviews"]["product"]
+            "individual_ids": [r["id"] for r in batch["rows"] if not r["reviews"]["product"] and not r.get("product_lookup", {}).get("trusted_history_reused")
                                and (product_disputes(r) or product_errors_for_batch(batch,r))],
             "rows": [{"id": r["id"], "source": r["source"], "identity": r["identity"],
                       "product": r["product"], "disputes": r["disputes"],
