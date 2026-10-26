@@ -130,7 +130,7 @@ class AmountApprovalTests(WorkflowTests):
         security = self.output / "security" / "trusted_sessions.json"
         config = json.loads(security.read_text(encoding="utf-8"))
         config["sessions"].append({"principal": "NO_AMOUNT", "roles": ["business"],
-            "mode": "synthetic_technical_test", "credential_ref": "TEST", 
+            "mode": "synthetic_technical_test", "credential_ref": "TEST",
             "token_sha256": hashlib.sha256(b"NO-AMOUNT").hexdigest(),
             "expires_at": config["sessions"][0]["expires_at"]})
         atomic_json(security, config)

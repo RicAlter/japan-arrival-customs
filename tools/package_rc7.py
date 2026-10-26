@@ -37,7 +37,8 @@ def main():
         with zipfile.ZipFile(package) as archive: archive.extractall(target)
         for name, expected in manifest.items():
             if sha((target/name).read_bytes())!=expected: raise RuntimeError('解压候选哈希不一致')
-        probe=subprocess.run([sys.executable,str(target/'scripts/run.py'),'--help'],capture_output=True,text=True)
+        probe=subprocess.run([sys.executable,str(target/'scripts/run.py'),'--help'],capture_output=True,text=True,
+                             errors='replace')
         if probe.returncode: raise RuntimeError('解压后入口不可执行:'+probe.stderr)
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     receipt={'version':VERSION,'branch':subprocess.check_output(['git','branch','--show-current'],cwd=ROOT,text=True).strip(),
