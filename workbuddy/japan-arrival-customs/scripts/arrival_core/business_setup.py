@@ -281,6 +281,15 @@ def preflight(root,*,files=(),contract=None,batch=None,library=None,session=None
         return {'available':True,'source_kind':meta['source_kind']}
     check('D1',check_library,'选择匹配本运行环境的外置D1库')
     checks['formal_output']={'ok':False,'reason':'D05正式字段白名单及逐票业务门禁未放行；正式输出保持关闭'}
-    return {'checks':checks,'todos':tasks,'ready_for_review_submission':all(checks[k]['ok'] for k in ('runtime','files','contract','identity','output','python','openpyxl')),
+    basic = bool(batch and batch.get('product_data_policy')=='single-person-v1')
+    basic_ready = basic and all(checks[k]['ok'] for k in ('files','output','python','openpyxl'))
+    professional_ready = all(checks[k]['ok'] for k in ('runtime','files','contract','identity','output','python','openpyxl'))
+    from .host_acceptance import capabilities
+    return {'checks':checks,'todos':([] if basic_ready else tasks),
+            'professional_todos':tasks,'capabilities':{
+                'basic_confirmation':{'available':basic_ready,'requires_D08':False},
+                'professional_review':{'available':professional_ready,'requires_corresponding_roles':True},
+                'formal_output':{'available':False}},'host_acceptance':capabilities(root),
+            'ready_for_review_submission':professional_ready,
             'drafts_allowed':bool(contract and checks['files']['ok'] and checks['output']['ok'] and checks['openpyxl']['ok']),
             'formal_output_allowed':False,'notice':'预检不代替逐行金额、数量、箱重及分域审核；技术通过不代表真实关务批准。'}

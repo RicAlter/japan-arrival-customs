@@ -23,9 +23,11 @@
 !/tests/test_report_templates.py
 !/tests/test_single_person_mode.py
 !/tests/test_product_maintenance_skill.py
+!/tests/test_rc7_*.py
 !/docs/V070_TECHNICAL_DELIVERY.md
 !/docs/RC6_TEMPLATE_INTEGRATION.md
 !/docs/PRODUCT_LIBRARY_INTERFACE_SYNC.md
+!/docs/contracts/PRODUCT_SOURCE_V1_FREEZE.md
 
 # Per-run state, decision libraries, and credentials
 **/runs/

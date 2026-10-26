@@ -21,7 +21,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Protection
 from openpyxl.workbook.properties import CalcProperties
 from openpyxl.utils import get_column_letter
 
-from .core import Rejected, digest, validate
+from .core import Rejected, digest, validate, pricing_basis
 from .excel_writer import literal, save_exact
 
 SCHEMA = "japan-arrival/accepted-draft-pair-1"
@@ -128,10 +128,11 @@ def payload(batch, preview=None):
     for er, row in enumerate(batch["rows"], 2):
         product = dict(row["product"], **products.get(row["id"], {}))
         pack = conversion(row)
-        price_ready = bool(row["reviews"]["price"]) and row["authority"].get("status") == "business_confirmed_stage3"
+        basis = pricing_basis(row)
+        price_ready = bool(row["reviews"]["price"]) and basis.get("status") in ("business_confirmed_stage3", "business_confirmed_in_batch")
         quantity = optional_number(pack.get("declaration_quantity"))
-        amount = Fraction(row["authority"]["amount"]) if price_ready else None
-        raw_qty = optional_number(row["arrival"]["quantity_raw"])
+        amount = Fraction(basis["amount"]) if price_ready else None
+        raw_qty = optional_number(pack.get('internal_quantity') if pack.get('status')=='confirmed_exact_conversion' else row["arrival"]["quantity_raw"])
         piece_price, arrival_price = None, None
         if amount is not None and quantity:
             piece_price = optional_number(amount / Fraction(pack["declaration_quantity"]))
@@ -139,8 +140,8 @@ def payload(batch, preview=None):
             if not isinstance(piece_price, (int, float)) or Fraction(str(piece_price)) * Fraction(pack["declaration_quantity"]) != amount:
                 piece_price = None
         if amount is not None and raw_qty:
-            arrival_price = optional_number(amount / Fraction(row["arrival"]["quantity_raw"]))
-            if not isinstance(arrival_price, (int, float)) or Fraction(str(arrival_price)) * Fraction(row["arrival"]["quantity_raw"]) != amount:
+            arrival_price = optional_number(amount / Fraction(str(raw_qty)))
+            if not isinstance(arrival_price, (int, float)) or Fraction(str(arrival_price)) * Fraction(str(raw_qty)) != amount:
                 arrival_price = None
         material = selected_material(row, approved_only=True)
         candidate_material = materials.get(row["id"]) or (row["material"].get("selected") or {}).get("translation") or row["material"].get("candidate")
@@ -172,7 +173,7 @@ def payload(batch, preview=None):
         tax = row.get("tax") if row["reviews"]["tax"] and row["reviews"]["packaging"] else None
         tax_ready = bool(tax and price_ready and arrival_price is not None
                          and Fraction(tax["tax_unit_price"]) == Fraction(str(arrival_price))
-                         and Fraction(row["packaging"]["internal_quantity"]) == Fraction(row["arrival"]["quantity_raw"]))
+                         and Fraction(row["packaging"]["internal_quantity"]) == Fraction(str(raw_qty)))
         if tax_ready:
             i[14] = optional_number(tax["duty_rate"])
             vat_rate = tax["vat_rate"]

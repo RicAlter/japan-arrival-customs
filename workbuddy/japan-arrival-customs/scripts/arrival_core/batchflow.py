@@ -152,16 +152,18 @@ def import_raw_batch(contract):
 
 
 def conversion(row):
+    from .core import pricing_basis
     if not row["reviews"]["packaging"]:
         return {"status": "pending", "declaration_quantity": None, "declaration_unit": None,
                 "reason": "packaging_evidence_unconfirmed"}
     pack = row["packaging"]
-    if pack["source_unit"] != row["authority"]["quantity_unit"]:
+    basis = pricing_basis(row)
+    if pack["source_unit"] != basis["quantity_unit"]:
         raise Rejected("采购/计价数量单位与已确认换算依据不一致")
-    quantity = Fraction(decimal(row["authority"]["quantity"])) * Fraction(decimal(pack["declaration_factor"]))
+    quantity = Fraction(decimal(basis["quantity"])) * Fraction(decimal(pack["declaration_factor"]))
     if quantity <= 0:
         raise Rejected("换算数量必须大于零")
-    return {"status": "confirmed_exact_conversion", "source_quantity": row["authority"]["quantity"],
+    return {"status": "confirmed_exact_conversion", "source_quantity": basis["quantity"],
             "source_unit": pack["source_unit"], "factor": pack["declaration_factor"],
             "declaration_quantity": str(quantity), "declaration_unit": pack["declaration_unit"],
             "internal_boxes": pack["internal_boxes"], "internal_quantity": pack["internal_quantity"],
@@ -178,12 +180,14 @@ def professional_queue(batch):
 def reconcile_quantities(batch):
     """Distinguish exact math from missing unit/identity evidence; never infer a new coefficient."""
     checks=[]
+    from .core import pricing_basis
     for row in batch["rows"]:
+        basis = pricing_basis(row)
         pending=[]
         original=row.get("original_purchase",{})
         record=original.get("record") or {}
         original_unit=original.get("quantity_unit")
-        authority_unit=row["authority"]["quantity_unit"]
+        authority_unit=basis["quantity_unit"]
         # A raw invoice row is already its own traceable source row.  It has not
         # been enriched or approved, but it does not need a second identity
         # alignment before the received quantity can be shown.
@@ -195,7 +199,7 @@ def reconcile_quantities(batch):
             if original_unit!=authority_unit:
                 pending.append("invoice_to_authority_conversion_evidence_required")
             else:
-                try:raw_equal=decimal(record["qty"])==decimal(row["authority"]["quantity"])
+                try:raw_equal=decimal(record["qty"])==decimal(basis["quantity"])
                 except Rejected:pending.append("invalid_source_quantity")
                 if raw_equal is False:pending.append("original_quantity_change_needs_confirmation")
         converted=conversion(row)
@@ -204,10 +208,10 @@ def reconcile_quantities(batch):
         exact_amount_equal=None
         if price["status"]=="exact_ratio_only":
             exact_amount_equal=(Fraction(price["declaration_quantity"])*Fraction(int(price["unit_price_numerator"]),int(price["unit_price_denominator"]))
-                                ==Fraction(decimal(row["authority"]["amount"])))
+                                ==Fraction(decimal(basis["amount"])))
         else:pending.append("amount_review_pending")
         checks.append({"id":row["id"],"original_quantity":record.get("qty"),"original_unit":original_unit,
-                       "authority_quantity":row["authority"]["quantity"],"authority_unit":authority_unit,
+                       "authority_quantity":basis["quantity"],"authority_unit":authority_unit,
                        "same_unit_original_quantity_equal":raw_equal,"conversion":converted,
                        "exact_amount_equal":exact_amount_equal,"pending":pending,"passed":not pending and exact_amount_equal is True})
     return {"passed":all(r["passed"] for r in checks),"rows":checks,

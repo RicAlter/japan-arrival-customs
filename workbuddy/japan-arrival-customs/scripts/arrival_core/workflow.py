@@ -74,6 +74,17 @@ def describe(root,batch_id):
     blocker_summary={'formal_ready':status.get('formal_ready',False),'draft_allowed':status.get('draft_allowed',True),
                      'pending_rows':missing,'pending_reason_counts':reason_counts,
                      'contract':contract_summary,'logistics':status.get('logistics',{})}
+    from .host_acceptance import capabilities
+    host = capabilities(root)
+    basic = bool(batch.get('product_data_policy') == 'single-person-v1')
+    capability_status = {'basic_confirmation': {'available':basic, 'scope':'基础商品资料；专业域独立'},
+                         'professional_review':{'available':bool(contract.get('approved_for_business_review')),
+                                                'missing':contract_summary.get('missing_reason_counts',{})},
+                         'formal_output':{'available':False,'reason':'逐票专业审核与外发许可未放行'}}
+    gates=[g for g in status.get('global_gates',[]) if not
+           (g=='WorkBuddy_native_trigger_pending' and host['native_trigger']['state']=='passed') and not
+           (g=='WorkBuddy_D1_rejection_evidence_pending' and host['D1_rejection']['state']=='passed')]
+    blocker_summary['global_gates']=gates
     stage='modified_pending_confirmation' if pending else 'review_complete' if batch.get('active_review_lock') else 'waiting_review'
     if not pending and receipts and missing: stage='blocked'
     raw=batch.get('input_mode')=='raw_invoice_preliminary'
@@ -87,17 +98,29 @@ def describe(root,batch_id):
                       'amount':('日方原表Subtotal合计仅作初步到货总价；最终申报金额待业务确定，逐行不得抵消'
                                 if raw else '保留第3步逐行业务金额；不得以合计抵消商品差异')},
             'available_files':['精简业务审核Excel','海关受控草稿','内部到货受控草稿'],
-            'formal_output':False,'blockers':blocker_summary,
+            'formal_output':False,'blockers':blocker_summary,'capabilities':capability_status,'host_acceptance':host,
             'next_step':'查看差异并明确确认保存基础资料；专业事项继续待审' if pending else '处理问题页例外并按明确范围确认普通商品'}
 
 def execute(root,request):
     allowed={'message','files','batch','currency','quantity_unit','contract','material_history','file',
              'operations','recommendations','official_materials','preview_id','confirmed_hash','confirm',
              'reference','session_token_env','library','criteria','as_of','registry','source_config','source_evidence',
-             'facts','row','expected_hash','realm','settings','conversion','product_library'}
+             'facts','row','expected_hash','realm','settings','conversion','product_library','export_id','amounts'}
     if not isinstance(request,dict) or set(request)-allowed: raise Rejected('请求字段未知')
     intent=route(request.get('message','')); command=intent['command']; files=request.get('files',[])
     store=Store(root); batch_id=request.get('batch'); value={}
+    if command in ('preview-amount','confirm-amount'):
+        if not batch_id:raise Rejected('须明确本票批次')
+        from .business_amount import preview as amount_preview, commit as amount_commit
+        if command=='preview-amount':
+            value=amount_preview(root,batch_id,request.get('amounts'),reference=request.get('reference'))
+        else:
+            import os
+            from .return_auth import load_session
+            session=load_session(root,os.environ.get(request.get('session_token_env',''),''))
+            value=amount_commit(root,batch_id,request.get('preview_id'),confirmed_hash=request.get('confirmed_hash'),
+                confirm=request.get('confirm'),session=session,reference=request.get('reference'))
+        return {'status':'ok','controlled_command':command,'result':value,'formal_output':False,'batch':describe(root,batch_id)}
     if command in ('prepare-contract','fill-contract','sign-contract','preflight'):
         from .business_setup import save_contract,fill_contract,sign_filled_contract,preflight
         contract=json.loads(Path(request['contract']).read_text(encoding='utf-8-sig')) if request.get('contract') else None
@@ -138,12 +161,13 @@ def execute(root,request):
         from .excel_return import ReturnService
         operations=request.get('operations')
         if isinstance(operations,str): operations=json.loads(Path(operations).read_text(encoding='utf-8-sig'))
-        preview=ReturnService(root).preview(file,operations=operations)
+        preview=ReturnService(root).preview(file,batch_id=batch_id,export_id=request.get('export_id'),operations=operations)
         if batch_id and preview['batch_id']!=batch_id: raise Rejected('审核表不属于指定批次')
         batch_id=preview['batch_id']
         value={'preview_id':preview['preview_id'],'confirmation_hash':preview['confirmation_hash'],
                'changes':preview['proposals'],'operations':preview['operations'],'issue_notes':preview['issue_notes'],
                'base_is_current':preview['base_is_current'],'commit_executed':False}
+        if preview.get('binding'):value['binding']=preview['binding']
     elif command=='return-commit':
         if not batch_id or request.get('confirm') is not True: raise Rejected('须明确确认已展示的差异及范围')
         if not request.get('session_token_env'):

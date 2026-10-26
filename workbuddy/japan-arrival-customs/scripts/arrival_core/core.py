@@ -56,6 +56,11 @@ def context(row):
     return {k: row["identity"][k] for k in ("code", "version", "specification")}
 
 
+def pricing_basis(row):
+    from .business_amount import effective_basis
+    return effective_basis(row)
+
+
 def new_row(source, raw, *, currency, quantity_unit, authority_stage=3,
             authority_status=None, amount_basis=None):
     row_id = digest([source["sha256"], source["sheet"], source["row"]])[:24]
@@ -104,6 +109,9 @@ def validate(batch):
     if len(ids) != len(set(ids)) or not ids:
         raise Rejected("明细必须存在且源行标识不得重复")
     for r in batch["rows"]:
+        if r.get('business_amount'):
+            from .business_amount import current
+            current(r)
         authority = r["authority"]
         stage = authority.get("stage")
         if stage not in (1, 3) or authority["source"] != r["source"]:
@@ -327,7 +335,7 @@ def _apply_domain_row(row, domain, payload, *, actor, evidence, _declaration_com
         elif domain == "packaging":
             if not all(p.get(k) for k in ("source_unit", "declaration_unit", "internal_unit", "source")):
                 raise Rejected("盒规各层单位和来源必填")
-            if p["source_unit"] != row["authority"]["quantity_unit"]:
+            if p["source_unit"] != pricing_basis(row)["quantity_unit"]:
                 raise Rejected("盒规采购单位不匹配当前已确认的原始到货单位")
             positive(p.get("declaration_factor")); positive(p.get("pieces_per_box"))
             positive(p.get("internal_quantity")); positive(p.get("internal_boxes"))
@@ -372,8 +380,11 @@ def select_historical_material(row, candidates):
 def exact_price(row):
     if not row["reviews"]["price"] or not row["reviews"]["packaging"]:
         return {"status": "pending", "reason": "amount_or_packaging_unconfirmed"}
-    q = Fraction(positive(row["authority"]["quantity"])) * Fraction(positive(row["packaging"]["declaration_factor"]))
-    price = Fraction(decimal(row["authority"]["amount"])) / q
+    basis = pricing_basis(row)
+    if row.get('business_amount') and basis.get('status') != 'business_confirmed_in_batch':
+        return {"status":"pending","reason":"business_amount_fact_version_changed"}
+    q = Fraction(positive(basis["quantity"])) * Fraction(positive(row["packaging"]["declaration_factor"]))
+    price = Fraction(decimal(basis["amount"])) / q
     return {"status": "exact_ratio_only", "declaration_quantity": str(q),
             "unit_price_numerator": str(price.numerator), "unit_price_denominator": str(price.denominator),
             "automatic_rounding": False, "formal_price": None}
@@ -394,7 +405,7 @@ def box_tax(row):
         raise Rejected("内部数量/盒数与已确认每盒件数不一致")
     total = (vat + duty) * ratio
     return {"status": "approved_parameters_exact_arithmetic", "duty": str(duty),
-            "vat": str(vat), "box_tax": str(total), "currency": row["authority"]["currency"],
+            "vat": str(vat), "box_tax": str(total), "currency": pricing_basis(row)["currency"],
             "formula_version": t["formula_version"], "rounding": "not_applied"}
 
 
@@ -402,13 +413,14 @@ def reconcile_amounts(rows, proposed):
     """No cross-row or cross-product cancellation. Proposed map must cover every row."""
     if set(proposed) != {r["id"] for r in rows}:
         raise Rejected("金额核验必须覆盖完整明细，不得漏行/多行")
-    if len({r["authority"]["currency"] for r in rows}) != 1:
+    if len({pricing_basis(r)["currency"] for r in rows}) != 1:
         raise Rejected("不同币种不能直接合计或抵消；本期不做汇率换算")
     lines, groups = [], {}
     for r in rows:
-        delta = Fraction(decimal(proposed[r["id"]])) - Fraction(decimal(r["authority"]["amount"]))
-        key = digest({"identity": context(r), "currency": r["authority"]["currency"],
-                      "unit": r["authority"]["quantity_unit"],
+        basis = pricing_basis(r)
+        delta = Fraction(decimal(proposed[r["id"]])) - Fraction(decimal(basis["amount"]))
+        key = digest({"identity": context(r), "currency": basis["currency"],
+                      "unit": basis["quantity_unit"],
                       "unidentified_row": r["id"] if not r["identity"]["code"] else None})
         groups[key] = groups.get(key, Fraction(0)) + delta
         lines.append({"id": r["id"], "code": r["identity"]["code"], "delta": str(delta)})

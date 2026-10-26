@@ -110,6 +110,7 @@ def main(argv=None):
             cmd.add_argument('--reopen-rows',help='业务明确要求纠错的稳定行ID列表JSON；不默认重审已批商品')
         if name=='return-preview':
             cmd.add_argument('--file',required=True)
+            cmd.add_argument('--export-id',help='仅在可信只读匹配存在多个登记时，由宿主选择登记')
             cmd.add_argument('--operations',help='明确操作及范围JSON，不含操作者身份')
         if name=='return-commit':
             for field in ('preview-id','confirmed-hash','reference','session-token-env'):cmd.add_argument('--'+field,required=True)
@@ -250,7 +251,7 @@ def main(argv=None):
                     official_materials=read(args.official_materials) if args.official_materials else None,
                     reopen_ids=read(args.reopen_rows) if args.reopen_rows else None)
             elif args.command=='return-preview':
-                preview=service.preview(args.file,operations=read(args.operations) if args.operations else None)
+                preview=service.preview(args.file,batch_id=args.batch,export_id=args.export_id,operations=read(args.operations) if args.operations else None)
                 if preview['batch_id']!=args.batch:raise Rejected('上传不属于指定批次')
                 value={'preview_id':preview['preview_id'],'confirmation_hash':preview['confirmation_hash'],
                     'file':str(service._path('previews',preview['preview_id'])),'base_is_current':preview['base_is_current'],

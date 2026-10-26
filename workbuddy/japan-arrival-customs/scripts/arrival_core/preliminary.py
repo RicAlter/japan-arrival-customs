@@ -35,7 +35,12 @@ def payload(batch):
         packaging_candidate=(row.get('arrival',{}).get('product_reference_packaging',{}).get('values',{}).get('packaging_label'))
         packaging_display=(row['arrival'].get('packaging_content') or
                            (('资料库候选（未批准，不可换算）：'+packaging_candidate) if packaging_candidate else '待查，不按商品名猜测'))
-        missing=[name for name,key in (('中文名','internal_name'),('品类','category'),('YD或无YD原因','yd'),('材质','material'))
+        required=(('中文名','internal_name'),('品类','category'),('材质','material'))
+        # The single-person basic path deliberately keeps YD optional.  Legacy
+        # batches retain their historical display requirement for compatibility.
+        if batch.get('product_data_policy')!='single-person-v1':
+            required=(('中文名','internal_name'),('品类','category'),('YD或无YD原因','yd'),('材质','material'))
+        missing=[name for name,key in required
                  if not (row['product'].get(key) if key!='material' else row['material'].get('candidate'))]
         rows.append([n,row['source']['sheet'],row['source']['row'],_cell(row,'carton'),_cell(row,'code'),_cell(row,'ja'),
             _cell(row,'origin'),_cell(row,'price'),_cell(row,'qty'),row['arrival'].get('unit_raw') or '待查开定/采购资料',

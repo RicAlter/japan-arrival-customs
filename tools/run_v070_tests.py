@@ -11,8 +11,11 @@ from arrival_core.core import digest
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);args=parser.parse_args()
     out=Path(args.output).resolve();out.mkdir(parents=True,exist_ok=True)
-    modules=['test_repository_smoke','test_v070_core','test_workbuddy_router','test_v070_workflow','test_business_setup','test_raw_intake']
-    suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(m) for m in modules if (ROOT/'tests'/(m+'.py')).exists())
+    # Every repository-safe test module is part of the candidate gate.  Keeping
+    # this derived from the directory prevents new P0 tests from silently being
+    # omitted by a manually maintained list.
+    modules=[path.stem for path in sorted((ROOT/'tests').glob('test_*.py'))]
+    suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(module) for module in modules)
     result=unittest.TextTestRunner(verbosity=2).run(suite)
     manifest={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
               for p in sorted((ROOT/'workbuddy/japan-arrival-customs').rglob('*')) if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc'}

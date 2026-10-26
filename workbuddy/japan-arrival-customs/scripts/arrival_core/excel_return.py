@@ -32,8 +32,10 @@ ALIASES={'申报材质':'declaration_material','材质':'declaration_material','
  '组成':'complete_composition','关键材质特征':'key_material_features','构造':'construction','版本':'version',
  '规格':'specification','适用条件':'inclusion_conditions','排除条件':'exclusion_conditions','原因':'reason',
  '无YD原因':'product.yd_absence_reason','中文名':'product.internal_name','申报品名':'product.customs_name',
- '品类':'product.category','渠道':'product.channel','YD':'product.yd'}
-KEYS=set(FACT_FIELDS)|set(FINAL_FIELDS)|{'reason'}|{v for v in ALIASES.values() if v.startswith('product.')}
+ '品类':'product.category','渠道':'product.channel','YD':'product.yd',
+ '最终金额':'business_amount.amount','币种':'business_amount.currency',
+ '计价数量':'business_amount.quantity','计价单位':'business_amount.quantity_unit'}
+KEYS=set(FACT_FIELDS)|set(FINAL_FIELDS)|{'reason'}|{v for v in ALIASES.values() if v.startswith(('product.','business_amount.'))}
 
 
 def sha(data): return hashlib.sha256(data).hexdigest()
@@ -100,8 +102,9 @@ def _table(ws):
     return rows
 
 
-def compare_workbooks(base,returned):
-    if base.properties.identifier!=returned.properties.identifier:raise Rejected('导出登记标识不匹配')
+def compare_workbooks(base,returned,*,recover_missing_identifier=False):
+    if base.properties.identifier!=returned.properties.identifier and not (recover_missing_identifier and not returned.properties.identifier):
+        raise Rejected('导出登记标识不匹配')
     if [(k,v.attr_text) for k,v in base.defined_names.items()]!=[(k,v.attr_text) for k,v in returned.defined_names.items()]:
         raise Rejected('命名公式/范围被修改')
     edits=[]
@@ -139,7 +142,7 @@ def _parse_note(note):
         if target is values and field not in KEYS:unparsed.append(part);continue
         if field in target:raise Rejected('说明字段重复，需明确而不是取最后一条')
         target[field]=value
-    validate_values({k:v for k,v in values.items() if not k.startswith('product.')})
+    validate_values({k:v for k,v in values.items() if not k.startswith(('product.','business_amount.'))})
     return values,control,'；'.join(unparsed)
 
 
@@ -265,18 +268,53 @@ class ReturnService:
         return {'export_id':export_id,'base_hash':registry['base_hash'],'file':str(destination),
                 'workbook_sha256':registry['workbook_sha256'],'formal_output':False}
 
-    def preview(self,uploaded,*,export_id=None,operations=None):
+    def _resolve_export(self, wb, *, export_id=None, batch_id=None):
+        """Recover only an absent property against trusted, immutable exports."""
+        identifier = wb.properties.identifier
+        if identifier:
+            if not isinstance(identifier,str) or not identifier.startswith('arrival-return:'):
+                raise Rejected('非法登记标识')
+            bound = safe_id(identifier.removeprefix('arrival-return:'))
+            if export_id and bound != export_id:
+                raise Rejected('上传文件与指定导出ID不一致')
+            candidates = [self._path('exports',bound)]
+        elif export_id:
+            candidates = [self._path('exports',export_id)]
+        elif batch_id:
+            candidates = sorted((self.root/'exports').glob('*.json'))
+        else:
+            raise Rejected('回传登记属性缺失；请在原批次会话上传，由宿主选择已登记导出版本')
+        matches=[]
+        for candidate in candidates:
+            try:
+                registry=read_json(candidate)
+                if batch_id and registry['batch_id'] != batch_id:
+                    if identifier or export_id: raise Rejected('审核表不属于指定批次')
+                    continue
+                base_data=Path(registry['base_file']).read_bytes()
+                if sha(base_data)!=registry['workbook_sha256']:raise Rejected('可信原表被修改')
+                base=_read_workbook(base_data)
+                try:
+                    if base.properties.identifier != 'arrival-return:'+candidate.stem:
+                        raise Rejected('可信登记与原导出属性不一致')
+                    edits=compare_workbooks(base,wb,recover_missing_identifier=not identifier)
+                finally:base.close()
+                matches.append((candidate.stem,registry,edits))
+            except (Rejected,OSError,ValueError,KeyError):
+                if identifier or export_id:raise
+        if len(matches)!=1:
+            if not matches:raise Rejected('没有匹配的可信导出；不能猜测恢复或搬运修改')
+            raise Rejected('多个已登记导出内容相同；请由宿主展示并选择具体导出版本')
+        bound,registry,edits=matches[0]
+        binding = None if identifier else {'schema':'japan-arrival/return-binding-1',
+            'method':'trusted_readonly_content_match','export_id':bound,'batch_id':registry['batch_id'],
+            'readonly_match_sha256':digest({'workbook':registry['workbook_sha256'],'base_hash':registry['base_hash']})}
+        return bound,registry,edits,binding
+
+    def preview(self,uploaded,*,export_id=None,batch_id=None,operations=None):
         data=Path(uploaded).read_bytes();wb=_read_workbook(data)
         try:
-            identifier=wb.properties.identifier or ''
-            bound=identifier.removeprefix('arrival-return:')
-            if export_id and bound!=export_id:raise Rejected('上传文件与指定导出ID不一致')
-            export_id=safe_id(bound)
-            registry=read_json(self._path('exports',export_id));base_data=Path(registry['base_file']).read_bytes()
-            if sha(base_data)!=registry['workbook_sha256']:raise Rejected('可信原表被修改')
-            base=_read_workbook(base_data)
-            try:edits=compare_workbooks(base,wb)
-            finally:base.close()
+            export_id,registry,edits,binding=self._resolve_export(wb,export_id=export_id,batch_id=batch_id)
         finally:wb.close()
         batch=self.store.load(registry['batch_id']);check_sources(batch)
         notes=[];proposals=[];issues={i['id']:i for i in registry['issues']}
@@ -285,6 +323,26 @@ class ReturnService:
             if choice is None and note is None:
                 notes.append(dict(e,status='cleared_request_remains_pending'));continue
             selected=_scope(registry,issue,control)
+            if issue['domain']=='price':
+                if choice=='保留待确认':
+                    notes.append(dict(e,row_ids=selected,status='business_amount_pending'));continue
+                if unparsed or set(values)-{'reason'}-{k for k in values if k.startswith('business_amount.')}:
+                    raise Rejected('金额修改须明确结构化金额、单位、数量、原因和依据')
+                from .business_amount import preview as amount_preview
+                items={}
+                for rid in selected:
+                    row=next(r for r in batch['rows'] if r['id']==rid)
+                    v={k.split('.',1)[1]:value for k,value in values.items() if k.startswith('business_amount.')}
+                    if choice=='采用候选':
+                        v.setdefault('amount',row['authority']['amount'])
+                        v.setdefault('currency',row['authority']['currency'])
+                        v.setdefault('quantity',row['authority']['quantity'])
+                        if row['authority']['quantity_unit']:v.setdefault('quantity_unit',row['authority']['quantity_unit'])
+                    v['reason']=values.get('reason','明确采用本导出版逐行展示金额' if choice=='采用候选' else '')
+                    items[rid]=v
+                amount=amount_preview(self.root,batch['id'],items,reference=control.get('依据',''))
+                notes.append(dict(e,row_ids=selected,status='business_amount_preview_only',amount_preview=amount))
+                continue
             if issue['domain'] not in ('material','tax','product'):
                 notes.append(dict(e,row_ids=selected,status='pending_external_business_decision'));continue
             if issue['domain']=='product':
@@ -292,6 +350,7 @@ class ReturnService:
                 proposals.append({'action':'edit_product','row_ids':selected,'values':{k[8:]:v for k,v in values.items() if k.startswith('product.')},
                     'reason':values.get('reason',''),'reference':control.get('依据',''),'unparsed_note':unparsed,'issue_id':issue['id']})
             else:
+                if any(k.startswith('business_amount.') for k in values):raise Rejected('专业归类问题不能夹带金额修改')
                 if any(k.startswith('product.') for k in values):raise Rejected('专业问题不能静默修改基础资料')
                 action='adopt_recommendation' if choice=='采用候选' else 'return_decision' if choice=='保留待确认' else 'edit_decision'
                 proposals.append({'action':action,'row_ids':selected,'values':values,'reference':control.get('依据',''),
@@ -321,6 +380,7 @@ class ReturnService:
             'upload_sha256':upload_hash,'upload_file':str(archive),'edits':edits,'proposals':proposals,'issue_notes':notes,
             'operations':ops,'decision_differences':differences,'base_is_current':digest(batch)==registry['base_hash'],
             'notice':'只预览，没有保存审核。须明确确认此预览；旧版本新操作将拒绝。'}
+        if binding is not None:preview['binding']=binding
         identifier=digest(preview);path=self._path('previews',identifier);path.parent.mkdir(parents=True,exist_ok=True)
         if path.exists() and read_json(path)!=preview:raise Rejected('预览登记冲突')
         if not path.exists():atomic_json(path,preview)

@@ -123,16 +123,18 @@ def build_plan(batch, catalog):
     add('contract', all_ids, '首票单位及输入签核（D07）', f'币种JPY、重量KG来自表头；{amount_label}原值保留',
         ('原始Qty最大到货单位及混合单位例外未从开定/采购资料确认' if raw else '日方采购单位、第3步计价单位及混合单位例外未签核'),
         '采购/金额负责人给出单位及适用范围、例外行；签核文件版本与记录号')
-    add('responsibilities', all_ids, '审核责任（D08）', '基础资料、身份、金额、材质、盒规、关务、物流、放行八类角色',
-        '当前未指定审核责任；不让业务在每条商品填写审核人',
-        '负责人一次指定角色及代理范围；管理员配置可信身份。Excel不能提供执行者身份')
+    if batch.get('product_data_policy') != 'single-person-v1':
+        add('responsibilities', all_ids, '审核责任（D08）', '基础资料、身份、金额、材质、盒规、关务、物流、放行八类职责',
+            '专业批准需对应有效职责，同一可信人员可兼任；不让业务逐行填写审核人',
+            '管理员配置实际职责及代理范围；Excel不能提供执行者身份')
     add('release', all_ids, '海关外发白名单（D05）', '正式输出继续关闭',
         '对外字段及品牌来源尚未批准，不阻止基础资料候选核对',
         '关务/业务批准允许字段、来源与格式', priority='正式输出前处理')
     add('price', changed_amount_ids or all_ids, '金额确认节点与尾差规则（D01）',
         ((f"日方原表Subtotal原样保留为初步到货金额；最终申报金额尚未确认" if raw else f"第3步金额原样保留；历史第5步金额有{len(changed_amount_ids)}行不同，不自动采用")),
         f"历史整批差额{amount_check['batch_delta']}不代表逐商品通过；尚无获批尾差算法",
-        '关务/财务批准精度、顺序、范围；无差额行无需逐行填尾差规则', priority='遇到差额时处理')
+        ('在本页填写最终金额=...；币种=JPY；计价数量=...；计价单位=...；原因=...；依据=...，明确范围；金额角色预览后确认，不自动调尾差'
+         if raw else '关务/财务批准精度、顺序、范围；无差额行无需逐行填尾差规则'), priority='金额确认及差额时处理')
     # Reuse the exact P1-C identity investigation; display grouping never executes mapping.
     identity = identity_checklist(batch)
     identity_ids = {r['id'] for r in identity['rows']}

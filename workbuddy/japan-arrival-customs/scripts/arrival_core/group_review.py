@@ -2,7 +2,7 @@
 import copy
 from collections import defaultdict
 
-from .core import (Rejected, _apply_domain_row, box_tax, changed, context, digest, now, require_actor, validate)
+from .core import (Rejected, _apply_domain_row, box_tax, changed, context, digest, now, pricing_basis, require_actor, validate)
 from .contracts import effective_permissions
 
 ROLES = {'identity':'identity', 'material':'material', 'packaging':'packaging', 'tax':'customs'}
@@ -15,11 +15,11 @@ def observation(row, domain):
         return {'candidate':row['material']['candidate'], 'history':internal.get('material'),
                 'source_hash':row['source']['sha256']}
     if domain=='packaging':
-        return {'source_unit':row['authority']['quantity_unit'],'category':row['product']['category'],
+        return {'source_unit':pricing_basis(row)['quantity_unit'],'category':row['product']['category'],
                 'historical_pieces':internal.get('pieces'), 'source_hash':row['source']['sha256']}
     if domain=='tax':
         return {'historical_rate':internal.get('rate'),'category':row['product']['category'],
-                'currency':row['authority']['currency'], 'source_hash':row['source']['sha256']}
+                'currency':pricing_basis(row)['currency'], 'source_hash':row['source']['sha256']}
     return {'version_observed':row['identity']['version'], 'japanese_name':row['identity']['japanese_name']}
 
 def blockers(row, domain):
@@ -27,7 +27,7 @@ def blockers(row, domain):
     if not row['identity']['code']: result.append('商品无码，须单独核实身份范围')
     if domain!='identity' and not row['reviews']['identity']: result.append('商品版本/规格尚未确认')
     result += [d.get('reason') or d['id'] for d in row['disputes'] if d.get('domain') in ('identity',domain)]
-    if domain=='packaging' and not row['authority']['quantity_unit']: result.append('第3步计价单位待确认')
+    if domain=='packaging' and not pricing_basis(row)['quantity_unit']: result.append('第3步计价单位待确认')
     return result
 
 def group_package(batch, domain):
@@ -45,7 +45,7 @@ def group_package(batch, domain):
         if context(row) not in group['contexts']:group['contexts'].append(context(row))
         reasons=blockers(row,domain)
         group['rows'].append({'id':row['id'],'source_row':row['source']['row'],
-            'carton':row['logistics']['carton_raw'],'quantity':row['authority']['quantity'],
+            'carton':row['logistics']['carton_raw'],'quantity':pricing_basis(row)['quantity'],
             'context':context(row),'internal_name':row['product']['internal_name'],
             'historical_row':(row.get('historical',{}).get('internal_reference',{}).get('record') or {}),
             'selected': row['material']['selected'] if domain=='material' else row.get(domain),
