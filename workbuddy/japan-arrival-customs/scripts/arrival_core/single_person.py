@@ -13,7 +13,7 @@ from pathlib import Path
 
 from .core import Rejected, changed, digest, now, product_disputes, product_errors_for_batch, _patch_product
 from .excel_return import read_json, sha
-from .storage import check_sources
+from .storage import atomic_json, check_sources
 
 
 def operator_context():
@@ -89,13 +89,28 @@ def commit_business_confirmation(service, preview_id, *, confirmed_hash, explici
                "operator": context, "reference": reference, "saved_product_rows": sorted(touched),
                "confirmed_product_rows": confirmed, "professional_approvals": 0, "decision_events": 0,
                "formal_output": False, "d1_learning_eligible": False}
+    library = out.get("product_library") or out.get("input_contract", {}).get("product_library")
+    library_receipt = {"status": "not_configured"}
+    if library and library.get("path"):
+        records = [{"sheet": "arrival_skill_queue", "row": index,
+                    "code": row["identity"].get("code", ""), "japanese_name": row["identity"].get("japanese_name", ""),
+                    "version": row["identity"].get("version", ""), "internal_name": row["product"].get("internal_name", ""),
+                    "customs_name": row["product"].get("customs_name", ""), "category": row["product"].get("category", ""),
+                    "channel": row["product"].get("channel", ""), "yd": row["product"].get("yd", ""), "packaging_label": ""}
+                   for index, row in enumerate((rows[row_id] for row_id in sorted(touched)), 1) if row["identity"].get("code")]
+        queue_id = transaction
+        queue = {"kind": "product_maintenance_queue", "queue_id": queue_id, "library": library,
+                 "batch_id": out["id"], "batch_revision": out["revision"] + 1,
+                 "records": records, "confirmation": {"kind": "product_maintenance_queue", "queue_id": queue_id,
+                 "reference": reference, "arrival_transaction": transaction, "source_batch": out["id"]}}
+        queue_path = service.store.root / "product_maintenance_queue" / (queue_id + ".json")
+        queue_path.parent.mkdir(parents=True, exist_ok=True)
+        atomic_json(queue_path, queue)
+        library_receipt = {"status": "queued_for_product_maintenance", "queue_file": str(queue_path),
+                           "records": len(records), "database_written_by_arrival_skill": False}
+    receipt["product_library_write"] = library_receipt
     out.setdefault("single_person_receipts", {})[transaction] = receipt
     out = changed(batch, out, context["principal"] or "single_person_unverified", "single_person_business_confirmation",
                   sorted(touched), receipt)
     service.store.save(out, expected_hash=digest(batch))
-    library_receipt = {"status": "not_configured"}
-    library = out.get("product_library") or out.get("input_contract", {}).get("product_library")
-    if library and library.get("path"):
-        from .product_library import ProductLibrary
-        library_receipt = ProductLibrary(library["path"]).record_business_confirmation(out, sorted(touched), receipt)
     return dict(receipt, replayed=False, current_hash=digest(out), product_library=library_receipt)

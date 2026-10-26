@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import sys
 import tempfile
@@ -45,7 +46,7 @@ class SinglePersonModeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "结构化商品资料"):
             _allowed({"operations": [], "proposals": [{"action": "edit_product", "unparsed_note": "猜测"}]})
 
-    def test_one_confirmation_creates_revision_and_candidate_only_library_record(self):
+    def test_one_confirmation_queues_maintenance_write_without_arrival_skill_db_write(self):
         with tempfile.TemporaryDirectory() as directory:
           with tempfile.TemporaryDirectory() as source_directory:
             root = Path(directory) / "state"
@@ -84,7 +85,12 @@ class SinglePersonModeTests(unittest.TestCase):
             self.assertEqual(row["product"]["customs_name"], "测试申报品名")
             self.assertEqual(row["reviews"]["product"]["mode"], "single_person_business_confirmation")
             self.assertEqual(saved["revision"], 1)
-            self.assertEqual(library.lookup("4900000000001")["candidates"]["customs_name"], "测试申报品名")
+            self.assertEqual(receipt["product_library"]["status"], "queued_for_product_maintenance")
+            self.assertEqual(library.lookup("4900000000001")["status"], "no_match")
+            queue = json.loads(Path(receipt["product_library"]["queue_file"]).read_text(encoding="utf-8"))
+            applied = library.record_maintenance_records(queue["records"], queue["confirmation"])
+            self.assertEqual(applied["status"], "recorded_by_product_maintenance")
+            self.assertEqual(library.lookup("4900000000001", japanese_name="テスト商品")["candidates"]["customs_name"], "测试申报品名")
             self.assertFalse(library.statistics()["declaration_decisions_stored"])
 
 

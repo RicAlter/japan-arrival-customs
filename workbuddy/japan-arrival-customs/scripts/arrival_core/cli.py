@@ -29,14 +29,11 @@ def main(argv=None):
             cmd.add_argument('--criteria',required=True,help='商品类型/用途/组成/构造条件JSON；仅检索')
             cmd.add_argument('--realm',choices=['formal','test','quarantine'],default='formal')
         if name in ('knowledge-backup','knowledge-restore'):cmd.add_argument('--backup',required=True)
-    for name in ('product-library-init','product-library-import','product-library-stats','product-library-lookup'):
-        cmd=sub.add_parser(name,help='本地商品基础资料库；与D1最终申报决策库分离')
+    for name in ('product-library-stats','product-library-lookup'):
+        cmd=sub.add_parser(name,help='只读查询共享商品资料库；维护写入由独立商品维护Skill执行')
         cmd.add_argument('--library',required=True)
-        if name=='product-library-import':
-            cmd.add_argument('--sources',required=True,nargs='+')
-            cmd.add_argument('--source-kind',default='auto',choices=['auto','purchase_order','product_archive','historical_arrival','official_reference','historical_material'])
         if name=='product-library-lookup':
-            cmd.add_argument('--code',required=True);cmd.add_argument('--japanese-name',default='')
+            cmd.add_argument('--code',required=True);cmd.add_argument('--japanese-name',default='');cmd.add_argument('--version',default='')
     d2=sub.add_parser('d2-report',help='只读发现候选/冲突；不发布规则')
     d2.add_argument('--library',required=True);d2.add_argument('--as-of',required=True)
     d2r=sub.add_parser('d2-replay',help='按事件时间输出回放可用性；不使用未来知识')
@@ -126,13 +123,9 @@ def main(argv=None):
     try:
         if args.command.startswith('product-library-'):
             from .product_library import ProductLibrary
-            if args.command=='product-library-init':
-                library=ProductLibrary.create(args.library);value={'library':str(library.path),'created':True,'statistics':library.statistics()}
-            else:
-                library=ProductLibrary(args.library)
-                if args.command=='product-library-import':value=library.import_workbooks(args.sources,source_kind=args.source_kind)
-                elif args.command=='product-library-stats':value=library.statistics()
-                else:value=library.lookup(args.code,japanese_name=args.japanese_name)
+            library=ProductLibrary(args.library)
+            if args.command=='product-library-stats':value=library.statistics()
+            else:value=library.lookup(args.code,japanese_name=args.japanese_name,version=args.version)
             print(json.dumps(value,ensure_ascii=False));return 0
         if args.command in ('fill-contract','preflight'):
             from .business_setup import fill_contract,preflight

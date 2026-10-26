@@ -299,6 +299,37 @@ class ProductLibrary:
         return {"status": "recorded_candidate_only", "records": inserted, "statistics": self.statistics(),
                 "declaration_decision_written": False}
 
+    def record_maintenance_records(self, records, confirmation):
+        """Write an explicit maintenance-Skill queue into the shared library.
+
+        The arrival Skill is intentionally not a database writer.  It creates
+        the queue from a confirmed Excel difference; this method is called only
+        by the separate product-maintenance Skill and keeps the same immutable
+        import trail as workbook imports.
+        """
+        if not isinstance(confirmation, dict) or confirmation.get("kind") != "product_maintenance_queue":
+            raise Rejected("资料库写入只接受商品维护Skill的受控队列")
+        if not isinstance(records, list) or not records:
+            raise Rejected("商品维护队列缺少基础资料记录")
+        allowed = {"sheet", "row", "code", "japanese_name", "internal_name", "customs_name", "category", "channel", "yd", "version", "packaging_label"}
+        if any(not isinstance(record, dict) or set(record) - allowed for record in records):
+            raise Rejected("商品维护队列包含未知字段")
+        content = {"records": records, "confirmation": confirmation}
+        content_sha = hashlib.sha256(json_text(content).encode()).hexdigest()
+        with closing(self._connect()) as conn:
+            old = conn.execute("SELECT row_count FROM imports WHERE content_sha256=?", (content_sha,)).fetchone()
+            if old:
+                return {"status": "unchanged_duplicate", "records": old["row_count"], "statistics": self.statistics()}
+            cursor = conn.execute("INSERT INTO imports(content_sha256,source_path,source_kind,imported_at,parser_version,status,row_count) VALUES (?,?,?,?,?,?,0)",
+                                  (content_sha, "product_maintenance_queue:" + clean(confirmation.get("queue_id")), "business_confirmation", now(),
+                                   "product-library-v2", "in_progress"))
+            inserted = sum(self._add_record(conn, cursor.lastrowid, "business_confirmation", record) for record in records)
+            conn.execute("UPDATE imports SET status='complete',row_count=? WHERE id=?", (inserted, cursor.lastrowid))
+            self._rebuild_conflicts(conn)
+            conn.commit()
+        return {"status": "recorded_by_product_maintenance", "records": inserted, "statistics": self.statistics(),
+                "declaration_decision_written": False}
+
     def lookup_many(self, identities):
         """Batch lookup, resolving variants before comparing source values."""
         requested = {}
