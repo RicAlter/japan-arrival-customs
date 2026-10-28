@@ -62,6 +62,20 @@ def create_raw_contract(invoice, weight_sheet, *, customs_reference=None, intern
     return contract
 
 
+def create_confirmed_contract(workbook):
+    """Bind one operator-confirmed workbook without creating a review/database dependency."""
+    from .confirmed_excel import import_confirmed_arrival
+    preview = import_confirmed_arrival(workbook)
+    item = source(workbook, "confirmed-arrival-v1", "已确认明细")
+    return {"schema": "japan-arrival/contract-1", "input_mode": "confirmed_arrival_v1", "sources": {"confirmed": item},
+            "currency": "JPY", "currency_basis": "confirmed-arrival-v1 批次确认页",
+            "authority_quantity_unit": None, "row_quantity_units": {}, "invoice_quantity_unit": None,
+            "weight_unit": "KG", "weight_unit_basis": "confirmed-arrival-v1 箱重页",
+            "responsibilities": {role: None for role in ROLES}, "approval": None,
+            "customs_whitelist_approval": None, "rounding_policy": None,
+            "confirmed_metadata": preview["confirmed_input"]["metadata"], "purpose": "controlled_test_draft"}
+
+
 def validate_contract(contract, *, verify_product_library=True):
     if not isinstance(contract, dict) or not isinstance(contract.get('sources'), dict):
         raise Rejected('缺少有效输入合同或来源清单；请通过init-contract/准备这批业务合同生成，不手工拼写JSON')
@@ -72,12 +86,16 @@ def validate_contract(contract, *, verify_product_library=True):
     if contract.get("currency") != "JPY" or contract.get("weight_unit") != "KG":
         raise Rejected("本期KMT适配只支持源表明确的JPY及KG；其他合同需另行确认")
     mode=contract.get("input_mode","legacy_stage3_authority")
-    if mode not in ("legacy_stage3_authority","raw_invoice_preliminary"):
+    if mode not in ("legacy_stage3_authority","raw_invoice_preliminary", "confirmed_arrival_v1"):
         raise Rejected("未知输入模式")
     expected = {"invoice": "kmt-raw-invoice-v1" if mode=="raw_invoice_preliminary" else "kmt-invoice-v1",
                 "authority": "kmt-stage3-v1", "weights": "kmt-weights-v1",
                 "customs_reference": "kmt-stage5-reference", "internal_reference": "kmt-stage6-reference"}
-    required={"invoice","weights"} if mode=="raw_invoice_preliminary" else {"invoice","authority","weights"}
+    if mode == "confirmed_arrival_v1":
+        expected = {"confirmed": "confirmed-arrival-v1"}
+        required = {"confirmed"}
+    else:
+        required={"invoice","weights"} if mode=="raw_invoice_preliminary" else {"invoice","authority","weights"}
     if not required <= set(contract["sources"]) or set(contract["sources"]) - set(expected):
         raise Rejected("原表模式须包含日方原工作簿和明确箱重页；兼容模式另需独立第3步表")
     if mode=="raw_invoice_preliminary" and "authority" in contract["sources"]:
@@ -97,7 +115,7 @@ def validate_contract(contract, *, verify_product_library=True):
         library_path = Path(library["path"]).resolve(strict=True)
         if verify_product_library and p0.sha(library_path.read_bytes()) != library["sha256"]:
             raise Rejected("商品资料库在建批后已变化；请重新准备合同以保留可追溯快照")
-    if not contract["sources"]["weights"].get("sheet"):
+    if mode != "confirmed_arrival_v1" and not contract["sources"]["weights"].get("sheet"):
         raise Rejected("必须明确箱重工作表，不能猜选")
     if set(contract.get("responsibilities", {})) != set(ROLES):
         raise Rejected("审核职责合同不完整")
@@ -109,6 +127,11 @@ def validate_contract(contract, *, verify_product_library=True):
                  *contract.get("row_quantity_units", {}).values()]:
         if unit is not None and (not isinstance(unit, str) or not unit.strip() or unit in ("未知", "待确认")):
             raise Rejected("未确定的数量单位必须为null，不能用占位词冒充确定单位")
+    if mode == "confirmed_arrival_v1":
+        metadata = contract.get("confirmed_metadata")
+        required_metadata = {"模板版本", "批次号", "币种", "重量单位", "确认依据编号", "数据版本"}
+        if not isinstance(metadata, dict) or set(metadata) != required_metadata or metadata.get("模板版本") != "confirmed-arrival-v1":
+            raise Rejected("已确认Excel合同缺少受控批次元数据")
     return contract
 
 

@@ -35,7 +35,10 @@ def inspect_workbooks(paths):
             weight_sheets=[ws.title for ws in wb.worksheets if str(ws['A1'].value or '').strip()=='箱番' and 'KGS' in str(ws['D1'].value or '')]
         finally: wb.close()
         roles=[]
-        if sheets=={'处理总览','待处理问题','完整商品明细'}: kind='review_return'
+        from .confirmed_excel import is_confirmed_arrival_workbook
+        confirmed=is_confirmed_arrival_workbook(path)
+        if confirmed: kind='confirmed_arrival'
+        elif sheets=={'处理总览','待处理问题','完整商品明细'}: kind='review_return'
         elif raw_match: kind='raw_invoice'
         # These are the same structural signatures consumed by controlled importers.
         # A familiar filename or a generic “invoice” label is deliberately insufficient.
@@ -51,20 +54,25 @@ def inspect_workbooks(paths):
         found.append({'file':path.name,'path':str(path),'kind':kind,'sheets':sorted(sheets),
                       'roles':roles,'weight_sheets':weight_sheets,
                       'recognized_by':'controlled_template_structure' if kind!='unknown' else None})
-    keys=('raw_invoice','stage3_authority','invoice','weight','review_return','unknown')
+    keys=('confirmed_arrival','raw_invoice','stage3_authority','invoice','weight','review_return','unknown')
     by={k:[x for x in found if k in x['roles'] or (k=='unknown' and x['kind']=='unknown')] for k in keys}
+    confirmed_mode=bool(by['confirmed_arrival'])
     raw_mode=bool(by['raw_invoice'])
-    required=['raw_invoice','weight'] if raw_mode else ['stage3_authority','invoice','weight']
+    required=['confirmed_arrival'] if confirmed_mode else (['raw_invoice','weight'] if raw_mode else ['stage3_authority','invoice','weight'])
     conflicts={k:v for k,v in by.items() if k not in ('unknown','invoice') and len(v)>1}
     if not raw_mode and len(by['invoice'])>1: conflicts['invoice']=by['invoice']
+    if confirmed_mode and (raw_mode or by['stage3_authority'] or by['invoice'] or by['weight']):
+        conflicts['input_mode']=by['confirmed_arrival']+by['raw_invoice']+by['stage3_authority']+by['invoice']+by['weight']
     if raw_mode and by['stage3_authority']:
         conflicts['input_mode']=by['raw_invoice']+by['stage3_authority']
     missing=[k for k in required if not by[k]]
-    return {'files':found,'input_mode':'raw_invoice_preliminary' if raw_mode else 'legacy_stage3_authority',
+    mode='confirmed_arrival_v1' if confirmed_mode else ('raw_invoice_preliminary' if raw_mode else 'legacy_stage3_authority')
+    return {'files':found,'input_mode':mode,
       'missing':missing,'conflicts':{k:[x['file'] for x in v] for k,v in conflicts.items()},
       'unknown':[x['file'] for x in by['unknown']],
       'ready':not any([bool(missing),bool(conflicts),bool(by['unknown'])]),
-      'notice':'原表模式不要求业务预先制作第3步成表；Subtotal仅作为初步到货金额。' if raw_mode else '兼容既有第3步确认资料流程。'}
+      'notice':('已确认Excel直接生成受控草稿；可信身份和正式放行仍待WorkBuddy实测。' if confirmed_mode else
+                ('原表模式不要求业务预先制作第3步成表；Subtotal仅作为初步到货金额。' if raw_mode else '兼容既有第3步确认资料流程。'))}
 
 def batch_brief(root,batch_id):
     from .workflow import describe

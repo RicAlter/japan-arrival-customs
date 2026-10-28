@@ -1,0 +1,8 @@
+{
+  "id": "kmt-stage3-v1", "version": 1, "role": "business", "sheet": "Sheet1", "start_row": 2,
+  "headers": {"箱号": "CartonNo.", "原产国": "Origin", "商品编码": "ProductCode(JANCode)", "日文品名": "DescriptionofGoods", "业务确认数量": "Qty", "业务单价": "UnitPrice(日本JPY)", "业务确认金额JPY": "Subtotal", "品类": "品类", "最终申报材质": "材质", "渠道": "渠道", "YD": "yd"},
+  "columns": {"箱号": "A", "原产国": "B", "商品编码": "C", "内部中文名": "E", "日文品名": "I", "业务确认数量": "J", "业务单价": "K", "业务确认金额JPY": "L", "品类": "M", "最终申报材质": "N", "渠道": "O", "YD": "P"},
+  "anchored_blank_headers": ["内部中文名"], "optional": ["YD", "渠道"],
+  "formula_products": {"业务确认金额JPY": ["业务确认数量", "业务单价"]},
+  "trailing_total_field": "业务确认金额JPY", "inherit_carton": true
+}

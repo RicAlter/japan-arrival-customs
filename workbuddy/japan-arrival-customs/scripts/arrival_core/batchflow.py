@@ -47,6 +47,15 @@ def serial(record):
 def import_batch(contract):
     contract = copy.deepcopy(validate_contract(contract))
     files = contract["sources"]
+    if contract.get("input_mode") == "confirmed_arrival_v1":
+        from .confirmed_excel import import_confirmed_arrival
+        batch = import_confirmed_arrival(files["confirmed"]["path"])
+        if batch["confirmed_input"]["metadata"] != contract.get("confirmed_metadata"):
+            raise Rejected("已确认Excel批次元数据与合同不一致")
+        batch["input_contract"] = contract
+        batch["sources"] = [dict(files["confirmed"], role="confirmed_excel")]
+        batch["id"] = digest({"sources": batch["sources"], "contract": contract, "adapter_version": __version__})[:24]
+        return validate(batch)
     if contract.get("input_mode")=="raw_invoice_preliminary":
         return import_raw_batch(contract)
     batch = import_stage3(files["authority"]["path"], currency=contract["currency"], quantity_unit="")
@@ -227,6 +236,29 @@ def workflow_status(batch):
             row_pending[row["id"]].append("unresolved_disputes")
     logistics = reconcile_logistics(batch["rows"], batch["weight_data"]) if "weight_data" in batch else {"passed": False}
     contract = contract_status(batch["input_contract"], batch["rows"]) if "input_contract" in batch else {"missing": ["D07_D08_contract_missing"]}
+    confirmed = batch.get("confirmed_input")
+    if confirmed:
+        from .confirmed_excel import gate_status
+        gates = gate_status(batch)
+        for row in batch["rows"]:
+            row_pending[row["id"]].extend("formal_missing:" + field for field in row.get("confirmed_input", {}).get("formal_missing", []))
+            if row.get("confirmed_input", {}).get("price_blocker"):
+                row_pending[row["id"]].append("price_exactness_pending")
+        return {"formal_ready": False, "formal_export_implemented": False, "draft_allowed": gates["draft"]["allowed"],
+                "gates": gates,
+                "rows": row_pending, "contract": contract, "logistics": logistics,
+                "quantities": reconcile_quantities(batch),
+                "counts": {"total": len(batch["rows"]), "product_confirmed": len(batch["rows"]),
+                           "product_batch_eligible": 0, "product_individual_pending": 0},
+                "confirmed_input": {"source_sha256": confirmed["source_sha256"],
+                                    "trusted_identity_verified": False,
+                                    "metadata": confirmed["metadata"],
+                                    "formal_missing_count": confirmed.get("formal_missing_count", 0),
+                                    "price_blocked_count": confirmed.get("price_blocked_count", 0)},
+                "global_gates": ["D05_customs_whitelist_unapproved", "D01_no_automatic_rounding",
+                                 "WorkBuddy_trusted_identity_unverified", "WorkBuddy_native_trigger_pending",
+                                 "formal_export_disabled_until_separate_release_authorization"],
+                "notice": "已确认Excel可直接生成受控草稿；可信身份、白名单和正式放行仍未验证"}
     return {"formal_ready": False, "formal_export_implemented": False, "draft_allowed": True,
             "rows": row_pending, "contract": contract, "logistics": logistics,
             "quantities": reconcile_quantities(batch),

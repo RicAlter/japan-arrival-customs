@@ -129,7 +129,8 @@ def payload(batch, preview=None):
         product = dict(row["product"], **products.get(row["id"], {}))
         pack = conversion(row)
         basis = pricing_basis(row)
-        price_ready = bool(row["reviews"]["price"]) and basis.get("status") in ("business_confirmed_stage3", "business_confirmed_in_batch")
+        price_ready = bool(row["reviews"]["price"]) and basis.get("status") in (
+            "business_confirmed_stage3", "business_confirmed_in_batch", "confirmed_excel_v1")
         quantity = optional_number(pack.get("declaration_quantity"))
         amount = Fraction(basis["amount"]) if price_ready else None
         raw_qty = optional_number(pack.get('internal_quantity') if pack.get('status')=='confirmed_exact_conversion' else row["arrival"]["quantity_raw"])
@@ -160,8 +161,14 @@ def payload(batch, preview=None):
                 c[16:19] = [optional_number(group["count"]), optional_number(group["unit_weight_observed"]), optional_number(group["total_kg"])]
                 used.add(key)
         row_notes = []
+        supplied = row.get('confirmed_input', {})
+        if supplied.get('price_blocker'):
+            row_notes.append(supplied['price_blocker'])
+        if supplied.get('formal_missing'):
+            row_notes.append('正式关务缺项：' + '、'.join(supplied['formal_missing']))
         if quantity is None: row_notes.append("申报单位及盒规待确认")
-        if not price_ready or piece_price is None: row_notes.append("申报金额或单价待确认；原始Subtotal仅作初步到货金额")
+        if not price_ready or piece_price is None:
+            row_notes.append("申报金额或单价待确认；未批准尾差规则时不自动调平")
         if not material: row_notes.append("申报材质待确认")
         i = [None] * 20
         i[0:3] = [c[0], row["logistics"]["origin"], row["identity"]["code"]]
@@ -211,8 +218,12 @@ def payload(batch, preview=None):
             caches["weights"][f"D{er}"] = observed_total
         group[7] = None
     status = workflow_status(batch)
+    confirmed_input = batch.get("input_mode") == "confirmed_arrival_v1"
     return {"schema": SCHEMA, "layout": LAYOUT, "basis_hash": digest(batch), "revision": batch["revision"],
             "preview_id": digest(preview) if preview else None, "warning": WARNING, "formal_output": False,
+            "input_mode": batch.get("input_mode"),
+            "amount_basis_notice": ("运营已确认Excel逐行金额；仍为受控草稿，未获得正式放行"
+                                    if confirmed_input else "原始Subtotal为初步到货金额；最终申报金额仍待确认"),
             "customs": {"headers": formats["customs"]["headers"], "rows": customs},
             "internal": {"headers": formats["internal"]["headers"], "rows": internal},
             "weights": {"headers": formats["weights"]["headers"], "rows": weights}, "notes": notes, "caches": caches,
@@ -314,7 +325,7 @@ def write_pair(data, directory):
         info = [["状态", WARNING], ["明细版本SHA256", data["basis_hash"]],
                 ["候选预览", data.get("preview_id") or "无独立候选预览"],
                 ["数据行数", len(data[kind]["rows"])],
-                ["金额口径", "原始Subtotal为初步到货金额；最终申报金额仍待确认"],
+                ["金额口径", data.get("amount_basis_notice", "原始Subtotal为初步到货金额；最终申报金额仍待确认")],
                 ["缺值处理", "空白计算项表示输入未确认，不能视为金额为零"],
                 ["公式口径", "仅使用本批已批准参数；历史0.13、税金变体及体积除数不自动采用"],
                 ["商品序号", "商品编码", "本行待确认事项"], *data["notes"]]

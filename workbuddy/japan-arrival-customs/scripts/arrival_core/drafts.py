@@ -58,7 +58,7 @@ def private_tokens(batch):
 
 
 def draft_payload(batch, *, candidate_preview=None):
-    if batch.get('input_mode') == 'raw_invoice_preliminary':
+    if batch.get('input_mode') in ('raw_invoice_preliminary', 'confirmed_arrival_v1'):
         from .report_templates import payload
         return payload(batch, candidate_preview)
     if candidate_preview:
@@ -211,6 +211,10 @@ def verify_pair(batch, directory, payload):
 def render_pair(batch, folder, runtime=None, *, previews=False, candidate_preview=None):
     from .storage import atomic_json
     check_sources(batch)
+    if batch.get('confirmed_input', {}).get('gate_version') == 'three-level-v1':
+        from .confirmed_excel import gate_status
+        if not gate_status(batch)['draft']['allowed']:
+            raise Rejected('受控草稿阻断：箱号覆盖、箱数或箱组重量核对失败')
     folder = Path(folder).resolve()
     for source in batch["sources"]:
         path = Path(source["path"]).resolve()
@@ -234,6 +238,8 @@ def render_pair(batch, folder, runtime=None, *, previews=False, candidate_previe
     with tempfile.TemporaryDirectory(prefix=".arrival-draft-", dir=folder.parent) as tmp:
         staging = Path(tmp)
         atomic_json(staging/"draft_payload.json", payload)
+        if batch.get('confirmed_input', {}).get('gate_version') == 'three-level-v1':
+            atomic_json(staging/"gate_report.json", gate_status(batch))
         if engine=='python':
             if accepted:
                 from .report_templates import write_pair

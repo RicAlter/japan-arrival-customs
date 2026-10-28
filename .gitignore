@@ -52,3 +52,21 @@ __pycache__/
 htmlcov/
 .DS_Store
 Thumbs.db
+
+# rc.8 source-only progress; no real workbooks, archives, or run evidence.
+!/tests/test_confirmed_arrival_v1.py
+!/tests/test_operations_adapter.py
+!/docs/RC8_PROGRESS.md
+!/docs/WORKBUDDY_RC3_UAT.md
+*.xlsx
+*.xlsm
+*.xls
+*.pdf
+*.zip
+*.sqlite
+*.sqlite-*
+*.jsonl
+*.jsonl.gz
+*.log
+*.pem
+*.key

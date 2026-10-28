@@ -173,6 +173,28 @@ def preliminary_import(root,contract):
     store.save(batch);return {'batch':batch['id'],'resumed':False}
 
 
+def confirmed_import(root, contract):
+    """Persist a supplied confirmed workbook as an untrusted, controlled-draft batch.
+
+    The adapter records file evidence only.  It intentionally neither manufactures
+    a WorkBuddy identity nor treats the workbook as a release authorization.
+    """
+    from .batchflow import import_batch
+    validate_contract(contract)
+    if contract.get('input_mode') != 'confirmed_arrival_v1' or contract.get('approval'):
+        raise Rejected('已确认Excel导入只接受未签核的confirmed-arrival-v1合同')
+    batch=import_batch(contract)
+    batch['execution_mode']='confirmed_excel_untrusted'
+    batch['runtime_context']={'mode':'confirmed_excel_untrusted','contract_hash':digest(contract),
+                              'trusted_identity_verified':False,'formal_release_authorized':False}
+    batch['id']=digest({'source_batch':batch['id'],'runtime_context':batch['runtime_context']})[:24]
+    store=Store(root)
+    if (store.folder(batch['id'])/'head.json').exists():
+        from .storage import check_sources
+        check_sources(store.load(batch['id']));return {'batch':batch['id'],'resumed':True}
+    store.save(batch);return {'batch':batch['id'],'resumed':False}
+
+
 def require_managed_review(root,batch):
     contract=require_contract(batch);config=verify_contract(root,contract)
     expected={'mode':config['execution_mode'],'policy_hash':digest(config),'contract_hash':digest(contract)}

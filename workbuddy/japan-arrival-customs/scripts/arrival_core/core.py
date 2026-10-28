@@ -156,6 +156,9 @@ def product_errors_for_batch(batch, row):
         # customs/declaration approval.  Do not recreate a task merely because
         # the historical archive lacks a customs name or optional front-end/YD.
         return ["missing_" + key for key in ("internal_name", "category") if not row["product"].get(key, "").strip()]
+    if batch.get("product_data_policy") == "confirmed-excel-v1":
+        return ["missing_" + key for key in ("internal_name", "customs_name", "category")
+                if not row["product"].get(key, "").strip()]
     return product_errors(row, require_frontend=batch.get("product_review_profile") != "exception-first-v1")
 
 

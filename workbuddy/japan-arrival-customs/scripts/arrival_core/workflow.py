@@ -102,6 +102,11 @@ def describe(root,batch_id):
             'next_step':'查看差异并明确确认保存基础资料；专业事项继续待审' if pending else '处理问题页例外并按明确范围确认普通商品'}
 
 def execute(root,request):
+    if isinstance(request, dict) and request.get('message') == '处理已确认运营表':
+        from .operations_adapter import run
+        if set(request) - {'message', 'files', 'units_confirmation', 'comparison_files', 'no_code_reasons'}:
+            raise Rejected('运营适配请求含未知字段')
+        return run(root, **{k: v for k, v in request.items() if k != 'message'})
     allowed={'message','files','batch','currency','quantity_unit','contract','material_history','file',
              'operations','recommendations','official_materials','preview_id','confirmed_hash','confirm',
              'reference','session_token_env','library','criteria','as_of','registry','source_config','source_evidence',
@@ -127,17 +132,22 @@ def execute(root,request):
         if command=='prepare-contract':
             from .contracts import create_contract
             inspection=inspect_workbooks(files)
-            roles={k:[f for f in inspection['files'] if k in f['roles']] for k in ('raw_invoice','invoice','stage3_authority','weight')}
-            required=('raw_invoice','weight') if inspection['input_mode']=='raw_invoice_preliminary' else ('invoice','stage3_authority','weight')
+            roles={k:[f for f in inspection['files'] if k in f['roles']] for k in ('confirmed_arrival','raw_invoice','invoice','stage3_authority','weight')}
+            required=(('confirmed_arrival',) if inspection['input_mode']=='confirmed_arrival_v1' else
+                      (('raw_invoice','weight') if inspection['input_mode']=='raw_invoice_preliminary' else ('invoice','stage3_authority','weight')))
             missing=[k for k in required if not roles[k]]
             if missing or not inspection['ready']:
                 return {'status':'needs_input','missing':missing,'preflight':inspection,'formal_output':False}
-            weight=roles['weight'][0]
-            if len(weight['weight_sheets'])!=1: raise Rejected('存在多个箱重页，请提供唯一明确的箱重资料')
-            if inspection['input_mode']=='raw_invoice_preliminary':
-                from .contracts import create_raw_contract
-                value=save_contract(root,create_raw_contract(roles['raw_invoice'][0]['path'],weight['weight_sheets'][0],product_library=request.get('product_library')))
-            else:value=save_contract(root,create_contract(roles['invoice'][0]['path'],roles['stage3_authority'][0]['path'],weight['path'],weight['weight_sheets'][0]))
+            if inspection['input_mode']=='confirmed_arrival_v1':
+                from .contracts import create_confirmed_contract
+                value=save_contract(root,create_confirmed_contract(roles['confirmed_arrival'][0]['path']))
+            else:
+                weight=roles['weight'][0]
+                if len(weight['weight_sheets'])!=1: raise Rejected('存在多个箱重页，请提供唯一明确的箱重资料')
+                if inspection['input_mode']=='raw_invoice_preliminary':
+                    from .contracts import create_raw_contract
+                    value=save_contract(root,create_raw_contract(roles['raw_invoice'][0]['path'],weight['weight_sheets'][0],product_library=request.get('product_library')))
+                else:value=save_contract(root,create_contract(roles['invoice'][0]['path'],roles['stage3_authority'][0]['path'],weight['path'],weight['weight_sheets'][0]))
         elif command=='fill-contract':
             if not contract: raise Rejected('先准备本批业务合同，填写操作引用程序返回的合同文件，不编辑JSON')
             value=fill_contract(root,contract,request.get('settings'))
@@ -202,8 +212,13 @@ def execute(root,request):
             else:
                 preflight=inspect_workbooks(files)
                 if not preflight['ready']: return {'status':'needs_input','preflight':preflight,'formal_output':False}
-                roles={kind:[f for f in preflight['files'] if kind in f.get('roles',[])] for kind in ('raw_invoice','stage3_authority','invoice','weight')}
-                if preflight['input_mode']=='raw_invoice_preliminary':
+                roles={kind:[f for f in preflight['files'] if kind in f.get('roles',[])] for kind in ('confirmed_arrival','raw_invoice','stage3_authority','invoice','weight')}
+                if preflight['input_mode']=='confirmed_arrival_v1':
+                    from .contracts import create_confirmed_contract
+                    contract=create_confirmed_contract(roles['confirmed_arrival'][0]['path'])
+                    from .business_setup import save_contract
+                    contract_file=save_contract(root,contract)['file']
+                elif preflight['input_mode']=='raw_invoice_preliminary':
                     from .contracts import create_raw_contract
                     weight=roles['weight'][0]
                     if len(weight['weight_sheets'])!=1: raise Rejected('存在多个箱重工作表，须明确选择')
@@ -218,7 +233,11 @@ def execute(root,request):
                 else:
                     return {'status':'needs_input','missing':[k for k in ('invoice','weight') if not roles[k]],
                             'notice':'真实业务主入口须完整合同。单独第3步文件仅支持CLI预导入，不可替代业务导入。','formal_output':False}
-            if contract.get('input_mode')=='raw_invoice_preliminary' and not contract.get('approval'):
+            if contract.get('input_mode')=='confirmed_arrival_v1' and not contract.get('approval'):
+                from .business_setup import confirmed_import
+                value=confirmed_import(root,contract);batch_id=value['batch']
+                if 'contract_file' in locals():value['contract_file']=contract_file
+            elif contract.get('input_mode')=='raw_invoice_preliminary' and not contract.get('approval'):
                 from .business_setup import preliminary_import
                 value=preliminary_import(root,contract);batch_id=value['batch']
                 value['artifacts']=_initial_raw_artifacts(root,batch_id)
