@@ -1,0 +1,7 @@
+{
+  "id": "kmt-stage4-v1", "version": 1, "role": "declaration", "sheet": "图片处理", "start_row": 2,
+  "headers": {"箱号": "箱号", "商品编码": "品番", "海关申报品名": "Items & Descriptions", "原产国": "原產地", "内部盒数": "数量（盒装", "申报数量": "Qty（数量按单个）", "品类": "品类", "最终申报材质": "材质"},
+  "columns": {"箱号": "A", "商品编码": "B", "海关申报品名": "C", "原产国": "D", "内部盒数": "E", "申报数量": "F", "品类": "J", "最终申报材质": "M"},
+  "anchored_blank_headers": [], "optional": [], "formula_products": {}, "inherit_carton": true,
+  "empty_data_headers": ["單價", "金額"]
+}

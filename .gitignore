@@ -70,3 +70,6 @@ Thumbs.db
 *.log
 *.pem
 *.key
+
+# Independent rc.5 source successor; sanitized progress only.
+!/docs/WEEKLY_PROGRESS_20261030.md

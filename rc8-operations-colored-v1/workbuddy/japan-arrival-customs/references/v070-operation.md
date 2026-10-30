@@ -1,0 +1,94 @@
+# 0.7.0-rc.6 操作与部署
+
+## rc.6：已验收第5/6步双表版式
+
+原表主路径继续使用一个workbuddy入口。请求“生成海关和内部到货表”生成第5步33列海关草稿与第6步20列内部草稿及8列箱重页。未知数量、价格、税率留空，公式缺值返回空白，体积旧除数不启用。金额逐商品核验，海关表隔离内部商品名、YD、渠道和日文原文。
+
+如需展示已上传回传的候选，请在同一请求传入当前batch和preview_id。程序验证可信导出登记、上传哈希及当前版本，只展示候选，不提交审核。相同版本和预览重跑重读校验；新版输出目录带版式版本，不会与旧12/21列草稿混用。
+
+历史模板只提供样式和表头；安装包不含任何真实业务行。新版式仅本机技术验证，不代表新版WorkBuddy实机和正式申报获批。
+
+## rc.5：本地商品基础资料库
+
+本版使用安装目录外的共享SQLite商品资料库，不替代D1。独立 `japan-arrival-product-library` Skill 负责新建、导入、去重、冲突与人工纠正写入；本主Skill只提供 `product-library-stats` 和 `product-library-lookup` 只读追溯。以编码＋版本／日文名确定身份时，可信历史基础资料直接复用；只有同版本同优先级的实质字段不一致才列入待核实。
+
+业务原表请求可附 `product_library` 的绝对路径。系统把该库哈希绑定到原表合同，在初步整理中直接填充可信历史基础资料；无命中、无码、版本不匹配与真实冲突均如实显示为异常。采购订单标题只作日文身份线索，不能当中文名；版本文字不是盒规。此功能不写入最终申报材质、税号、税率、D1决策、D2候选或D3规则，不根据包装文字、BOX、全几种或订单数推导数量换算。
+
+本版交付核心技术候选，L1以本地回归证据为准；WorkBuddy实测/L2、真实业务/L3、正式生产/L4单独验收。明日保底0.6.0包与分支不被本版替换。
+
+## 安装与依赖
+
+安装ZIP根直接包含SKILL.md、scripts、references及requirements.txt，不含仓库外壳；在WorkBuddy添加本地Skill时选择安装ZIP。手工解压则放入一个japan-arrival-customs目录，保持相对位置。使用WorkBuddy宿主提供的Python执行scripts/run.py；安装依赖命令为python -m pip install -r requirements.txt。依赖openpyxl==3.1.5，sqlite3/urllib为标准库。要求Python3.11及以上，本地验收Python3.14；其他宿主Python版本仍须实测。
+
+批次目录、交付目录、原始输入目录、D1库各自独立，均在Skill安装目录之外。升级安装仅换源码，保留原运行目录；业务运行不修改代码、结构或规则。trusted_sessions.json、rule_policy.json位于批次目录security下，由宿主管理员保护，不属于附件上传区。不能从Excel、自然语言、OS用户名或本文件创建真实身份。
+
+## 业务操作
+
+标准起点是业务收到的日方原始工作簿。当前明确支持 `invoice (計算)` 第17行表头（C商品编码、D日文描述、G产地、H单价、I Qty、K Subtotal）以及同工作簿的 `重さとサイズ` 页。历史第3步金额Excel仍可兼容，但不再是原始路径的必填输入；第2步材质历史也可缺省，缺省即零候选，不能创建伪造的空业务资料。
+
+业务说“处理这批日本到货”，WorkBuddy组装请求：
+
+```json
+{"message":"处理这批日本到货","files":["C:/ArrivalInput/KMT-original.xlsx"],"currency":"JPY"}
+```
+
+调用统一受控程序：
+
+```text
+python scripts/run.py --output C:/ArrivalRuntime/batches workbuddy --request C:/ArrivalRequests/request.json
+```
+
+附件通过固定单元格结构识别；同类多文件、多个箱重页、原始与历史第3步混用或未知文件要求澄清。原始主入口只需日方发票页和箱重页，程序生成未确认的第三份初步业务整理表及三页审核表。原始Qty按仓库实际点数保留，单位未从开定/采购资料确认前不称“件”；Subtotal合计是初步到货总价，不是最终申报金额批准。默认单人业务模式不要求填写或签署技术合同：系统自动创建内部输入记录，业务只处理异常并确认已展示的回传差异。该确认只保存基础商品资料的新修订，不能批准材质、盒规、税率、归类或正式输出；若宿主没有提供可信操作者上下文，也会如实标为未验证本地业务确认。相同原件重复执行恢复同一批次，不创建新的事实、版本或学习样本。
+
+日常回传操作为：上传精简审核表 → 查看差异预览 → 明确“确认并保存这批审核”。成功后主Skill只保存该批新修订和商品维护队列，不写共享SQLite；商品维护Skill核对队列绑定的SQLite快照后，才将允许的基础资料作为优先于历史导入的人工纠正追加。不会手工同步D1，也不会把该记录算作人工最终申报选择。含材质、税号、税率、盒规、归类或无法解析说明的内容不会随单人确认落库，仍显示为待处理异常。
+
+## 旧版受控合同与专业审批（仅在需要时使用）
+
+业务不编辑合同JSON、快照或身份配置。WorkBuddy把对话中的明确单位转换为受控settings，Python生成不可覆盖的合同文件；文件路径/哈希由程序返回并串接。先发送“检查这批能否开始”，可附files或batch、library、session_token_env，一次列出todos。身份配置失效也只显示待办，不代签。
+
+仅可信管理员在独立批次目录的security/runtime.json配置execution_mode（business或synthetic_technical_test）、quantity_units（本环境已确认的数量单位清单，不提供默认业务口径）、responsibilities（business/identity/amount/material/packaging/customs/logistics/release名单，未知为null）、signing_key_env（宿主随机签核密钥的环境变量名）。密钥至少32字符，不写日志或请求。security/trusted_sessions.json继续用原B2格式：sessions中含principal、roles、mode、credential_ref、token_sha256、expires_at。签核人须有contract角色，审核人须同时符合D08职责与可信会话角色。配置及环境只能由宿主/管理员维护，必须用OS ACL与上传、普通用户和Agent隔离；本地文件不是WorkBuddy SSO服务，实际宿主注入和隔离仍待验证。安装包不提供可用身份/令牌/密钥，也不自动配置。
+
+数量单位在已批准清单内仍须业务明确本票口径，不按文件名、名称或价格猜测；清单未确认由管理员联系业务，不由Agent扩充。业务职责缺失只阻断相应域。配置或模式变更后旧批保持只读，重新准备签核新批；合成记录永不升级为真实审核。签核证据绑定合同全部内容、宿主策略及执行模式，用宿主密钥封存，外部JSON声称已批准也不能替代签核。
+
+WorkBuddy依次构造以下请求，均调用同一个workbuddy入口：
+
+```json
+{"message":"准备这批业务合同","files":["C:/ArrivalInput/stage3.xlsx","C:/ArrivalInput/japanese.xlsx"]}
+{"message":"填写这批业务合同","contract":"<上一步file>","settings":{"authority_quantity_unit":"<业务明确的单位>","invoice_quantity_unit":"<业务明确的采购单位>"}}
+{"message":"签核这批业务合同","contract":"<填写结果file>","confirmed_hash":"<填写结果contract_hash>","confirm":true,"reference":"<实际签核依据>","session_token_env":"<宿主提供的会话变量名>"}
+{"message":"处理这批日本到货","contract":"<签核结果file>"}
+```
+
+填写前先问清默认计价单位适用范围；混合单位可在settings.row_quantity_units按第3步原始行号提供例外。不得让业务复制改写JSON；上述是Agent传输合同，不是新的业务表格。签核前必须展示summary及来源版本，并取得明确确认。正式CLI对应init-contract → fill-contract --authority-unit ... --invoice-unit ... → sign-contract --session-token-env ... --confirmed-hash ... --confirm --evidence ... → import-batch。签核不再接受actor/permissions自报身份。init/import/填写重跑幂等；已签核合同不原地编辑。
+
+计价单位不是换算系数。盒规继续走原packaging审核：先可信确认身份，再“预览这批单位换算”，提供batch、row和conversion（source_unit/declaration_unit/internal_unit、declaration_factor、pieces_per_box、internal_quantity、internal_boxes、source）；展示差异后“确认这批单位换算”，提供preview_id/confirmed_hash/confirm/reference/session_token_env。Python复用原换算校验和不可变版本/CAS，数量比例不符、来源缺失、旧预览及权限不足均拒绝。特殊补录或身份/金额审核使用原apply，但现在只接受--session-token-env，request不含actor/roles/permissions；敏感申报材质/税号税率仍必须用B2回传。
+
+业务启动预检报告解释器及openpyxl版本、原件、合同与单位、身份、输出和D1库，不替代后续逐行/分域校验。ready_for_review_submission仅表示配置具备提交条件，不是审核通过；D1暂不可用允许先保存B2，必须显示待同步。两份文件始终为草稿，formal_output_allowed恒为false。旧scripts/workbuddy_integration.py为无可信身份的历史预演，rc.3不再执行该旧鉴权路径；按本节通过真实宿主运行新合同和Excel流程。
+
+“生成这批到货的审核表”：请求增加batch、material_history、file；可提供recommendations/official_materials的现有JSON文件，或source_evidence的已归档官网证据路径列表。只生成总览、问题、明细三页，业务仍改问题页两列。
+
+“这是我修改后的审核表，继续处理”：请求file。受控B2校验可信导出登记、展示新旧差异、行范围、preview_id与confirmation_hash；WorkBuddy必须展示result.changes/operations并取得明确确认。仅基础商品资料的结构化差异可接着走单人确认；专业域改动仍停在预览。
+
+“确认并保存这批审核”：请求必须明确batch、preview_id、confirmed_hash、confirm=true、reference；日常单人模式不传session_token_env。程序只接受基础商品资料编辑，创建可追溯修订并自动更新本地候选资料库；不会产生D1事件、专业审批或正式输出。若要提交材质、税号、税率、盒规或归类，改用旧版受控 `return-commit`：请求还须session_token_env并按D08职责校验。普通商品确认、材质批准和关务批准仍是不同的事实，不能从一句“继续”推导批准。
+
+“查看这批还有哪些问题”：返回商品数、普通批量范围、单独项、金额数量箱重和下一步；阶段从原B2快照、预览和回执派生，没有第二套状态。缺批次时仅在现有批次唯一时恢复。
+
+“生成海关和内部到货表”：只生成带明显受控草稿标识的两份Excel。重复请求重读并复核同版本文件；损坏或数据不符拒绝交付。formal-export保留原正式门禁，D05未批准不能正式外发。
+
+## D2、D3与来源
+
+d2-report/d2-replay要求library、as-of；formal为默认，test必须明确指定。所有日期均显式给出；D1的as_of只查税率日期，D2使用事件及入库时间截断历史。按JAN/商品身份、批准事务及决策版本关联分组，保守去重，跨JAN只按完整条件相同发现候选。一次独立支持仅显示案例。指标含分母，零样本显示无法评估；不把技术夹具当业务准确率。
+
+规则文件固定为原D1目录/rule_registry.json。rule-draft引用当前D2候选ID；rule-publish必须传真实会话环境变量、D08批次、依据和预期版本。管理员rule_policy.json须包含realm、quality_approved、approval_reference、approved_by、credential_ref、publishers/executors、有效期及完整thresholds：min_independent_support、min_validation_decisions、min_covered_decisions、min_joint_accuracy。程序不提供获批默认值。发布者和执行者须同时满足D08现有customs职责及可信会话rule_publisher/rule_executor专用角色，无新增业务Excel字段。
+
+生产自动采用还须production_automatic_enabled=true、business模式、business来源D1、当前有效支持/发布授权及完整严格匹配条件。缺少任意项转人工。rule-apply写回原B2版本和automatic_rule_applied事件；自动审签明确标记authorized_rule_automation，D1不将其作为人工样本。本票税基、盒规、数量、金额、锁版和正式输出继续独立核验。人工纠正/撤销后rule-impact列受影响规则和应用；旧锁版只追溯，不重写。暂停后须重新建立待批版本，撤销不可复活旧版本。
+
+飞书当前实现Bitable只读字段元数据与记录分页接口。商品档案和采购订单必须分别配置真实app_token/table_id、token_env、访问授权依据及经业务确认的字段ID映射；缺映射拒绝猜测。若实际来源是电子表格/其他系统，须另行确认接口适配。网页仅访问明确授权的官方HTTPS域名，拒绝自动跟随重定向，保留完整原响应；完整材料引用与翻译待核实。来源信息通过独立参考层进入B2，保留原人工选择。
+
+接口文档依据：[列出字段](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-field/list)、[列出记录](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/list)。本次仅验证离线契约，未宣称实际飞书或官网连接成功。
+
+## 回滚与持久数据
+
+源码回退用冻结0.6.0安装包；不要覆盖0.7.0运行数据或把自动应用事件喂给未经确认的老客户端。需要明日测试时使用0.6.0原独立运行目录。D1原库格式不变，无运行时迁移。D3规则文件为新增派生授权档案，格式不符拒绝自动迁移。
+
+D1自带backup/restore只覆盖其原权威事件和来源对象，不含D3规则文件。完整0.7备份须停写后同时保存D1原备份、rule_registry.json及批次不可变快照；权限配置另由管理员安全备份。恢复到新独立目录，验证D1、规则链和支持证据，再重新批准发布/启用，避免旧备份恢复已撤销规则。安装包绝不包含上述运行数据或权限配置。
