@@ -1,0 +1,13 @@
+/reports/
+/runtime/
+/inputs/
+/outputs/
+/local-data/
+__pycache__/
+*.py[cod]
+*.sqlite*
+*.db*
+*.xlsx
+*.jsonl
+*.log
+*.p1-snapshot.json

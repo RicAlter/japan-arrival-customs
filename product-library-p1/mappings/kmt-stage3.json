@@ -1,0 +1,1 @@
+{"id":"kmt-stage3-reference-v1","sheet":"Sheet1","header_row":1,"headers":{"A":"CartonNo.","C":"ProductCode(JANCode)","I":"DescriptionofGoods","J":"Qty","N":"材质"},"columns":{"code_raw":"C","internal_name":"E","packaging_label":"F","japanese_name":"I","category":"M","material_original":"N","channel":"O","yd":"P"},"item_column":"A"}
