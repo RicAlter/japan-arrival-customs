@@ -1,0 +1,11 @@
+/runtime/
+/reports/
+/local-data/
+__pycache__/
+*.py[cod]
+*.body
+*.html
+*.sqlite*
+*.csv
+*.xlsx
+*.log
