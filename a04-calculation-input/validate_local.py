@@ -61,6 +61,7 @@ def main():
         env=dict(os.environ,PYTHONPATH=str(REPO/directory))
         if directory=='rc8-operations-colored-v1':
             env['PYTHONPATH']=str(REPO/directory/'workbuddy/japan-arrival-customs/scripts')
+            env['KMT_REAL_RAW_WORKBOOK']=str(next((WORKSPACE/'inputs/sample_kmt20261002').glob('1.*.xlsx')))
         r=subprocess.run([sys.executable,'-X','utf8','-B','-m','unittest','discover','-s',str(REPO/directory/'tests'),'-v'],
                          cwd=WORKSPACE,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         output=r.stdout.decode('utf-8',errors='replace')
