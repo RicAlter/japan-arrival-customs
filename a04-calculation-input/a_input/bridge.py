@@ -39,6 +39,12 @@ def project(view, batch):
     for f in fields.values():
         by_row.setdefault(f['row_id'], {})[f['field']] = f
     checks = {r['row_id']: r for r in view['calculated_cells']}
+    scoped = batch.get('a03', {}).get('calculation_basis')
+    scope_current = not scoped or scoped.get('a_version') == view['a_version']
+    if scoped and scope_current:
+        for evidence in scoped['sources']:
+            if digest(Path(evidence['path'])) != evidence['sha256']:
+                raise Rejected('B-00计算依据来源已变化，必须重新预览确认')
     ready, pending = [], []
     adopted = []
     for original in batch['rows']:
@@ -77,7 +83,7 @@ def project(view, batch):
         # confirmed ledger, not Qty observations or a purchase-price reference.
         record = current(original)
         basis_valid = bool(record and approved(original) and proof_valid(original['reviews'].get('price'))
-                           and record.get('status') == 'business_amount_approved')
+                           and record.get('status') == 'business_amount_approved' and scope_current)
         if basis_valid:
             basis = pricing_basis(original)
             try:
@@ -85,7 +91,10 @@ def project(view, batch):
                 if decimal(basis['amount']) < 0 or basis['currency'] != 'JPY':
                     raise Rejected('数量金额币种无效')
                 from arrival_core.operations_adapter import UNITS
-                if basis['quantity_unit'] not in UNITS:
+                scoped_units = bool(scoped and scope_current and rid in scoped['rows']
+                                    and scoped['rows'][rid].get('conversion_confirmed') is True
+                                    and basis['quantity_unit'] == 'Qty（原表计价口径）')
+                if basis['quantity_unit'] not in UNITS and not scoped_units:
                     raise Rejected('Qty实际单位未核实')
                 # Binding must hold after projecting current specification/code.
                 if record['fact_hash'] != key(context(row)):
@@ -107,16 +116,26 @@ def project(view, batch):
             try:
                 from arrival_core.operations_adapter import UNITS
                 h = positive(accepted['pieces_per_box']['value'])
-                if h != h.to_integral_value() or positive(p['pieces_per_box']) != h:
+                fact = scoped['rows'].get(rid) if scoped and scope_current else None
+                physical_match = bool(fact and fact.get('conversion_confirmed') is True
+                                      and fact.get('physical_pieces_per_box') == str(h)
+                                      and Fraction(positive(p['internal_quantity'])) * Fraction(positive(p['declaration_factor']))
+                                          / Fraction(positive(p['internal_boxes'])) == Fraction(h)
+                                      and str(p['declaration_factor']) == fact.get('declaration_factor'))
+                if h != h.to_integral_value() or (positive(p['pieces_per_box']) != h and not physical_match):
                     raise Rejected('H盒规与已确认包装关系不同')
                 if not basis_valid or p['source_unit'] != basis['quantity_unit']:
                     raise Rejected('包装来源单位与Qty实际单位不同')
                 if p.get('context') != context(row):
                     raise Rejected('包装依据不匹配当前身份')
-                if p['declaration_unit'] not in UNITS or p['internal_unit'] not in UNITS:
+                scope_pack = bool(fact and fact.get('conversion_confirmed') is True
+                                  and p['declaration_unit'] in UNITS | {'单个'}
+                                  and p['internal_unit'] == basis['quantity_unit'])
+                if (p['declaration_unit'] not in UNITS or p['internal_unit'] not in UNITS) and not scope_pack:
                     raise Rejected('申报/内部单位未核实')
                 positive(p['declaration_factor'])
-                if not p.get('source') or Fraction(positive(p['internal_quantity'])) / Fraction(positive(p['internal_boxes'])) != Fraction(h):
+                if (not p.get('source') or Fraction(positive(p['internal_quantity'])) / Fraction(positive(p['internal_boxes']))
+                        != Fraction(positive(p['pieces_per_box']))):
                     raise Rejected('包装数量关系缺少依据或不一致')
                 if positive(p['internal_quantity']) != positive(basis['quantity']):
                     raise Rejected('现有rc.5输入要求内部数量等于业务数量')
