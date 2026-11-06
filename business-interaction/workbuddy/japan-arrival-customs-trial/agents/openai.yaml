@@ -1,0 +1,3 @@
+interface:
+  display_name: "日本到货单表试用"
+  short_description: "日本到货逐阶段交付、同表回传及明确范围确认的本机候选入口"
