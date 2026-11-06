@@ -6,11 +6,12 @@ from interaction import rt,load,save,key,digest,path,Rejected
 from interaction.service import Service
 R=W/'reports/business-interaction-20261106'
 OUT=W/'outputs/KMT20261101_单表分阶段试用_20261106'
+def daily_config():return load(W/'outputs/KMT20261101_日常业务入口_当前.json')['session']
 spec=importlib.util.spec_from_file_location('fixture_edit',W/'reports/business-loop-20261105/run.py');fx=importlib.util.module_from_spec(spec);spec.loader.exec_module(fx)
 
 class RealDelivery(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):cls.s=Service(OUT/'后台/session.json');cls.before=key(cls.s.engine.store.load(cls.s.engine.bid))
+    def setUpClass(cls):cls.s=Service(daily_config());cls.before=key(cls.s.engine.store.load(cls.s.engine.bid))
     def test_first_stage_exposes_only_one_real_workbook(self):
         result=self.s.deliver();self.assertEqual(result['stage'],'basics');self.assertEqual(len(result['business_files']),1)
         self.assertEqual(Path(result['business_files'][0]).parent,self.s.public);self.assertNotIn('SYNTHETIC',result['business_files'][0]);self.assertFalse(result['formal_output'])
@@ -21,8 +22,16 @@ class RealDelivery(unittest.TestCase):
         w=load_workbook(self.s.deliver()['business_files'][0]);s=w['invoice (計算)'];view=self.s.engine.basics.read_current(self.s.engine.bid)
         for f in view['fields'].values():
             if f['field'] in {'internal_name','category'} and f['value']['value'] in (None,''):
-                self.assertEqual(s[f['cell']].fill.fgColor.rgb,'FFF4CCCC');self.assertFalse(s[f['cell']].protection.locked)
-        self.assertEqual(s['F2'].value,'拍立得整盒89');self.assertEqual(s['S2'].value,17);self.assertTrue(s['S2'].protection.locked);self.assertIsNone(s['H2'].value);self.assertEqual(s.max_column,19);self.assertEqual(s.auto_filter.ref,'B1:S1313');w.close()
+                if f['field']=='category' and load(self.s.engine.owner['workflow']).get('manual_category_input_only'):
+                    self.assertIsNone(s[f['cell']].fill.patternType)
+                else:self.assertEqual(s[f['cell']].fill.fgColor.rgb,'FFF4CCCC')
+                self.assertFalse(s[f['cell']].protection.locked)
+        self.assertEqual(s['F2'].value,'拍立得整盒89')
+        if load(self.s.engine.owner['workflow']).get('manual_packaging_original_text_only'):
+            self.assertEqual(s['S2'].value,'亚克力卡吧唧贴纸整盒11个入，相卡拍立得整盒17个入')
+            self.assertTrue(all(f['value']['value'] is None for f in view['fields'].values() if f['field']=='category'))
+        else:self.assertEqual(s['S2'].value,17)
+        self.assertTrue(s['S2'].protection.locked);self.assertIsNone(s['H2'].value);self.assertEqual(s.max_column,19);self.assertEqual(s.auto_filter.ref,'B1:S1313');w.close()
     def test_no_calculation_upload_before_actual_price_update(self):
         file=W/'outputs/KMT20261101_资料库包装闭环候选_20261106_v3/SYNTHETIC_隔离演示/SYNTHETIC_一次修改回传.xlsx'
         with self.assertRaises(ValueError):self.s.upload(file,kind='calculation',reference='isolated refusal test')

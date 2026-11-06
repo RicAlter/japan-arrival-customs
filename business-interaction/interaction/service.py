@@ -4,6 +4,7 @@ from copy import deepcopy
 import subprocess,shutil,xml.etree.ElementTree as ET
 from . import rt,ROOT,load,save,key,digest,put,get,path,Rejected
 from .workbook import main_copy
+from . import manual_pack  # Version-scoped manual packaging input policy.
 
 class Service:
     def __init__(self,config):
@@ -56,7 +57,7 @@ class Service:
             if record.exists() and load(record)['head']==state['head'] and Path(load(record)['file']).exists():file=load(record)['file']
             else:
                 source,counts=main_copy(self.engine,self.background);file=self._publish(source,'KMT20261101_基础资料.xlsx');save(record,{'head':state['head'],'file':file,'source_sha256':digest(source)})
-            files=[file];message='请修改这一份基础资料表后直接回传。红色为名称/品类缺项，黄色为参考或待核；可按颜色筛选，材质及YD空白不统一标红。'
+            files=[file];message='请修改这一份基础资料表后直接回传。M品类只留人工填写，Q仅供参考；S提供盒规来源原文供人工判断，不自动计算或默认1。红色为基础缺项，黄色为参考或待核，可按颜色筛选。'
         elif stage=='calculation':
             record=self.background/'current-review-export.json';e=load(record) if record.exists() else None
             if not e or e['head']!=state['head']:

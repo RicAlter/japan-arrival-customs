@@ -3,22 +3,32 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from interaction.pack_reference import reference
 class SpecificationReference(unittest.TestCase):
-    def test_multi_markers_do_not_infer_count(self):
-        for spec in ['拍立得整盒89','整套4','吧唧5枚套组3','明信片set2','SET','ｓｅｔ','卡片BOX','贴纸セット','整袋83','盒装']:
-            result=reference(spec);self.assertEqual(result['status'],'likely_multiple_count_pending',spec);self.assertIsNone(result['reference_count'])
-    def test_other_nonempty_spec_defaults_to_one(self):
-        for spec in ['三角初华2','单个挂件4','本体','透卡','立牌单品89']:
-            self.assertEqual(reference(spec)['reference_count'],1)
-    def test_english_substring_is_not_set(self):self.assertEqual(reference('offset版本2')['reference_count'],1)
-    def test_existing_seventeen_not_overwritten(self):self.assertEqual(reference('拍立得整盒89',17)['reference_count'],17)
-    def test_explicit_multi_source_overrides_nonbundle_spec_default(self):self.assertEqual(reference('明信片',14)['reference_count'],14)
+    def test_no_spec_or_old_reference_becomes_a_count(self):
+        for spec in ['拍立得整盒89','整套4','set','本体','单品','透卡',None,'89']:
+            for old in [None,1,17,14,'bad']:
+                r=reference(spec,old);self.assertIsNone(r['reference_count']);self.assertFalse(r['default_one_used'])
+    def test_original_sentence_is_not_parsed_or_translated(self):
+        raw='明信片1包2枚、1盒7包；吧唧全10种'
+        r=reference('明信片整盒',source_records=[{'accessories_original':raw,'source_row':9}])
+        self.assertEqual(r['display_text'],raw);self.assertIsNone(r['packs_per_box']);self.assertIsNone(r['units_per_pack'])
+    def test_sources_remain_separate_even_when_text_is_repeated(self):
+        a={'accessories_original':'本体','source_row':1};b={**a,'source_row':2}
+        r=reference('本体',source_records=[a,b]);self.assertEqual(r['display_text'],'本体');self.assertEqual(len(r['sources']),2)
+    def test_conflicting_originals_are_both_quoted(self):
+        r=reference('整盒',source_records=[{'accessories_original':'1盒7包'},{'accessories_original':'1盒8包'}])
+        self.assertEqual(r['display_text'],'1盒7包\n1盒8包');self.assertIsNone(r['reference_count'])
+    def test_missing_original_is_blank(self):self.assertIsNone(reference('整盒17')['display_text'])
     def test_original_tail_quantity_is_retained(self):self.assertEqual(reference('拍立得整盒89')['raw_specification'],'拍立得整盒89')
-    def test_blank_or_only_quantity_not_defaulted(self):
-        for s in [None,'','   ','89']:self.assertIsNone(reference(s)['reference_count'])
-    def test_bad_existing_source_not_replaced_with_one(self):
-        for x in [0,-1,'bad','1.5']:self.assertIsNone(reference('单品',x)['reference_count'])
-    def test_changed_identity_keeps_old_reference_as_history(self):
-        r=reference('新规格',17,False);self.assertIsNone(r['reference_count']);self.assertEqual(r['existing_reference_preserved'],17)
-    def test_reference_never_proves_unit_or_middle_layer(self):
-        r=reference('单品');self.assertFalse(r['automatic_confirmation']);self.assertFalse(r['original_qty_unit_inferred']);self.assertIsNone(r['packs_per_box']);self.assertIsNone(r['units_per_pack'])
+    def test_changed_identity_keeps_history_without_adoption(self):
+        r=reference('新规格',17,False);self.assertEqual(r['status'],'identity_or_spec_changed_needs_source_review');self.assertEqual(r['existing_reference_preserved'],17)
+    def test_reference_never_proves_units_or_approval(self):
+        r=reference('单品');self.assertFalse(r['automatic_confirmation']);self.assertFalse(r['original_qty_unit_inferred']);self.assertFalse(r['price_ratio_used'])
+    def test_price_ratio_never_produces_count_even_when_integer(self):
+        from interaction.manual_pack import no_price_inference
+        for price in ['700','701']:
+            r=no_price_inference('100',price,purchase_confirmed=True,minimum_unit_confirmed=True,actual_price=True,comparable=True)
+            self.assertIsNone(r['pieces_per_box']);self.assertIsNone(r['exact_ratio']);self.assertIsNone(r['reason'])
+    def test_missing_price_confirmation_still_blocks(self):
+        from interaction.manual_pack import no_price_inference
+        self.assertEqual(no_price_inference('100','700')['reason'],'actual_japanese_price_unconfirmed')
 if __name__=='__main__':unittest.main()

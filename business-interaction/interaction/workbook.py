@@ -7,6 +7,7 @@ SHEET='invoice (計算)'
 
 def main_copy(service,background):
     batch=service.store.load(service.bid);baseline=service.basics._state(service.bid)[1];view=service.basics.read_current(service.bid)
+    registration=load(service.root/'objects'/(baseline['registration_ref']+'.json'));manual_category=registration.get('stage1_policy',{}).get('manual_category_input_only',False)
     data=__import__('pathlib').Path(service.root/'objects'/(baseline['copy_sha256']+'.xlsx')).read_bytes()
     p=parts(data);member=sheet_member(p,SHEET);raw=p[member];prefix=re.search(rb'<([A-Za-z_][\w.-]*:)?worksheet\b',raw)[1] or b''
     overrides=batch['a03']['overrides'];approved={}
@@ -33,6 +34,7 @@ def main_copy(service,background):
     plans=[];counts={'red_missing_basic':0,'yellow_reference_or_pending':0}
     for f in view['fields'].values():
         if f['field'] not in {'internal_name','specification','purchase_unit_price','category','material_reference','channel','yd'}:continue
+        if manual_category and f['field']=='category':continue
         value=f['value']['value'];blank=value in (None,'');color=None
         if blank and f['field'] in {'internal_name','category'}:color='red';counts['red_missing_basic']+=1
         elif (not blank and not f['confirmed']) or (blank and f['field'] in {'specification','purchase_unit_price','channel'}):color='yellow';counts['yellow_reference_or_pending']+=1
