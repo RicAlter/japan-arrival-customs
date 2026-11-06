@@ -25,13 +25,14 @@ def write_hints(service,background):
     batch,baseline,_,_,fields,_=service.basics._state(service.bid);byrow={};old={}
     for f in fields.values():byrow.setdefault(f['row_id'],{})[f['field']]=f
     for f in baseline['fields'].values():old.setdefault(f['row_id'],{})[f['field']]=f
-    sources=source_rows(load(service.owner['workflow']))
+    workflow=load(service.owner['workflow']);sources=source_rows(workflow)
+    pack_column=workflow.get('reference_columns',{}).get('pack_reference','S')
     file=Path(service.root/'objects'/(baseline['copy_sha256']+'.xlsx'));book=p0.Book(file.read_bytes(),'registered-reference.xlsx');sheet=next(s for s in book.sheets if s.name=='invoice (計算)')
     rows={}
     for rid,fs in byrow.items():
         if 'specification' not in fs:continue
         f=fs['specification'];n=int(re.search(r'\d+$',f['cell'])[0]);current=all(fs.get(k,{}).get('value')==old[rid].get(k,{}).get('value') for k in ['product_code','specification','yd'])
-        rows[str(n)]={**reference(f['value']['value'],sheet.v(n,'S'),current,sources.get(str(n),{}).get('sources',[])),'source_cell':'S'+str(n),'specification_cell':f['cell'],'row_id':rid}
+        rows[str(n)]={**reference(f['value']['value'],sheet.v(n,pack_column),current,sources.get(str(n),{}).get('sources',[])),'source_cell':pack_column+str(n),'specification_cell':f['cell'],'row_id':rid}
     from collections import Counter
     body={'rule':RULE,'registered_copy_sha256':baseline['copy_sha256'],'rows':rows,'counts':dict(Counter(r['status'] for r in rows.values())),
         'workbook_or_original_data_changed':False,'automatic_packaging_calculation':False,'original_qty_and_price_units_inferred':False}

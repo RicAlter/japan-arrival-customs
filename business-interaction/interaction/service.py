@@ -57,7 +57,8 @@ class Service:
             if record.exists() and load(record)['head']==state['head'] and Path(load(record)['file']).exists():file=load(record)['file']
             else:
                 source,counts=main_copy(self.engine,self.background);file=self._publish(source,'KMT20261101_基础资料.xlsx');save(record,{'head':state['head'],'file':file,'source_sha256':digest(source)})
-            files=[file];message='请修改这一份基础资料表后直接回传。M品类只留人工填写，Q仅供参考；S提供盒规来源原文供人工判断，不自动计算或默认1。红色为基础缺项，黄色为参考或待核，可按颜色筛选。'
+            layout=load(self.engine.owner['workflow']);columns=layout.get('display_columns',{'manual_category':'M','category_reference':'Q','material_reference':'R','pack_reference':'S'})
+            files=[file];message=f"请修改这一份基础资料表后直接回传。{columns['manual_category']}品类只留人工填写，{columns['category_reference']}品类仅供参考；{columns['material_reference']}保留材质原文，{columns['pack_reference']}提供盒规原文供人工判断，不自动计算或默认1。红色为待核或缺项，黄色为参考，可按颜色筛选。"
         elif stage=='calculation':
             record=self.background/'current-review-export.json';e=load(record) if record.exists() else None
             if not e or e['head']!=state['head']:
