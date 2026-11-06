@@ -1,0 +1,17 @@
+{
+  "schema": "business-loop-runtime/1",
+  "files": {
+    "loop/calc_model.py": "f40e4f3e6c919bb4c8e5efa31b134736410aa44810a239216c706300cf35037e",
+    "loop/cli.py": "9f47b58e87a20d43bcffc4cc3a65c8a243ea1b18c841858a8305f6a00a500f62",
+    "loop/compute.py": "fb4003d0157f7bc4dbf33485122df62f05c4a060d9eef57c8ee5dcfb86aec88f",
+    "loop/delivery.py": "29af8cbfe57aae311c884a04d438106c3452db7fa32c88afb39ab08f67c336ec",
+    "loop/prices.py": "58fd430c7ee788919660d92e98afcf9cbb3630f5c601257ff3161dcae222ba5b",
+    "loop/review.py": "73807a0625e88084eb8e81dc3abf5f83264314c5cec4e79d637fc7a5f6687f1d",
+    "loop/review_book.py": "ffaacd4a77684fe66d6215ec8c02d39d2fd3b587e0473f38defbd9133cdcfca2",
+    "loop/support.py": "9e4c4246e0da01e2c4684bec425f21981818bf7f9cf3afb0a0e996a02fdc14c9",
+    "loop/updates.py": "1835d428e4e5bc05601db679f388d5826032b1c594b4f2266402813813376b59",
+    "loop/__init__.py": "87679b87042f6da364f7d94bfa429c470c373bf846af422e09295415c6903cf7",
+    "loop/__main__.py": "cf28522dffddc4a4e055feb03944883507ab918f4dc6a89b057e80a265d2c657",
+    "review-author.mjs": "8ce9c197c8fe232949b63cd5ee88c835d68d706e700d249c75306b3afed406ad"
+  }
+}
