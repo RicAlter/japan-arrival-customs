@@ -50,6 +50,8 @@ class Service:
     def deliver(self):
         state=self.status();stage=state['stage']
         if stage=='basics':
+            from .pack_reference import write_hints
+            write_hints(self.engine,self.background)
             record=self.background/'last-main-display.json'
             if record.exists() and load(record)['head']==state['head'] and Path(load(record)['file']).exists():file=load(record)['file']
             else:
