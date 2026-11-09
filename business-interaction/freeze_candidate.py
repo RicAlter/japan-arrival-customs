@@ -34,6 +34,20 @@ def archive(source,destination):
                 entry.compress_type=zipfile.ZIP_DEFLATED;z.writestr(entry,p.read_bytes())
 
 
+def preserve_runtime_bytes(committed,working):
+    """Legacy guards hash checkout CRLF bytes; never import unrelated edits."""
+    restored=[];excluded=[]
+    for target in committed.rglob('*'):
+        if not target.is_file():continue
+        relative=target.relative_to(committed);source=working/relative
+        if not source.is_file():continue
+        blob=target.read_bytes();live=source.read_bytes()
+        if live.replace(b'\r\n',b'\n')==blob.replace(b'\r\n',b'\n'):
+            if live!=blob:target.write_bytes(live);restored.append(relative.as_posix())
+        else:excluded.append(relative.as_posix())
+    return {'checkout_EOL_bytes_preserved':restored,'unrelated_worktree_edits_excluded':excluded}
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--workspace',required=True);p.add_argument('--output',required=True)
     p.add_argument('--profile',required=True);a=p.parse_args()
@@ -46,6 +60,7 @@ def main():
     snapshot=out/'frozen-workspace';snapshot.mkdir(parents=True)
     raw=subprocess.run(['git','archive','--format=tar',commit],cwd=repo,check=True,capture_output=True).stdout
     with tarfile.open(fileobj=io.BytesIO(raw)) as tar:tar.extractall(snapshot/repo.name,filter='data')
+    checkout=preserve_runtime_bytes(snapshot/repo.name,repo)
     external=json.loads((repo/'business-interaction/external-source-manifest.json').read_text(encoding='utf-8'))
     for name,item in external['files'].items():
         source=workspace/name;target=snapshot/name
@@ -58,7 +73,8 @@ def main():
         target=snapshot/stop.relative_to(workspace);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(stop,target)
     files={p.relative_to(snapshot).as_posix():{'sha256':sha(p),'bytes':p.stat().st_size} for p in sorted(snapshot.rglob('*')) if p.is_file()}
     canonical=json.dumps({k:v['sha256'] for k,v in files.items()},sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()
-    manifest={'schema':'codex-phase1-frozen-source/1','commit':commit,'tree_sha256':hashlib.sha256(canonical).hexdigest(),'files':files}
+    manifest={'schema':'codex-phase1-frozen-source/1','commit':commit,'tree_sha256':hashlib.sha256(canonical).hexdigest(),'files':files,
+              'checkout_policy':checkout}
     save(out/'source-manifest.json',manifest)
     candidate=out/'japan-arrival-customs-trial'
     origin=snapshot/repo.name/'business-interaction/workbuddy/japan-arrival-customs-trial'
