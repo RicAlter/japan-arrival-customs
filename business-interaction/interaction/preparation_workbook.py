@@ -146,10 +146,26 @@ def native_project(source,columns=16,values=None):
                 if f is not None:f.text=f'SUM({rolecols[role]}2:{rolecols[role]}{len(rows)+1})'
                 total.append(c)
             break
+    # Seven-column adapter uses the existing native16 interface. Retain every
+    # original trailing aggregate/difference cell and its formula/cache.
+    final_row=len(rows)+2
+    if source['profile_id']=='kmt-native-16-v1':
+        trailing=[n for n in sorted(source['sheet'].rows) if n>max(r['source_row'] for r in rows)]
+        if trailing:
+            sd.remove(total)
+            for offset,n in enumerate(trailing,len(rows)+2):
+                outputrow=ET.SubElement(sd,Q+'row',{'r':str(offset)})
+                for role,col in rolecols.items():
+                    address=sourcecols[role]+str(n)
+                    if address not in old:continue
+                    c=deepcopy(old[address]);c.set('r',col+str(offset));f=c.find(Q+'f')
+                    if f is not None:f.text=formula(f.text or '')
+                    outputrow.append(c)
+                final_row=offset
     for tag in ['mergeCells','autoFilter','cols','drawing','conditionalFormatting','dataValidations','sheetProtection']:
         for node in list(main.findall(Q+tag)):main.remove(node)
     dim=main.find(Q+'dimension')
-    if dim is not None:dim.set('ref',f'A1:{get_column_letter(columns)}{len(rows)+2}')
+    if dim is not None:dim.set('ref',f'A1:{get_column_letter(columns)}{final_row}')
     for view in main.findall(Q+'sheetViews/'+Q+'sheetView'):
         for oldview in list(view):
             if oldview.tag in {Q+'pane',Q+'selection'}:view.remove(oldview)

@@ -1,12 +1,16 @@
 """WorkBuddy host adapter. Business users never prepare JSON/commands themselves."""
 import argparse,json,sys
 from interaction.service import Service
+from interaction.seven_column_adapter import install
+install()
 p=argparse.ArgumentParser();p.add_argument('--config');p.add_argument('--request',required=True);p.add_argument('--result-file');a=p.parse_args()
 try:
     from interaction import load,save
     request=load(a.request);action=request.pop('action')
     if action=='prepare':
         from interaction.preparation import prepare
+        from interaction.seven_column_adapter import adapt
+        request=adapt(request)
         result=prepare(request)
     elif action=='material-review':
         from interaction.material_review import review_materials

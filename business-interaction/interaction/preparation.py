@@ -58,6 +58,12 @@ def resolve(jan,index,cards,history):
             'excluded_yd_records':[r for r in allrecords if r not in compatible],'yd_priority_records':ydrecords,'code_links':hit['links'],'related_procurement':linked,'material_link_sources':refs,
             'purchase_observations_shared_not_allocated':True,'confirmed':False}
 
+_legacy_resolve=resolve
+def resolve(jan,index,cards,history,context=None):
+    from .matching_repair import resolve_repaired
+    if context is None and not any(r.get('source',{}).get('kind')=='effective_purchase_order' for r in index.lookup(jan)['records']):return _legacy_resolve(jan,index,cards,history)
+    return resolve_repaired(jan,index,cards,history,_legacy_resolve,context)
+
 def prepare(request):
     from native_copy.profiles import inspect_source
     sourcefile=Path(request['input_file']).resolve(strict=True);output=Path(request['output']).resolve();batch=request['batch_id']
@@ -88,8 +94,8 @@ def prepare(request):
         return complete_preparation(config,request.get('material_review',{}),output/'session.json')
     if output.exists():raise Rejected('准备目录已存在且未完成，保留诊断；使用新目录')
     source=inspect_source(sourcefile)
-    if source['profile_id'] not in {'kmt-raw-invoice-v1','kmt-raw-invoice-v2'}:raise Rejected('当前只接既有读取器已验证的日方原表布局kmt-raw-invoice-v1/v2')
-    if [r['source_row'] for r in source['rows']]!=list(range(18,18+len(source['rows']))):raise Rejected('原表存在数据行间隙，后续原引擎行关联尚不支持；不猜映射')
+    if source['profile_id'] not in {'kmt-raw-invoice-v1','kmt-raw-invoice-v2','kmt-native-16-v1'}:raise Rejected('当前只接既有读取器已验证的日方原表布局kmt-raw-invoice-v1/v2')
+    if [r['source_row'] for r in source['rows']]!=list(range(source['header_row']+1,source['header_row']+1+len(source['rows']))):raise Rejected('原表存在数据行间隙，后续原引擎行关联尚不支持；不猜映射')
     output.mkdir(parents=True);back=output/'后台';fixed=back/'fixed-inputs';fixed.mkdir(parents=True)
     raw=fixed/'original.xlsx';shutil.copyfile(sourcefile,raw)
     if digest(raw)!=identity['source']:raise Rejected('原件在捕获期间变化，保留诊断并停止准备')
@@ -136,7 +142,7 @@ def prepare(request):
     if image_limit is not None and (type(image_limit) is not int or image_limit<0):
         raise Rejected('image_max_downloads须为非负整数，未配置时不限制下载次数')
     for n,r in enumerate(source['rows'],2):
-        item=resolve(r['code'],ix,cards,history);item.update(row=n,row_id=r['row_id'],name_ja=r['japanese_name'],source=r['source'])
+        item=resolve(r['code'],ix,cards,history,{'name_ja':r['japanese_name']});item.update(row=n,row_id=r['row_id'],name_ja=r['japanese_name'],source=r['source'])
         fields=item['values'];values[n]={'F':fields.get('name'),'G':fields.get('spec'),'H':fields.get('price'),'P':fields.get('channel'),'Q':fields.get('yd'),
             'S':item.get('material',{}).get('value'),'T':item.get('packaging',{}).get('value')}
         # The existing v2 reader exposes historical working name/spec/category/
@@ -191,12 +197,6 @@ def prepare(request):
     projected=fixed/'projected16.xlsx';projected.write_bytes(native_project(source,16))
     data=native_project(source,20,values)
     from native_copy.ooxml import build,verify
-    hints=[]
-    for n,v in values.items():
-        for col in ['F','G','H','P','Q','S','T']:
-            if col in {'Q','S','T'} and v.get(col) in (None,''):continue
-            hints.append({'cell':col+str(n),'color':'red' if col=='F' and not v.get(col) else 'yellow','write_value':None,'value_type':'text'})
-    colored,changes=build(data,source['sheet'].name,hints);verify(data,colored,source['sheet'].name,changes);data=colored
     if images:
         canvas=back/'images.xlsx';plan={'sheet':source['sheet'].name,'output':str(canvas),'images':images};save(back/'images-plan.json',plan)
         subprocess.run([request.get('node','node'),str(ROOT/'prepare-images.mjs'),str(back/'images-plan.json')],check=True,capture_output=True,timeout=90)
@@ -226,6 +226,9 @@ def prepare(request):
                 'image_hosts':request.get('image_hosts',['img.alicdn.com']),
                 'sop':{'path':str(ROOT/'workbuddy/japan-arrival-customs-trial/references/business-preparation-sop.md'),
                        'sha256':digest(ROOT/'workbuddy/japan-arrival-customs-trial/references/business-preparation-sop.md')}}}
+    config['attention_display']='sparse-business-v1'
+    from .attention_display import apply_attention
+    apply_attention(file,config)
     from .quantity_review import build_quantity_review
     config['quantity_review']=build_quantity_review(source,records,request.get('quantity_review',{}),back,batch)
     config['quantity_review_request_hash']=key(request.get('quantity_review',{}))

@@ -63,6 +63,9 @@ class Service:
             if self.config.get('schema')=='prepared-basics-session/1':
                 from .website_query import apply_overlay
                 apply_overlay(self.config,file)
+            if self.config.get('attention_display')=='sparse-business-v1':
+                from .attention_display import apply_attention
+                apply_attention(file,self.config)
             files=[file]
             if self.config.get('schema')=='prepared-basics-session/1':
                 message='请修改这一份基础资料表后回传。N/O为人工品类和材质；R为全量网站材质参考，S为资料库及历史参考，T为盒规文字参考。'
@@ -92,6 +95,12 @@ class Service:
             review=self.config['quantity_review']
             if digest(review['path'])!=review['sha256']:raise Rejected('后台JAN数量核对报告摘要变化')
             result['quantity_attention']=load(review['path'])['frontend']
+            if self.config.get('attention_display')=='sparse-business-v1':
+                identities=load(self.background/'evidence.json')['rows']
+                actual={r['jan'] for r in identities.values() if r.get('status')=='substantive_identity_conflict'}
+                reasons=result['quantity_attention'].get('needs_attention',{}).get('reason_counts',{})
+                if not actual:reasons.pop('same_jan_product_version_or_YD_conflict',None)
+                result['quantity_attention']['identity_review_policy']='ordinary_multi_YD_is_normal; original quantity report retained unchanged'
         if stage=='basics' and self.config.get('schema')=='prepared-basics-session/1':
             from .delivery_review import review_delivery
             result['completeness']=review_delivery(self.config,files[0],head=state['head'])

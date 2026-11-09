@@ -72,6 +72,8 @@ def workbook_records(config):
     rows=[];sha=digest(file)
     for n,row in enumerate(s.iter_rows(min_row=header+1,values_only=True),header+1):
         rec={k:row[i] if i<len(row) else None for k,i in ix.items()}
+        for k,v in list(rec.items()):
+            if hasattr(v,'isoformat'):rec[k]=v.isoformat()
         for k in ['jan','pcs','sku']:rec[k]=code(rec.get(k))
         if not any(rec[k] for k in ['jan','pcs','sku']):continue
         rec['source']={'kind':config.get('kind','procurement'),'path':str(file),'sha256':sha,'sheet':s.title,'row':n,'columns':ix,'column_index_base':0}
