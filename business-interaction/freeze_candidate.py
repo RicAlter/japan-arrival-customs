@@ -34,9 +34,9 @@ def archive(source,destination):
                 entry.compress_type=zipfile.ZIP_DEFLATED;z.writestr(entry,p.read_bytes())
 
 
-def preserve_runtime_bytes(committed,working):
+def preserve_runtime_bytes(committed,working,guarded=None):
     """Legacy guards hash checkout CRLF bytes; never import unrelated edits."""
-    restored=[];excluded=[]
+    restored=[];excluded=[];snapshots={};guarded=guarded or {}
     for target in committed.rglob('*'):
         if not target.is_file():continue
         relative=target.relative_to(committed);source=working/relative
@@ -44,8 +44,11 @@ def preserve_runtime_bytes(committed,working):
         blob=target.read_bytes();live=source.read_bytes()
         if live.replace(b'\r\n',b'\n')==blob.replace(b'\r\n',b'\n'):
             if live!=blob:target.write_bytes(live);restored.append(relative.as_posix())
+        elif guarded.get(relative.as_posix())==sha(source):
+            target.write_bytes(live);snapshots[relative.as_posix()]=sha(source)
         else:excluded.append(relative.as_posix())
-    return {'checkout_EOL_bytes_preserved':restored,'unrelated_worktree_edits_excluded':excluded}
+    return {'checkout_EOL_bytes_preserved':restored,'unrelated_worktree_edits_excluded':excluded,
+            'required_guarded_worktree_snapshots':snapshots}
 
 
 def main():
@@ -60,7 +63,12 @@ def main():
     snapshot=out/'frozen-workspace';snapshot.mkdir(parents=True)
     raw=subprocess.run(['git','archive','--format=tar',commit],cwd=repo,check=True,capture_output=True).stdout
     with tarfile.open(fileobj=io.BytesIO(raw)) as tar:tar.extractall(snapshot/repo.name,filter='data')
-    checkout=preserve_runtime_bytes(snapshot/repo.name,repo)
+    guarded={}
+    for name in ['business-loop/dependency-lock.json','catalogue-pack-loop/reuse-lock.json']:
+        guarded.update(json.loads((repo/name).read_text(encoding='utf-8'))['files'])
+    checkout=preserve_runtime_bytes(snapshot/repo.name,repo,guarded)
+    for name,expected in guarded.items():
+        if sha(snapshot/repo.name/name)!=expected:raise SystemExit('冻结旧依赖校验失败：'+name)
     external=json.loads((repo/'business-interaction/external-source-manifest.json').read_text(encoding='utf-8'))
     for name,item in external['files'].items():
         source=workspace/name;target=snapshot/name
