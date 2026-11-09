@@ -16,7 +16,7 @@ class Service:
         self.background.mkdir(parents=True,exist_ok=True);self.public.mkdir(parents=True,exist_ok=True)
     def _publish(self,source,filename):
         source=Path(source);destination=self.public/filename
-        if self.config['mode']=='synthetic':filename='SYNTHETIC_'+filename;destination=self.public/filename
+        if self.config['mode']=='synthetic' and not filename.startswith('SYNTHETIC_'):filename='SYNTHETIC_'+filename;destination=self.public/filename
         if destination.exists() and digest(destination)!=digest(source):
             old=self.background/'retained-editable-copies'/(digest(destination)+'.xlsx');old.parent.mkdir(exist_ok=True)
             if not old.exists():shutil.copyfile(destination,old)
@@ -49,6 +49,8 @@ class Service:
         else:stage='calculation' if qualified else 'basics'
         return {'stage':stage,'head':key(b),'mode':self.config['mode'],'actual_price_update_received':qualified,'calculation_confirmed':computation,'formal_output':False}
     def deliver(self):
+        if self.config.get('preparation_status')=='material_review_pending':
+            raise Rejected('资料准备的双来源核验尚未完成；请用原prepare请求恢复，不能提前交付')
         state=self.status();stage=state['stage']
         if stage=='basics':
             from .pack_reference import write_hints
@@ -56,9 +58,15 @@ class Service:
             record=self.background/'last-main-display.json'
             if record.exists() and load(record)['head']==state['head'] and Path(load(record)['file']).exists():file=load(record)['file']
             else:
-                source,counts=main_copy(self.engine,self.background);file=self._publish(source,'KMT20261101_基础资料.xlsx');save(record,{'head':state['head'],'file':file,'source_sha256':digest(source)})
+                source,counts=main_copy(self.engine,self.background);file=self._publish(source,self.config.get('batch_label','KMT20261101')+'_基础资料.xlsx');save(record,{'head':state['head'],'file':file,'source_sha256':digest(source)})
             layout=load(self.engine.owner['workflow']);columns=layout.get('display_columns',{'manual_category':'M','category_reference':'Q','material_reference':'R','pack_reference':'S'})
-            files=[file];message=f"请修改这一份基础资料表后直接回传。{columns['manual_category']}品类只留人工填写，{columns['category_reference']}品类仅供参考；{columns['material_reference']}保留材质原文，{columns['pack_reference']}提供盒规原文供人工判断，不自动计算或默认1。红色为待核或缺项，黄色为参考，可按颜色筛选。"
+            if self.config.get('schema')=='prepared-basics-session/1':
+                from .website_query import apply_overlay
+                apply_overlay(self.config,file)
+            files=[file]
+            if self.config.get('schema')=='prepared-basics-session/1':
+                message='请修改这一份基础资料表后回传。N/O为人工品类和材质；R为全量网站材质参考，S为资料库及历史参考，T为盒规文字参考。'
+            else:message=f"请修改这一份基础资料表后直接回传。{columns['manual_category']}品类只留人工填写，{columns['category_reference']}品类仅供参考；{columns['material_reference']}保留材质原文，{columns['pack_reference']}提供盒规原文供人工判断，不自动计算或默认1。红色为待核或缺项，黄色为参考，可按颜色筛选。"
         elif stage=='calculation':
             record=self.background/'current-review-export.json';e=load(record) if record.exists() else None
             if not e or e['head']!=state['head']:
@@ -70,7 +78,7 @@ class Service:
             public_record=self.background/'last-audit-display.json'
             if public_record.exists() and load(public_record)['export_id']==e['export_id'] and Path(load(public_record)['file']).exists():file=load(public_record)['file']
             else:
-                file=self._publish(e['file'],'KMT20261101_计算审核.xlsx');save(public_record,{'file':file,'export_id':e['export_id']})
+                file=self._publish(e['file'],self.config.get('batch_label','KMT20261101')+'_计算审核.xlsx');save(public_record,{'file':file,'export_id':e['export_id']})
             files=[file];message='请修改这一份计算审核表后回传；系统重算并展示确认范围，确认通过后才交付双表草稿。'
         else:
             current=load(self.root/'current-computation.json');destination=self.background/'draft-pairs'/current['review_preview'][:16]
@@ -80,6 +88,15 @@ class Service:
         # Authoritative daily list, not a recursive directory listing.
         self._retain_inactive(files)
         result={**state,'business_files':files,'message':message,'requires_explicit_confirmation':False}
+        if stage=='basics' and self.config.get('quantity_review'):
+            review=self.config['quantity_review']
+            if digest(review['path'])!=review['sha256']:raise Rejected('后台JAN数量核对报告摘要变化')
+            result['quantity_attention']=load(review['path'])['frontend']
+        if stage=='basics' and self.config.get('schema')=='prepared-basics-session/1':
+            from .delivery_review import review_delivery
+            result['completeness']=review_delivery(self.config,files[0],head=state['head'])
+            if result['completeness']['status']!='complete':
+                result['message']+=' 本表仍有未完成资料，具体原因已留后台；不能称为全部补齐。'
         save(self.background/'current-business-delivery.json',result);return result
     def upload(self,file,*,kind=None,reference,price_basis_reference=None,purchase_evidence=None,confirm_material=False,selection=None,links=None):
         file=Path(file).resolve(strict=True)
@@ -93,6 +110,9 @@ class Service:
                 w=load_workbook(file,read_only=True);kind='calculation' if '计算审核' in w.sheetnames else 'update';w.close()
         batch=self.engine.store.load(self.engine.bid);head=key(batch)
         if kind=='basics':
+            if self.config.get('schema')=='prepared-basics-session/1':
+                from .website_query import canonical_return
+                file=canonical_return(self.config,file)
             v=self.engine.basics.read_current(self.engine.bid);p=self.engine.basics.preview_return(self.engine.bid,file,expected_hash=v['current_hash'])
             requested_selection=selection
             selection={'save_changes':list(p['proposals']),'confirm_fields':[],'adopt_candidates':[],'evidence':{}}

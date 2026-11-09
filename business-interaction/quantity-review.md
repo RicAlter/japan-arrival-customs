@@ -1,0 +1,29 @@
+# 第一阶段JAN数量核对
+
+仅工作区候选；不修改安装中的Skill、计算/确认规则、原库或原件。唯一业务交付继续为20列基础资料Excel。prepare自动保存后台jan-quantity-review.json，current只展示attention和future_arrivals摘要。
+
+## 来源
+
+quantity_review.purchase_sources、history_sources沿用preparation_sources.workbook_records的path/sheet/header_row/columns显式字段映射，文件按SHA复制到fixed-inputs/quantity，保留原路径、页签、行号及列号。采购表字段映射order_id、jan或sku、quantity、status；可选order_line_id、spec、yd、unit、order_date、cancelled、cut_quantity。历史表映射jan/quantity及可选unit/order_id，并明确batch_id。不得用已购数、需购数、规格尾数或本批Qty冒充采购订单行，不从数据库去重字段版本构造订单数量笛卡尔积。
+
+accepted_purchase_statuses默认仅已采购。as_of可明确限定回放订单生成日期，晚于截止日的订单排除，日期缺失/无效转来源待核。撤销、重复/矛盾状态、订单行版本或身份冲突、砍单净额不明分别留证，不靠文件mtime选新版本或自行扣数。多文件同一订单行的相同观察去重；同文件没有订单行号的重复同码同规格行视作不能可靠区分，不重复累加。
+
+历史同一原件SHA/页签/物理行只记一次，本批原件和本批batch_id不能当历史；历史覆盖不全时不填0。每次生成保留完整当前到货观察和已选择历史观察，供后续批次显式接续来源；不写原商品数据库。
+
+## 单位与有效范围
+
+原始数量分别保存，raw_sum_unconverted只表明来源原数，不证明相同单位或采购/历史范围完整。原始Qty不作采购数兜底，也不作默认盒数。
+
+读取器明确映射的unit可作来源单位。另有unit_bindings时，须明确kind=arrival/purchase/history、jan、unit、confirmed=true及reference；不从商品规格自动猜单位。comparison_units可在多单位到货时指定同样带confirmed/reference的目标单位。
+
+conversions须提供from_jan/to_jan/from_unit/to_unit/factor、confirmed=true及reference。换算用精确有理数，不从价格比、全N种、规格尾数、默认1或YD材质集合推倍率。主码与pcs码关系本身不代表转换系数。一个采购观察被多个本批JAN组共享时不分摊，也不分别给每组完整采购量，转shared_order_quantity_across_JAN_groups_not_allocated。
+
+purchase_coverage和history_coverage必须明确complete=true及reference才能算累计差额，单个订单范围还可用order_scopes[jan]={order_ids,confirmed,reference}绑定；历史不能可靠归到所选订单则仍留待核。缺少任一依据时purchase_total/historical_received/current_received/remaining_pending/cumulative_difference均不产生确定累计结果，保留原始观察及原因。
+
+可靠可比时：累计差额=历史已到+本批到货−有效采购总数。负值为后续待到货，status=pending_future_arrival，is_error=false；0为fully_received；正值为over_received，供人工核对。无可比记录时差异数/待到货数为null，不能说0错误或全部到齐。
+
+## 状态保护与边界
+
+再次prepare若显式quantity_review配置或数量模块版本变化，只刷新后台数量报告并保留旧摘要版本，不重新登记已有批次，也不覆盖Excel/人工保存。报告由config记录内容摘要，交付时校验；其他字段确认、采用及专业审批保持原服务控制。
+
+KMT20261002实样为历史带注释原表，不改称全新纯日本仓原件。历史第5/6步成品不作输入或反推单位/倍率；本轮数量补充不替代历史改码、混合Qty单位及执行价调整的有效确认依据。

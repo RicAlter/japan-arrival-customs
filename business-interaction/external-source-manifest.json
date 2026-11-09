@@ -1,0 +1,386 @@
+{
+  "schema": "phase1-external-source/1",
+  "files": {
+    "tools/analyze_kmt_alignment.py": {
+      "sha256": "d634355a5e1eaa9f43856b37b3ba4e503928d4ee413326c584a7f0573c4126c9",
+      "bytes": 3443
+    },
+    "tools/analyze_unprefilled63.py": {
+      "sha256": "e401f3c9a1ccab1dbb2135517747e78b55f9e6c09e62f31c3745a8b69e860cfa",
+      "bytes": 5274
+    },
+    "tools/apply_learned_material_rules.py": {
+      "sha256": "f07be55c096da71de8b33403a0f9b51cd97912af7361e82b5cf3b24a160f635a",
+      "bytes": 2202
+    },
+    "tools/apply_scoped_website_materials.mjs": {
+      "sha256": "74db2c95325acedc19722116f4b331fd3f09ddcb1fe1de73e7f657313da7d7d7",
+      "bytes": 3271
+    },
+    "tools/build_material_sop_manual.py": {
+      "sha256": "b49454fe4dc5839fbee28ec96109c970121d0215f258688c503fe251bfd39039",
+      "bytes": 4733
+    },
+    "tools/build_missing63_candidate_list.mjs": {
+      "sha256": "b3634aa089bbcb872293b9e5ac06492b887644f853139a6fb467f836f8a37914",
+      "bytes": 2486
+    },
+    "tools/fast_material_batch.py": {
+      "sha256": "0f0019a492da7e6a29f0a266ed0e2328f769681d363283dea5d9c09c2b6ff0a1",
+      "bytes": 26101
+    },
+    "tools/fast_material_neowing.py": {
+      "sha256": "3d3312d74730aefe39b4b391f400946c504a2f938cfb57964327fe9443083b90",
+      "bytes": 6812
+    },
+    "tools/fill_customs_name63_candidates.mjs": {
+      "sha256": "0e5fe269b61e871f287b2ee03b035684d09da00bb00d48372dd19e69a8f65eef",
+      "bytes": 2802
+    },
+    "tools/inspect_generic_workbook_artifact.mjs": {
+      "sha256": "dd49ac07f63a6b5b840d99264e4888dc114ef988da66640dc44922ea79ed16d0",
+      "bytes": 633
+    },
+    "tools/inspect_review_artifact.mjs": {
+      "sha256": "c4f43b6b86c89f11ad04665646ead91d933c8ab4ecd5b36f9a79db0bd9713b6d",
+      "bytes": 618
+    },
+    "tools/merge_fast_material_evidence.py": {
+      "sha256": "4ea1fc2a5d5be3b0fa4915e0547a09d672475982b21d2c48ad6a82e6c06d8392",
+      "bytes": 9051
+    },
+    "tools/patch_website_material_r.py": {
+      "sha256": "0e4f72ae0e00abcb23f531219bc74c4ab3838d9549c966efeb746b7119d617aa",
+      "bytes": 2723
+    },
+    "tools/patch_xlsx_cells.py": {
+      "sha256": "e0ad487a37165555dc113b6ff14e0eadf759368bfe2afc98ab9659532c4cc240",
+      "bytes": 2418
+    },
+    "tools/prefill_kmt_review.py": {
+      "sha256": "b01e18e189cd7c2eaceced6eff6fb3ac9116e2b113b743357e68782824fc5a84",
+      "bytes": 7683
+    },
+    "tools/prepare_remaining60_result.py": {
+      "sha256": "73c7de31bb3adb2a42a36700a8b0e37700c1f5b728d50d48dbe23f3897ff84b9",
+      "bytes": 2484
+    },
+    "tools/prepare_spec_pack_split.py": {
+      "sha256": "6830bbf8ccb70d2b7bcf58e55f8cdb7f6cc0da841b24da026852aaa391e1b678",
+      "bytes": 2334
+    },
+    "tools/select_remaining_mixed_materials.py": {
+      "sha256": "a8c641a853b525b0ebad7c0ea76493092dc20ba8afa31e4f17586f8bc5b3e728",
+      "bytes": 4387
+    },
+    "tools/split_explicit_material_reference.py": {
+      "sha256": "6fe57d7b25bd27e6444d3381c2ca79d0ea9934fdce015bcd90a25ba10ced2a6a",
+      "bytes": 3003
+    },
+    "tools/supplement_kmt_missing63.py": {
+      "sha256": "036d85c67b93efafcb029f812e989098b102516f5a2d7dc8bc88975a32b23fe7",
+      "bytes": 7357
+    },
+    "tools/validate_prefilled_review.py": {
+      "sha256": "7f9104bc8b5c32243d2d52f292dea1ff8a419fb79d32c8f053bd31d3156d25f1",
+      "bytes": 1071
+    },
+    "tools/operations_delivery_checks/check_delivery.py": {
+      "sha256": "2da6a608571802fa4293b045a8a863874eac912f498ae1b1e1470d4a2d2b8e24",
+      "bytes": 11240
+    },
+    "tools/operations_delivery_checks/README.md": {
+      "sha256": "6f28de207f3c25bfabdf3af93e9dbc0118b5af4ec3ac75d44e34bf422d82e3b6",
+      "bytes": 1643
+    },
+    "tools/operations_delivery_checks/test_delivery.py": {
+      "sha256": "d4d9bb107a5cd753051f611f796efd2ec25e1499544dfaf93e5b119e3a7d81a0",
+      "bytes": 2533
+    },
+    "tools/operations_learning_checks/check_case.py": {
+      "sha256": "f7391e3e3a850eb932b0951733edad54308a6369a0b3a17a99a91450215fb9fe",
+      "bytes": 8469
+    },
+    "tools/operations_learning_checks/README.md": {
+      "sha256": "b568d0c7a8149d0a9fd85b42566a381ab1f9a2b21da48bece94a821a45f58df6",
+      "bytes": 1319
+    },
+    "tools/operations_learning_checks/test_learning.py": {
+      "sha256": "2c6969b6d0348e686412d5136bf1d8b59579299f72c12058d478e350a063a551",
+      "bytes": 2443
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/pilot100.py": {
+      "sha256": "46133c8c42af20b7a1c9974d3e06c6870f26bc7cf4a56071957e88caa166e8b7",
+      "bytes": 5549
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/pyproject.toml": {
+      "sha256": "a542b7df8daeca91521ffeee69d81084287ea0d48719662745e7659ecc2286d3",
+      "bytes": 307
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/README.md": {
+      "sha256": "8abc5d952118c588267e5e50c631633e4e1aa42403e282ee418d0e52faf4b214",
+      "bytes": 12522
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/requirements.txt": {
+      "sha256": "fa9f18d4bdf88a1b44c757b05a2c612f9e577a011b19533d2256b9f0f7b29f4f",
+      "bytes": 14
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/run.py": {
+      "sha256": "aab67ef9087bc2d9209dd962936e16bb0411c917269d325c27fc11b9d5c7ad40",
+      "bytes": 247
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/config/glossary.json": {
+      "sha256": "1827fd6fd8976545326847e4c329101916019fca67aa33df4c23bd2b3d13fac4",
+      "bytes": 2316
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/config/README.md": {
+      "sha256": "d4169392f39c5691d7c866396508283029e0abdf5d46d799dabba4661179a0a9",
+      "bytes": 1307
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/config/sites.json": {
+      "sha256": "a570b4daf1ea2873557019a2fddee5fae71297aabc784ca9f0d74ceee3274178",
+      "bytes": 3225
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/docs/ACCEPTANCE.md": {
+      "sha256": "98c377085d76832a625e7b3b5ad198daf037f5a257fcc64660c63f82366a2ee5",
+      "bytes": 2732
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/docs/HANDOVER.md": {
+      "sha256": "320490a9d9db020c27d4ffea736adcb37ebaeec510945e23eec3b0a1dbd2a122",
+      "bytes": 5249
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/docs/INTERFACE.md": {
+      "sha256": "bfa74a408b2b66aa14f73c9e4f1293d5d7aeed4853a6ca6f1638d1312b1671db",
+      "bytes": 6480
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/docs/SITE_STATUS.md": {
+      "sha256": "52489bb6aa0f7e325791e9d98be71e66c22c67387c6c96c1e2a77f40af39afd0",
+      "bytes": 3216
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical_cases.json": {
+      "sha256": "306ecdbb099a2b44e476bcc72ae4d7f360d1198381cc0efcfda2ab1ff5a216f9",
+      "bytes": 2013
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/local_library.json": {
+      "sha256": "ba9f09a7689010a62aa05770f1b0603b321b556df7271e561e0644d621c1005d",
+      "bytes": 774
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/amiami/detail.json": {
+      "sha256": "9b6138097ad1d15ec61b8fd9788bbd3827d7663a87f8ed59b13c94e676c28603",
+      "bytes": 237
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/amiami/search.json": {
+      "sha256": "3e4926c8414e3c79c81f32b1a7cbcf9e6d8cdfbdb6a16df237b933cdb1a71534",
+      "bytes": 398
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/animate/detail.html": {
+      "sha256": "33cacd2d8bb26005328d686ad620beb499cc4df6cc78e9e41f850481ad4f0d39",
+      "bytes": 503
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/animate/search.html": {
+      "sha256": "1edb170124c46347ded53aa474773022d01c4cc0f94568f87c3a46aad59a11ee",
+      "bytes": 212
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/anime_store/detail.html": {
+      "sha256": "0f563f5c81fe66b040c93674ca50a809c10281797f7d4a698a60be115a1f552b",
+      "bytes": 611
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/hobbysearch/detail.html": {
+      "sha256": "4345cfd521ec3f00e9610aac3acb4b94946a2506e39be0196160e0ba90fe54b4",
+      "bytes": 547
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/hobbysearch/search.html": {
+      "sha256": "cce2cb48c2edc0543dacbeeec1387965fbb9aae425f7a56505cd7a5894671389",
+      "bytes": 312
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/historical/jumpcs/detail.html": {
+      "sha256": "fbff7e56a73540b48a88a3c4e7121f6213f82b7476e3424afc706fc34007c584",
+      "bytes": 436
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/negative/jan_mismatch.html": {
+      "sha256": "1c1891de574e04ef15bc2684ab718aa3598f51dd2f18988cd6e883d2589ece08",
+      "bytes": 348
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/negative/not_found.html": {
+      "sha256": "a0d27449bc3d6eec831c4bd2a000db16a198d58e1789113eee58e7057787e5a0",
+      "bytes": 197
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/negative/no_material.html": {
+      "sha256": "32e117979c285181d093fcfd1252537d52541d304fcb1a10498300fe1c9cf3bd",
+      "bytes": 307
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/fixtures/negative/version_mismatch.html": {
+      "sha256": "4116090db75e730d7eb9b94a43b6055c83c4e262bacc78691bb43115168ecbdc",
+      "bytes": 348
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/access.py": {
+      "sha256": "5aabf2e8fa660eaef80feaf30f4207a94d5902ec9fa5c356af3b189883c898a1",
+      "bytes": 4422
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/batch.py": {
+      "sha256": "14f905757450efba2af7c3d0a67977c1b4088bdb051df8e59c945549616adb26",
+      "bytes": 3673
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/cache.py": {
+      "sha256": "00bfbca1d23f3176ed13b0f14dc40080119b47350e0567a61751bfb4d8f30a6d",
+      "bytes": 3325
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/cli.py": {
+      "sha256": "c5f400fb55884e05fd6ca796a215271bb179897979d00827709b696e77fab8af",
+      "bytes": 13367
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/config.py": {
+      "sha256": "bb4edebdc9889c88b686a770a130b8093a80edaa95117edf30a4e3ced58e2300",
+      "bytes": 4985
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/engine.py": {
+      "sha256": "fb7602be7b5f9db9b027d6da63aa9684ff0a3c3957732b6c6d78d232c839cdf0",
+      "bytes": 28329
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/identity.py": {
+      "sha256": "acaa05906a7dfe747d56016e62afebd63703f859abf6a691554794ff58ad168b",
+      "bytes": 5856
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/input.py": {
+      "sha256": "ef9f3eebea4507ea2cc08004eba49e74d3568463b1213aeaa33dd32b6615525f",
+      "bytes": 6411
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/jan.py": {
+      "sha256": "ad2b49a238788c13f4ad5cd175e6568189f24f9f1d812d4a78ce9d85cce2c887",
+      "bytes": 1126
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/material.py": {
+      "sha256": "af1a1e815260eda40f8add102a55f46f8299a43af2f39713d284be7c9936342b",
+      "bytes": 9988
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/models.py": {
+      "sha256": "d3eebcb8deeae553b9e46ac9a9f436ee69e87d5991e7cd6d916a7e003a4b992c",
+      "bytes": 7103
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/output.py": {
+      "sha256": "36c585936655b06bd9bc46f8d6b98f6d8568cc8f8af596d5bafecef302124113",
+      "bytes": 19709
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/textutil.py": {
+      "sha256": "1cd4a76670745aff39e2d2ed7b3d3d59d77e9d312461f920665b1f7412e9b5c9",
+      "bytes": 4298
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/translate.py": {
+      "sha256": "76b0c0a2549b31e73a3a8113e9c065cc0c5e1c8b2be4525cf56ae0221be9664c",
+      "bytes": 6757
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/transport.py": {
+      "sha256": "21787b014c932fa29b34d75fb53e2b62f5c82ca58162b70d08b77de937fbec4f",
+      "bytes": 3751
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/__init__.py": {
+      "sha256": "3cc42b091eb67630581992dd994e79819918d2b930816d246d93d976a4e946b9",
+      "bytes": 257
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/__main__.py": {
+      "sha256": "8b737b3802f46a130faab52d6a6bdf195d195b0cb69d5a21fdbf1bccc09a22b9",
+      "bytes": 103
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/amiami.py": {
+      "sha256": "cdffd067a7362c8db5804bc6879dd2baf47d08f717b58ea166f247e032ef2f5f",
+      "bytes": 7420
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/amnibus.py": {
+      "sha256": "a84d048a12bd29de2aa6438d6489926fae26f9cfc5d49e8ecef1c21bb030d48f",
+      "bytes": 2036
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/animate.py": {
+      "sha256": "59c6faccfda852bce3735aa87232862da3c77d742fa9762dde11ebc8cb12d2a7",
+      "bytes": 560
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/anime_store.py": {
+      "sha256": "8404309f12885f64c98ad7708cb5d152f5832d8e64cb4f3a9e2b30648868a3f9",
+      "bytes": 437
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/base.py": {
+      "sha256": "9594a0cde205849958c92f84304d9192cfe10559c6d97c58c714121e03670058",
+      "bytes": 11099
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/hobbysearch.py": {
+      "sha256": "baa92ef4f4b61144fa6b91e6958584f4176dda5a198c75caa632f69b54b504f0",
+      "bytes": 473
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/jumpcs.py": {
+      "sha256": "c27f566b25ad855beca6bd9a4c06557972d21933c0ab22fb421d613ce060f581",
+      "bytes": 1044
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/local_library.py": {
+      "sha256": "79151415bf2ba6e2fa2bc44a8c8bfd32125ea5be0ae6d41019d5fae700321100",
+      "bytes": 4483
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/jpmaterial/adapters/__init__.py": {
+      "sha256": "90023d4c5ca7b5ea615d97c37d5150821496e1a2ed21b2281f9662668e511aa1",
+      "bytes": 594
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/scripts/build_local_index.py": {
+      "sha256": "dcbe694635e4ec2335e4ae0edff559b33ba52066048778712485e069ae361619",
+      "bytes": 3398
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/scripts/check_interface.py": {
+      "sha256": "b84d45956bf0f65773a820bc626987d6484b561df95cad818cc1910080c4eb2a",
+      "bytes": 2442
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/scripts/run_demo.py": {
+      "sha256": "f0236a9adb4de21ff9c54b12f153368b533cc231434079187b9b24cde58c3d1a",
+      "bytes": 3342
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/scripts/run_tests.py": {
+      "sha256": "376497fdf230b99210350e7b342db7701b3f8630cf221ead0d7d3f030e9c3df9",
+      "bytes": 1475
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/scripts/verify_delivery.py": {
+      "sha256": "07a6682694129e5a8e50bc771a3ed7376d347dfb336871eb8becbbff6de6152d",
+      "bytes": 2764
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_acceptance.py": {
+      "sha256": "c56aa32009ee9b24688c020cd0502a80139c91ca32b4b04b424403cdf4dc915a",
+      "bytes": 3979
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_adapters.py": {
+      "sha256": "6109a0a73eee244c1b9620a3d8a04161d395a492cb8f446050c75fb923c2108b",
+      "bytes": 5137
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_engine.py": {
+      "sha256": "36fa1706e048c2f8e3e668267619ef07980e33d3cdb0a8282cc11ebffe4ccc0d",
+      "bytes": 7067
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_gate_cache.py": {
+      "sha256": "9a89f2af8d45319ddfd04a22cfecc7ee49a2011282f5321b44fc6c172ed7124b",
+      "bytes": 4918
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_identity.py": {
+      "sha256": "7755c241f18d909116b59d1aa24994b139051b276e388cb10c4893c2b0d74cfb",
+      "bytes": 2203
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_jan.py": {
+      "sha256": "1989869167b76813b4cba277aa8d6a72998baca57e2625f0a632d9fbbe9971f3",
+      "bytes": 858
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_material_translate.py": {
+      "sha256": "6460d500a7b64151d521c1fb4cb2edb0eb2ea80d7a5284f987f1a48e922a98b6",
+      "bytes": 3539
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_output.py": {
+      "sha256": "bb87b7aad11a4a929b73a1fc4747159450d65ba3b7b2b9c6bc73e8a417a31f8c",
+      "bytes": 3701
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/test_snapshot.py": {
+      "sha256": "b0d0e456b54bea77a40a07e7ec87fe8f103996b944241f33351f7d20541988bb",
+      "bytes": 2392
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/util.py": {
+      "sha256": "75e420c67e138578151c43af1a98b53b7aff057eb5dfe393d7951f70fcb06e07",
+      "bytes": 2612
+    },
+    "reports/material-plugin-20261106/vendor/jp_material_query/tests/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "note": "Existing providers and validated plugin pinned without redevelopment. Business inputs are separate fixed data."
+}
