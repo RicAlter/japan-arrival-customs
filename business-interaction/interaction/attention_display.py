@@ -19,7 +19,7 @@ def apply_attention(file,config):
  evidence=load(Path(config['background'])/'evidence.json')['rows'];attention={};reasons={};box_formats={}
  for n,row in evidence.items():
   review=row.get('price_review',{})
-  if review.get('category')=='safe_linked_box_order_quote' and review.get('purchase_unit')=='盒' and actual[int(n)-1][7] not in (None,''):
+  if review.get('category') in {'safe_linked_box_order_quote','safe_dg_order_quote'} and review.get('purchase_unit')=='盒' and actual[int(n)-1][7] not in (None,''):
    # H remains an original-unit purchase reference, visibly labelled per box.
    if not isinstance(actual[int(n)-1][7],str):box_formats['H'+n]='0.########"日元/盒"'
  numfmts=styles.find(Q+'numFmts')

@@ -94,4 +94,6 @@ def resolve_repaired(jan,index,cards,history,legacy,context=None):
  result['sources']=allrecords;result['status']='special_reference' if special else 'matched'
  if review['category']=='substantive_identity_conflict':result['status']='substantive_identity_conflict'
  from .pcs_enrichment import enrich_linked
- return enrich_linked(result,hit,context)
+ result=enrich_linked(result,hit,context)
+ from .dg_enrichment import enrich_dg
+ return enrich_dg(result,index,context)

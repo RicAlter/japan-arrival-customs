@@ -39,7 +39,8 @@ def register(projected,file,original,config,evidence):
                              'sheet':sheet,'cell':col+str(n),'confirmed':False}] if config.get('reviewed_input') else
                            [ev['preserved_source_fields'][field]] if field in ev.get('preserved_source_fields',{}) else ev.get('sources',[])),
                 'material_approval':False,'stage1_source_metadata':{'reference_only':True,'evidence_file':str(back/'evidence.json'),'row':n,
-                    **({'linked_purchase_price':ev['price_review']} if field=='purchase_unit_price' and ev.get('price_review',{}).get('category')=='safe_linked_box_order_quote' else {})}})
+                    **({'linked_purchase_price':ev['price_review']} if field=='purchase_unit_price' and ev.get('price_review',{}).get('category') in {'safe_linked_box_order_quote','safe_dg_order_quote'} else {}),
+                    **({'dg_identity':ev['dg_enrichment']} if ev.get('dg_enrichment',{}).get('filled_fields') and field in {'purchase_unit_price','channel','yd'} else {})}})
     refs={'schema':'fresh-preparation-reference/1','database':config['database'],'field_candidates':{}}
     save(tech/'reference-candidates.json',refs)
     reg={'schema':'a01-native-copy-registration/1','implementation_version':'fresh20/1','business_batch_id':config['batch_label'],
