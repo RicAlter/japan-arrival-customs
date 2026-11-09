@@ -13,7 +13,7 @@ class AttentionTests(unittest.TestCase):
     for c in s[n]:c.fill=PatternFill('solid',fgColor='FFA500')
    for cell,value in {'F2':'中文','G2':'规格','H2':777.4,'M2':'=K2*L2','N2':'人工品类','O2':'人工材质','G3':'规格'}.items():s[cell]=value
    w.save(f)
-   save(d/'evidence.json',{'rows':{'2':{'values':{'name':'中文','spec':'规格','price':777.4}},'3':{'values':{'spec':'规格'},'price_review':{'category':'true_price_conflict'}}}})
+   save(d/'evidence.json',{'rows':{'2':{'values':{'name':'中文','spec':'规格','price':777.4},'price_review':{'category':'safe_linked_box_order_quote','purchase_unit':'盒'}},'3':{'values':{'spec':'规格'},'price_review':{'category':'true_price_conflict'}}}})
    with zipfile.ZipFile(f) as z:before=ET.fromstring(z.read('xl/worksheets/sheet1.xml'))
    apply_attention(f,{'background':str(d),'sheet':s.title})
    r=load(d/'business-attention.json')['summary'];self.assertEqual(r['colored_cells'],2);self.assertEqual(r['yellow_cells'],1);self.assertEqual(r['red_cells'],1);self.assertEqual(r['records_requiring_human_action'],1)
@@ -22,5 +22,5 @@ class AttentionTests(unittest.TestCase):
    def facts(root):return {c.get('r'):(c.get('t'),[ET.tostring(v) for v in c]) for c in root.iter(Q+'c')}
    self.assertEqual(facts(before),facts(after));wb=load_workbook(f);ws=wb.active
    for a in ['H2','M2','N2','O2','S2','T2']:self.assertIsNone(ws[a].fill.patternType)
-   self.assertEqual(ws['F3'].fill.fgColor.rgb,'FFFFF2CC');self.assertEqual(ws['H3'].fill.fgColor.rgb,'FFFCE4D6');wb.close()
+   self.assertEqual(ws['F3'].fill.fgColor.rgb,'FFFFF2CC');self.assertEqual(ws['H3'].fill.fgColor.rgb,'FFFCE4D6');self.assertEqual(ws['H2'].value,777.4);self.assertEqual(ws['H2'].number_format,'0.########"日元/盒"');wb.close()
    stamp=f.stat().st_mtime_ns;sha=digest(f);apply_attention(f,{'background':str(d),'sheet':s.title});self.assertEqual((digest(f),f.stat().st_mtime_ns),(sha,stamp))
