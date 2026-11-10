@@ -3,6 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import io
+import xml.etree.ElementTree as ET
 from copy import deepcopy
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image as ExcelImage
@@ -10,7 +11,8 @@ from PIL import Image
 from interaction import ROOT,load,save,digest,Rejected,key
 from interaction.preparation_workbook import native_project,update_cells,graft_images
 from interaction.delivery_review import review_delivery,picture_rows
-from interaction.photo_layout import parts
+from interaction.photo_layout import parts,pack,sheet_member
+from interaction.preparation_workbook import Q
 from interaction.material_review import website_execution,read_rows
 from interaction.website_query import apply_review_overlay
 from native_copy.profiles import inspect_source
@@ -93,6 +95,37 @@ class DeliveryReviewTests(unittest.TestCase):
     def test_sop_drift_blocks(self):
         self.config['preparation_policy']['sop']['sha256']='wrong'
         with self.assertRaisesRegex(Rejected,'SOP版本'):self.audit()
+
+    def test_native_shared_formulas_and_repacked_weight_xml_keep_real_checks(self):
+        p=parts(self.base);member=sheet_member(p,self.config['sheet']);root=ET.fromstring(p[member])
+        cells={c.get('r'):c for c in root.iter(Q+'c')}
+        f=cells['M2'].find(Q+'f');f.set('t','shared');f.set('si','100');f.set('ref','M2:M3')
+        other=cells['M3'].find(Q+'f');other.set('t','shared');other.set('si','100');other.text=None
+        p[member]=ET.tostring(root,encoding='utf-8')
+        for name in p:
+            if name.startswith('xl/worksheets/sheet') and name.endswith('.xml') and name!=member:
+                p[name]=ET.tostring(ET.fromstring(p[name]),encoding='utf-8')
+        self.file.write_bytes(pack(self.base,p));self.audit()
+        cells['M3'].find(Q+'v').text='999999';p[member]=ET.tostring(root,encoding='utf-8');self.file.write_bytes(pack(self.base,p))
+        with self.assertRaisesRegex(Rejected,'原金额公式或缓存变化'):self.audit()
+
+    def test_weight_numeric_change_still_blocks_after_semantic_repacking(self):
+        p=parts(self.base);member=sheet_member(p,self.config['sheet'])
+        from decimal import Decimal,InvalidOperation
+        changed=False
+        for name in p:
+            if not (name.startswith('xl/worksheets/sheet') and name.endswith('.xml') and name!=member):continue
+            root=ET.fromstring(p[name])
+            for c in root.iter(Q+'c'):
+                v=c.find(Q+'v')
+                if v is None or c.get('t') in {'s','inlineStr'}:continue
+                try:v.text=str(Decimal(v.text)+1)
+                except (InvalidOperation,TypeError):continue
+                changed=True;break
+            p[name]=ET.tostring(root,encoding='utf-8')
+            if changed:break
+        self.assertTrue(changed);self.file.write_bytes(pack(self.base,p))
+        with self.assertRaisesRegex(Rejected,'箱重或其他页签变化'):self.audit()
 
     def test_verified_website_result_reaches_R_and_cache_can_be_rechecked(self):
         dual,_=self.website();apply_review_overlay(self.config,dual)
