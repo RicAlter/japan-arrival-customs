@@ -1,5 +1,5 @@
 """Create a local reproducible integration candidate; never run a live session."""
-import argparse,hashlib,json,pathlib,shutil,subprocess,sys,zipfile,os
+import argparse,hashlib,json,pathlib,shutil,subprocess,sys,zipfile,os,re
 
 def sha(p):
     with open(p,'rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
@@ -36,7 +36,10 @@ def main():
     suites += [('business-loop','test*.py'),('catalogue-pack-loop','test*.py')]
     for folder,pattern in suites:
         label=folder+'-'+pattern.replace('*','all');r=subprocess.run([sys.executable,'-X','utf8','-B','-m','unittest','discover','-s','tests','-p',pattern],cwd=target/folder,capture_output=True,text=True,encoding='utf8',errors='replace',timeout=600)
-        (e/(label+'.log')).write_text(r.stdout+r.stderr,encoding='utf8');results.append({'suite':label,'returncode':r.returncode})
+        log=r.stdout+r.stderr
+        (e/(label+'.log')).write_text(log,encoding='utf8')
+        ran=re.search(r'Ran (\d+) tests?',log);skipped=re.search(r'skipped=(\d+)',log)
+        results.append({'suite':label,'returncode':r.returncode,'discovered':int(ran[1]) if ran else None,'skipped':int(skipped[1]) if skipped else 0})
     save(e/'tests.json',results)
     if any(r['returncode'] for r in results):raise SystemExit('integration test failures: inspect tests.json/logs')
     if a.test_only:return
@@ -55,7 +58,7 @@ def main():
     bundle=out/'历史提交.bundle'
     if not bundle.exists():subprocess.run(['git','bundle','create',str(bundle),'--all'],cwd=repo,check=True,capture_output=True)
     subprocess.run(['git','bundle','verify',str(bundle)],cwd=repo,check=True,capture_output=True)
-    save(out/'release.json',{'commit':commit,'branch':'codex/unified-development-20261110','source':str(repo),'runtime':str(skill/'runtime.json'),'tests':results,'business_material_success':0,'installed':False})
+    save(out/'release.json',{'commit':commit,'branch':'codex/unified-development-20261110','source':str(repo),'runtime':str(skill/'runtime.json'),'tests':results,'full_integration_accepted':not any(r['skipped'] for r in results),'business_material_success':0,'installed':False})
     sums={p.name:sha(p) for p in out.iterdir() if p.is_file() and p.name!='SHA256.json'};save(out/'SHA256.json',sums)
     print(json.dumps({'commit':commit,'output':str(out),'tests':len(results),'source_files':len(files)},ensure_ascii=False))
 if __name__=='__main__':main()
