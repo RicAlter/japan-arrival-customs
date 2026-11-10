@@ -59,6 +59,12 @@ def main():
     if not out.is_relative_to(workspace):raise SystemExit('冻结目录须位于指定项目工作区内')
     dirty=subprocess.run(['git','status','--porcelain','--','business-interaction','material-query-adapter'],cwd=repo,check=True,capture_output=True,text=True).stdout
     if dirty.strip():raise SystemExit('候选源码未提交，不能冻结')
+    # The bundled provider and its V2 SOP are part of the executable Skill,
+    # not optional documentation.  Refuse to publish a candidate if their
+    # package/isolated-domain-stop release guard no longer passes.
+    release_test=repo/'business-interaction/tests/test_material_provider_release.py'
+    if not release_test.is_file():raise SystemExit('材质发布检查缺失')
+    subprocess.run([sys.executable,str(release_test)],cwd=repo,check=True)
     commit=subprocess.run(['git','rev-parse','HEAD'],cwd=repo,check=True,capture_output=True,text=True).stdout.strip()
     snapshot=out/'frozen-workspace';snapshot.mkdir(parents=True)
     raw=subprocess.run(['git','archive','--format=tar',commit],cwd=repo,check=True,capture_output=True).stdout

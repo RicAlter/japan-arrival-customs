@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "items": [
+    {
+      "gcode": "FIGURE-900001",
+      "jancode": "4571608537534",
+      "name": "テスト フィギュア 通常版",
+      "spec": "Material: 100% Cotton / Size: H180mm"
+    },
+    {
+      "gcode": "FIGURE-900002",
+      "jancode": "4571608537530",
+      "name": "テスト フィギュア 限定版",
+      "spec": "Material: PVC / Size: H180mm"
+    }
+  ]
+}

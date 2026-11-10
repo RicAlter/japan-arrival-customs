@@ -258,7 +258,7 @@ def prepare(request):
 
 def complete_preparation(config,settings,session_file):
     """An interrupted review is resumed before a prepared file is published."""
-    from .material_review import review_materials
+    from .material_review import review_materials, apply_material_reference_overlay
     if not isinstance(settings,dict):raise Rejected('material_review须为查询配置对象')
     # A replay uses the captured evidence manifests, including on retry.
     settings=config.get('material_review_settings',settings)
@@ -274,6 +274,7 @@ def complete_preparation(config,settings,session_file):
                                'output':str(review_output)})
     save(back/'material-review-complete.json',dual)
     if config.get('schema')=='prepared-basics-session/1':
+        apply_material_reference_overlay(config,dual)
         from .website_query import apply_review_overlay
         apply_review_overlay(config,dual)
     config['preparation_status']='complete';save(session_file,config)

@@ -149,6 +149,62 @@ def comparison(library, website):
     return 'website_only' if right else 'library_only' if left else 'unresolved'
 
 
+def material_reference_candidate(library):
+    """Return a non-approving S-column reference and its evidence level.
+
+    Exact JAN/name/spec/YD material is safe to label SKU-level.  A YD lookup
+    remains useful to a reviewer, but is deliberately retained as a collection
+    rather than being represented as a SKU confirmation.
+    """
+    values = library.get('sku_material_values', [])
+    if library.get('status') == 'sku_candidate' and len(values) == 1:
+        return values[0], 'sku_exact'
+    if library.get('status') == 'reference_only':
+        yd_values = sorted({str(item.get('material_original')) for item in library.get('yd_link_sources', [])
+                            if item.get('material_original') not in (None, '')})
+        if yd_values:
+            return '\n'.join(yd_values), 'yd_collection_reference'
+    return None, 'unavailable'
+
+
+def apply_material_reference_overlay(config, dual):
+    """Fill only blank S cells with auditable library references; never touch O."""
+    from openpyxl import load_workbook
+    from .preparation_workbook import update_cells
+
+    report = load(dual['reference_report'])
+    file = Path(config['prepared_file'])
+    wb = load_workbook(file, read_only=True, data_only=True)
+    try:
+        current = list(wb[config['sheet']].values)
+    finally:
+        wb.close()
+    rows, changes = {}, []
+    for text_row, item in report['rows'].items():
+        row = int(text_row)
+        value = current[row - 1]
+        binding = item['binding']
+        if (str(value[2]), str(value[9] or ''), str(value[6] or ''), str(value[16] or '')) != (
+                binding['jan'], binding['name_ja'], binding['spec'], binding['yd']):
+            rows[text_row] = {'level': 'identity_changed', 'written': False}
+            continue
+        candidate, level = material_reference_candidate(item['library'])
+        existing = value[18]
+        rows[text_row] = {'level': level, 'candidate': candidate, 'existing': existing,
+                          'written': False, 'automatic_approval': False}
+        if existing in (None, '') and candidate:
+            changes.append({'target': 'S' + text_row, 'value': candidate})
+            rows[text_row]['written'] = True
+    if changes:
+        file.write_bytes(update_cells(file.read_bytes(), config['sheet'], changes))
+    payload = {'schema': 'material-reference-overlay/1', 'rows': rows,
+               'written_cells': len(changes), 'levels': dict(Counter(r['level'] for r in rows.values())),
+               'manual_material_column': 'O', 'manual_material_overwritten': False,
+               'file_sha256': digest(file), 'confirmed': 0}
+    save(Path(config['background']) / 'material-reference-overlay.json', payload)
+    return payload
+
+
 def online_candidates(rows, request, output, existing):
     """All products are eligible, regardless of database/manual/R/S contents."""
     if request.get('authorized') is not True or not request.get('access_review'):
@@ -160,19 +216,22 @@ def online_candidates(rows, request, output, existing):
     budget = review.get('request_budget')
     if not isinstance(budget, int) or budget <= 0:
         raise Rejected('访问检查须明确正整数 request_budget')
-    provider = WORKSPACE / 'tools/fast_material_batch.py'
+    provider = ROOT / 'material_providers' / 'fast_material_batch.py'
+    if not provider.is_file():
+        raise Rejected('已验证的多站材质提供器未随Skill发布；拒绝退化为单站查询')
     spec = importlib.util.spec_from_file_location('material_review_providers', provider)
     module = importlib.util.module_from_spec(spec)
-    sys.path.insert(0, str(WORKSPACE / 'tools'))
+    sys.path.insert(0, str(provider.parent))
     spec.loader.exec_module(module)
     if allowed - set(module.SITES):
         raise Rejected('访问检查包含尚无自动适配器的站点')
     module.REPORT = output / 'online'
     clients = {s: module.Client(s) for s in module.SITES if s in allowed}
     stops = dict(review.get('stopped_sites', {}))
-    # Seed historical and current stop states; restarting must not clear them.
-    historical = WORKSPACE / 'reports/fast-material-batch-20261106/state.json'
-    for path in ([historical] if historical.exists() else []) + request.get('stop_state_files', []):
+    # A new isolated batch must receive any historical stop state explicitly.
+    # Never reach into a developer's report directory, and never clear a stop
+    # state merely because the process restarted.
+    for path in request.get('stop_state_files', []):
         stops.update(load(path).get('stopped_sites', {}))
     statefile = output / 'online-state.json'
     state = load(statefile) if statefile.exists() else {'attempts': {}, 'stopped_sites': {}}
@@ -189,14 +248,28 @@ def online_candidates(rows, request, output, existing):
             budget -= 1
             return get(url)
         client.get = limited_get
+    selected_rows = request.get('online_rows')
+    if selected_rows is not None:
+        if not isinstance(selected_rows, list) or len(set(selected_rows)) != len(selected_rows):
+            raise Rejected('online_rows必须是当前表中不重复的行号列表')
+        available = {r['row'] for r in rows}
+        if set(selected_rows) - available:
+            raise Rejected('online_rows包含当前表不存在的行号')
+        scope = set(selected_rows)
+    else:
+        scope = {r['row'] for r in rows}
     pending = {}
     for row in rows:
+        if row['row'] not in scope:
+            continue
         if not re.fullmatch(r'\d{8,14}',row['jan']):
             continue
         if website_result(existing.get(row['jan'], []), row)['status'] == 'pending':
             pending.setdefault(row['identity_key'], row)
     manifest = output / 'online-candidates.json'
     collected = load(manifest).get('candidates', []) if manifest.exists() else []
+    state['scope_rows']=sorted(scope)
+    state['strategy']=['verified_cache','jan_fast_sites','channel_or_official_site','japanese_name_fallback','independent_site_fallback']
     state['budget_exhausted']=False
     for binding, row in pending.items():
         if all(client.stopped for client in clients.values()):
@@ -213,6 +286,13 @@ def online_candidates(rows, request, output, existing):
                 and not any(t.get('error') == 'request_budget_exhausted' for t in a.get('attempts', []))}
         for site in module.SITES:
             if site not in clients or site in seen:
+                continue
+            # A domain-level stop is not a global stop.  In particular, do
+            # not spend the shared budget repeatedly calling a client that
+            # has already received 403/429; continue with the other sites.
+            if clients[site].stopped:
+                attempts.append({'site': site, 'status': clients[site].stopped,
+                                 'attempts': [], 'skipped': 'domain_stopped'})
                 continue
             c = module.query(site, clients[site], row['jan'], row)
             attempts.append(c)
@@ -246,6 +326,9 @@ def website_execution(row, web, request, state):
         return {'status':'not_executed','reason':'nonstandard_code_not_verified_JAN'}
     if not request.get('allow_online'):
         return {'status':'not_executed','reason':'cache_only_no_verified_evidence'}
+    requested = request.get('online_rows')
+    if requested is not None and row['row'] not in set(requested):
+        return {'status':'not_executed','reason':'outside_authorized_online_scope'}
     attempts=state.get('attempts',{}).get(row['identity_key'],[])
     if not attempts:
         if state.get('enabled_sites') and all(state.get('stopped_sites',{}).get(s) for s in state['enabled_sites']):

@@ -8,11 +8,13 @@
 
 默认 allow_online=false：从数据库只读快照读取同码全部记录、字段版本、来源及YD关联原文，同时核验已有网站证据，建立scope=all_products的队列。pending表示仍需网站查询，不能称全网查无。已有R/S是展示值，不能单独当新证据。
 
-联网 allow_online=true 须 authorized=true、access_review 文件。当前复用工作区 tools/fast_material_batch.py 和 reports/material-plugin-20261106/vendor/jp_material_query，是本机依赖，尚非可搬移独立安装包。access_review含enabled_sites列表、正整数request_budget，并记录允许路径、站点访问检查和当前授权。stop_state_files可追加历史熔断状态；默认也读取已有主队列stop状态。每站沿用已验证限速，403/429停站、503停本轮请求。重启保留停站和成功证据。
+联网 allow_online=true 须 authorized=true、access_review 文件。Skill内置已验证的 V2 多站提供器及其查询依赖；发布检查会校验提供器、五站列表和 V2.0 SOP 都在包内。access_review含enabled_sites列表、正整数request_budget，并记录站点访问检查和当前授权。stop_state_files可追加已批准的历史熔断状态；新隔离批不得隐式读取开发目录的旧状态。每站沿用已验证限速，403/429只停该站、503停该站本轮请求；其他已启用站继续处理。重启保留本批停站和成功证据。
+
+联网范围默认是全队列；`online_rows` 可明确指定当前表中不重复的商品行号，用于授权的 100 商品范围测试。缓存核验→JAN 快速多站→渠道/官方站点→完整日文名回退→独立后备来源的顺序与 `references/material-query-sop-v2.md` 一致。当前通用自动站点是 anime_store、colleize、amiami、jumpcs、amnibus；MOVIC/Caravan/A3 等专项候选仍以已核验证据清单作为独立后备来源接入，未配置专项来源时保留 pending，不能伪称已查询。
 
 自动站点标识：anime_store、colleize、amiami、jumpcs、amnibus。官方渠道名称检索的专项候选可通过evidence_manifests接入；Caravan/MOVIC/A3等专项采集目前不等于全部已通用自动化。队列next_step指明JAN→渠道→精确日文名。新批逐一完成专项队列或明确保留pending。
 
-输出 material-review.json（每行library、website、comparison、binding）、full-website-queue.json及summary.json。后台保留数据库原文/全部字段版本和网站原文/译文/网址/快照，业务当前Excel仍是一份；R网站/S资料库展示的现有布局不移动，人工O保留。
+输出 material-review.json（每行library、website、comparison、binding）、full-website-queue.json及summary.json。后台保留数据库原文/全部字段版本和网站原文/译文/网址/快照，业务当前Excel仍是一份；R网站/S资料库展示的现有布局不移动，人工O保留。prepare 收尾时仅向空 S 写 `sku_exact` 或 `yd_collection_reference`，参考层级存 `material-reference-overlay.json`；仅向空 R 写完整身份与原始响应均合格的网站证据。
 
 comparison=same_text仅表示文本规范化后一致；needs_review包括不同语言、比例、组件粒度差异，并不直接认定错误。YD成分集合仍只作关联参考，不自动分配到具体SKU。输出 adopted=false、confirmed=0。需要写R或业务采用时分别走已有装饰/明确确认流程。
 

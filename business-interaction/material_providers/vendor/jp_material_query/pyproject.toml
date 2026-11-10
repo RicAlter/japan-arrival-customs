@@ -1,0 +1,12 @@
+[project]
+name = "jpmaterial"
+version = "0.2.0"
+description = "日本商品材质查询插件（离线优先、只读、可审计）"
+requires-python = ">=3.10"
+dependencies = ["openpyxl>=3.1"]
+
+[project.scripts]
+jpmaterial = "jpmaterial.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["jpmaterial*"]

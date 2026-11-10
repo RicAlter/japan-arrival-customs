@@ -1,0 +1,55 @@
+{
+  "_note": "材质原文来自交接文档的历史案例；JAN 与商品名为脱敏/测试用，不表示站方当前在售商品。",
+  "cases": [
+    {
+      "case_id": "anime_001",
+      "site_id": "anime_store",
+      "jan": "4571608537527",
+      "name_ja": "テスト フィギュア 通常版",
+      "material_original": "紙,スチール等",
+      "material_zh": "纸、钢等",
+      "url": "https://anime-store.jp/products/4571608537527",
+      "label": "Anime Store 历史材质案例"
+    },
+    {
+      "case_id": "amiami_001",
+      "site_id": "amiami",
+      "jan": "4571608537534",
+      "name_ja": "テスト フィギュア 通常版",
+      "material_original": "Material: 100% Cotton",
+      "material_zh": "棉100%",
+      "url": "https://www.amiami.jp/",
+      "label": "AmiAmi 历史材质案例"
+    },
+    {
+      "case_id": "jumpcs_001",
+      "site_id": "jumpcs",
+      "jan": "4530430123452",
+      "name_ja": "テスト ブリキ缶 通常版",
+      "material_original": "ブリキ、紙、鉄、PET",
+      "material_zh": "马口铁、纸、铁、PET塑料",
+      "url": "https://jumpcs.shueisha.co.jp/shop/g/g4530430123452/",
+      "label": "Jump Character Store 历史材质案例"
+    },
+    {
+      "case_id": "hobbysearch_001",
+      "site_id": "hobbysearch",
+      "jan": "4571601234072",
+      "name_ja": "テスト フィギュア 通常版",
+      "material_original": "本体：PVC・ABS",
+      "material_zh": "主体：PVC、ABS塑料",
+      "url": "https://www.1999.co.jp/product/900001",
+      "label": "HobbySearch 历史材质案例"
+    },
+    {
+      "case_id": "animate_001",
+      "site_id": "animate",
+      "jan": "4901234567894",
+      "name_ja": "テスト アクリルスタンド 通常版",
+      "material_original": "アクリル、ポリエステル",
+      "material_zh": "亚克力、聚酯纤维",
+      "url": "https://www.animate-onlineshop.jp/products/detail.php?product_id=900001",
+      "label": "Animate 历史材质案例"
+    }
+  ]
+}

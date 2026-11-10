@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-05",
+  "note": "业务已批准「直接公开页面访问」（非官方 API 合同）。真实请求仍须命令行 --allow-online；403 立即停止该站、429 按 Retry-After 退避，不使用代理绕过。",
+  "sites": {
+    "amnibus": {
+      "site_name": "AMNIBUS",
+      "base_url": "https://amnibus.com/",
+      "priority": 5,
+      "enabled": true,
+      "authorized": true,
+      "authorization_note": "官方通贩，直接公开页面访问（无需登录/API）；页面不展示 JAN，结果按名称核对、需人工复核。",
+      "allowed_purpose": "日本到货商品材质核对",
+      "authorization_reference": "",
+      "rate_limit_seconds": 2,
+      "max_retries": 1,
+      "ttl_seconds": 604800
+    },
+    "anime_store": {
+      "site_name": "Anime Store",
+      "base_url": "https://anime-store.jp/",
+      "priority": 10,
+      "enabled": true,
+      "authorized": true,
+      "authorization_note": "直接公开页面访问；但 Shopify 商品页非 /products/<JAN>，JAN 检索无结果，需改为名称检索后才能命中。",
+      "allowed_purpose": "日本到货商品材质核对",
+      "authorization_reference": "",
+      "rate_limit_seconds": 5,
+      "max_retries": 2,
+      "ttl_seconds": 604800
+    },
+    "amiami": {
+      "site_name": "AmiAmi",
+      "base_url": "https://www.amiami.jp/",
+      "priority": 20,
+      "enabled": true,
+      "authorized": true,
+      "authorization_note": "直接公开页面访问；实际被 Cloudflare 拦截（403），自动访问会被记录并停止。",
+      "allowed_purpose": "日本到货商品材质核对",
+      "authorization_reference": "",
+      "rate_limit_seconds": 5,
+      "max_retries": 2,
+      "ttl_seconds": 604800
+    },
+    "jumpcs": {
+      "site_name": "Jump Character Store",
+      "base_url": "https://jumpcs.shueisha.co.jp/",
+      "priority": 30,
+      "enabled": true,
+      "authorized": true,
+      "authorization_note": "直接公开页面访问；仅集英社商品（JAN 前缀 4530430），本批无此类商品。",
+      "allowed_purpose": "日本到货商品材质核对",
+      "authorization_reference": "",
+      "rate_limit_seconds": 8,
+      "max_retries": 1,
+      "ttl_seconds": 604800
+    },
+    "hobbysearch": {
+      "site_name": "HobbySearch",
+      "base_url": "https://www.1999.co.jp/",
+      "priority": 40,
+      "enabled": true,
+      "authorized": true,
+      "authorization_note": "直接公开页面访问；实际被 Cloudflare 拦截（403），自动访问会被记录并停止。",
+      "allowed_purpose": "日本到货商品材质核对",
+      "authorization_reference": "",
+      "rate_limit_seconds": 8,
+      "max_retries": 1,
+      "ttl_seconds": 604800
+    },
+    "animate": {
+      "site_name": "Animate",
+      "base_url": "https://www.animate-onlineshop.jp/",
+      "priority": 50,
+      "enabled": false,
+      "authorized": false,
+      "authorization_note": "2026-10 起持续 403，默认关闭；未满足可用性条件前不自动重试。",
+      "allowed_purpose": "",
+      "authorization_reference": "",
+      "rate_limit_seconds": 10,
+      "max_retries": 0,
+      "ttl_seconds": 604800
+    }
+  }
+}

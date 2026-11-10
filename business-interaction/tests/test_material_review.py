@@ -7,7 +7,9 @@ import unittest
 from unittest.mock import patch
 
 from openpyxl import Workbook
-from interaction.material_review import review_materials, online_candidates
+from interaction.material_review import (review_materials, online_candidates,
+                                         material_reference_candidate,
+                                         apply_material_reference_overlay)
 
 
 class DualSourceReviewTests(unittest.TestCase):
@@ -81,6 +83,46 @@ class DualSourceReviewTests(unittest.TestCase):
     def test_online_requires_access_scope_and_budget(self):
         with self.assertRaises(Exception):
             online_candidates([], {'authorized': True}, self.root, {})
+
+    def test_s_reference_distinguishes_exact_sku_and_yd_collection(self):
+        self.assertEqual(material_reference_candidate({'status': 'sku_candidate', 'sku_material_values': ['棉100%']}),
+                         ('棉100%', 'sku_exact'))
+        self.assertEqual(material_reference_candidate({'status': 'reference_only', 'sku_material_values': [],
+                                                        'yd_link_sources': [{'material_original': '亚克力'},
+                                                                            {'material_original': '纸'}]}),
+                         ('亚克力\n纸', 'yd_collection_reference'))
+        self.assertEqual(material_reference_candidate({'status': 'reference_only', 'sku_material_values': [],
+                                                        'yd_link_sources': []}), (None, 'unavailable'))
+
+    def test_s_overlay_only_fills_blank_reference_and_never_writes_manual_o(self):
+        table = self.root / 'overlay.xlsx'
+        w = Workbook(); s = w.active; s.title = '核对'
+        s.append(['A', 'B', 'ProductCode(JANCode)', 'D', 'E', 'F', '规格', 'H', 'I',
+                  'DescriptionofGoods', 'K', 'L', 'M', 'N', '材质', 'P', 'YD',
+                  '网站查找材质', '材质参考', 'T'])
+        s.append(['', '', '4570000000001', '', '', '', 'A1', '', '', '商品A', '', '', '', '',
+                  '人工棉', '', 'Y1', '', '', ''])
+        s.append(['', '', '4570000000002', '', '', '', 'B2', '', '', '商品B', '', '', '', '',
+                  '人工纸', '', 'Y2', '', '已有S', ''])
+        w.save(table)
+        report = self.root / 'overlay-report.json'
+        report.write_text(json.dumps({'rows': {
+            '2': {'binding': {'jan': '4570000000001', 'spec': 'A1', 'name_ja': '商品A', 'yd': 'Y1'},
+                  'library': {'status': 'reference_only', 'sku_material_values': [],
+                              'yd_link_sources': [{'material_original': '纸'}, {'material_original': '亚克力'}]}},
+            '3': {'binding': {'jan': '4570000000002', 'spec': 'B2', 'name_ja': '商品B', 'yd': 'Y2'},
+                  'library': {'status': 'sku_candidate', 'sku_material_values': ['PVC'],
+                              'yd_link_sources': []}}
+        }}), encoding='utf-8')
+        result = apply_material_reference_overlay(
+            {'prepared_file': str(table), 'background': str(self.root), 'sheet': '核对'},
+            {'reference_report': str(report)})
+        check = __import__('openpyxl').load_workbook(table, data_only=True)['核对']
+        self.assertEqual(check['S2'].value, '亚克力\n纸')
+        self.assertEqual(check['S3'].value, '已有S')
+        self.assertEqual(check['O2'].value, '人工棉')
+        self.assertEqual(check['O3'].value, '人工纸')
+        self.assertEqual(result['written_cells'], 1)
 
     def test_resume_and_changed_input_rejected(self):
         review_materials(None, self.request())
