@@ -63,6 +63,8 @@ class Service:
             if self.config.get('schema')=='prepared-basics-session/1':
                 from .website_query import apply_overlay
                 apply_overlay(self.config,file)
+                from .material_reference import apply_overlay as apply_material_reference
+                apply_material_reference(self.config,file)
             if self.config.get('attention_display')=='sparse-business-v1':
                 from .attention_display import apply_attention
                 apply_attention(file,self.config)

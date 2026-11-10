@@ -15,6 +15,9 @@ try:
     elif action=='material-review':
         from interaction.material_review import review_materials
         result=review_materials(a.config,request)
+    elif action=='material-reference':
+        from interaction.material_reference import refresh
+        result=refresh(a.config,**request)
     elif action=='query-materials':
         from interaction.website_query import query_materials
         result=query_materials(a.config,request)
