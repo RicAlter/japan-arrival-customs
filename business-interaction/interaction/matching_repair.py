@@ -70,7 +70,9 @@ def resolve_repaired(jan,index,cards,history,legacy,context=None):
  registry=[r for r in direct if r.get('source',{}).get('kind')=='registry'];reference=next((r for r in registry if r.get('name') or r.get('spec')),None) or next((r for r in direct if r.get('name') and r.get('spec')),None)
  contexts={(norm(r.get('name')),norm(r.get('spec')),r.get('yd')) for r in direct if r.get('name')}
  if special and len(contexts)>1:
-  return {'jan':jan,'status':'special_identity_requires_context','values':{},'sources':allrecords,'price_review':{'category':'special_identity_requires_context','reason':'repeated_special_code_requires_product_spec_order_YD'},'confirmed':False}
+  result={'jan':jan,'status':'special_identity_requires_context','values':{},'sources':allrecords,'price_review':{'category':'special_identity_requires_context','reason':'repeated_special_code_requires_product_spec_order_YD'},'confirmed':False}
+  from .material_reference import enrich_material
+  return enrich_material(result,cards,context,preserve_existing=False)
  spec=context.get('spec') or (reference or {}).get('spec') or ''
  yd=(reference or {}).get('yd') or next((r.get('yd') for r in sorted(direct,key=lambda r:r.get('priority',100)) if r.get('yd')),None);primary=[r for r in allrecords if not r.get('yd') or r.get('yd')==yd]
  # Legacy resolver supplies material, packaging and image scope for the selected
@@ -93,4 +95,9 @@ def resolve_repaired(jan,index,cards,history,legacy,context=None):
  result['identity_YDs']=sorted({r['yd'] for r in allrecords if r.get('yd')})
  result['sources']=allrecords;result['status']='special_reference' if special else 'matched'
  if review['category']=='substantive_identity_conflict':result['status']='substantive_identity_conflict'
- return result
+ from .pcs_enrichment import enrich_linked
+ result=enrich_linked(result,hit,context)
+ from .dg_enrichment import enrich_dg
+ result=enrich_dg(result,index,context)
+ from .material_reference import enrich_material
+ return enrich_material(result,cards,context,preserve_existing=False)

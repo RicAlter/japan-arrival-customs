@@ -63,6 +63,8 @@ class Service:
             if self.config.get('schema')=='prepared-basics-session/1':
                 from .website_query import apply_overlay
                 apply_overlay(self.config,file)
+                from .material_reference import apply_overlay as apply_material_reference
+                apply_material_reference(self.config,file)
             if self.config.get('attention_display')=='sparse-business-v1':
                 from .attention_display import apply_attention
                 apply_attention(file,self.config)
@@ -111,18 +113,23 @@ class Service:
         file=Path(file).resolve(strict=True)
         if not reference:raise Rejected('上传须绑定本次用户消息，不从Excel推定确认')
         if kind is None:
-            from native_copy.ooxml import parts
-            p=parts(file.read_bytes())
-            if 'docProps/custom.xml' in p and b'CustomsAStageExportVersion' in p['docProps/custom.xml']:kind='basics'
+            from .large_return import has_basics_marker
+            if has_basics_marker(file):kind='basics'
             else:
                 from openpyxl import load_workbook
                 w=load_workbook(file,read_only=True);kind='calculation' if '计算审核' in w.sheetnames else 'update';w.close()
         batch=self.engine.store.load(self.engine.bid);head=key(batch)
         if kind=='basics':
-            if self.config.get('schema')=='prepared-basics-session/1':
-                from .website_query import canonical_return
-                file=canonical_return(self.config,file)
-            v=self.engine.basics.read_current(self.engine.bid);p=self.engine.basics.preview_return(self.engine.bid,file,expected_hash=v['current_hash'])
+            v=self.engine.basics.read_current(self.engine.bid)
+            from .large_return import needed
+            if self.config.get('schema')=='prepared-basics-session/1' and needed(self.engine,file):
+                from .large_return import preview
+                p=preview(self.config,self.engine,file,v['current_hash'])
+            else:
+                if self.config.get('schema')=='prepared-basics-session/1':
+                    from .website_query import canonical_return
+                    file=canonical_return(self.config,file)
+                p=self.engine.basics.preview_return(self.engine.bid,file,expected_hash=v['current_hash'])
             requested_selection=selection
             selection={'save_changes':list(p['proposals']),'confirm_fields':[],'adopt_candidates':[],'evidence':{}}
             evidence=purchase_evidence or {};names={'internal_name','specification','category','channel','yd'}|({'material_reference'} if confirm_material else set())
@@ -147,7 +154,9 @@ class Service:
             confirming=set(selection['confirm_fields'])|set(selection['adopt_candidates'])
             deferred_prices=sum(f['field']=='purchase_unit_price' and not f['confirmed'] and t not in confirming and p['proposals'].get(t,{}).get('after',f['value'])['value'] not in (None,'') for t,f in v['fields'].items())
             body={'kind':'basics','head':head,'plan_id':plan['plan_id'],'summary':plan['summary'],'proposed_changes':p['modified_cells'],'purchase_prices_deferred':deferred_prices,'selection':selection,
+                'change_details':[{'target':t,'field':e['field'],'before':e['before'],'after':e['after'],'needs_further_confirmation':e['needs_further_confirmation']} for t,e in p['proposals'].items()],
                 'field_counts':{name:sum(v['fields'][t]['field']==name for t in selection['confirm_fields']+selection['adopt_candidates']) for name in names|{'purchase_unit_price'}}}
+            if p.get('large_return_validation'):body['large_return_validation']=p['large_return_validation']
             body['message']=f"检测到修改{p['modified_cells']}格。拟保存{len(selection['save_changes'])}格、明确确认{plan['summary']['confirmed_fields']}格；采购价中{deferred_prices}格因来源/单位未明确继续待核。请确认本次展示范围。"
         elif kind=='update':
             # File shape cannot establish whether a Japanese price is actual.

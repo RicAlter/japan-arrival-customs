@@ -128,7 +128,7 @@ def apply_review_overlay(config,dual):
     if rows:save(overlay,{'rows':rows,'file_sha256':digest(file)})
 
 
-def canonical_return(config,file):
+def _canonical_website_return(config,file):
     """Remove only system website decoration before unchanged A03 comparison."""
     from openpyxl import load_workbook
     back=Path(config['background']);overlay=back/'website-overlay.json'
@@ -144,6 +144,11 @@ def canonical_return(config,file):
     if not changes:return file
     dest=back/'canonical-returns';dest.mkdir(exist_ok=True);target=dest/(digest(file)+'.xlsx')
     target.write_bytes(update_cells(Path(file).read_bytes(),config['sheet'],changes));return target
+
+def canonical_return(config,file):
+    file=_canonical_website_return(config,file)
+    from .material_reference import canonical_material_return
+    return canonical_material_return(config,file)
 
 def apply_overlay(config,file):
     from openpyxl import load_workbook

@@ -1,0 +1,18 @@
+# 已确认业务规则与执行依据
+
+|规则|唯一有效实现/回归|
+|---|---|
+|适用有效采购订单价优先；777.4/777.39662同币同单位精度不误冲突|matching_repair.py / test_matching_repair.py|
+|普通同JAN多YD、再次开订正常；特典/自编重复码须核商品规格订单|matching_repair.py / test_matching_repair.py|
+|pcs与明确DG+JAN须核商品规格；盒价保留盒单位，CNY标元|pcs_enrichment.py、dg_enrichment.py / 对应测试|
+|正常白底，需改缺项浅黄、实质冲突浅红|attention_display.py / test_attention_display.py|
+|具体SKU材质优先，缺失允许YD集合供参考；不猜拆混合、不写O|material_reference.py、material_review.py / 两套材质测试|
+|网站缓存核验→JAN→渠道官网→日文名→独立后备；403/429单站停|material_providers/fast_material_batch.py / test_material_provider_release.py|
+|R须完整材质原文、身份、快照及来源；不覆盖已有R|material_review.py、website_query.py / test_material_review.py|
+|原始数量金额公式cache箱重人工值和原图保全|delivery_review.py、large_return.py / 对应测试|
+|采购数量独立汇总；未知单位/来源不得推累计差额|quantity_review.py / test_quantity_review.py|
+|基础20列一份；upload只预览、明确范围confirm保存；不自动批准|service.py / test_large_return.py、test_delivery.py|
+|实际日方价、确认单位盒规、ROUND0及金额差额保持既有计算规则|business-loop、catalogue-pack-loop / test_loop.py、test_units.py|
+
+统一SOP为此规则表加 SOP_INDEX.md 指向的既有操作细则；发生冲突先查版本证据，不用新文档反向覆盖历史人工确认。
+

@@ -131,6 +131,8 @@ def prepare(request):
     for jan in list(wanted):
         h=ix.lookup(jan)
         wanted.update(code(r.get('jan')) for r in h['links'] if r.get('jan'))
+    from .dg_enrichment import dg_alias
+    wanted.update(alias for jan in list(wanted) if (alias:=dg_alias(jan)))
     dbrecords,cards=database_records(dbinfo['path'],wanted);records+=dbrecords;ix=Index(records)
     history=request.get('history_rules',[]);evidence={};values={};queue=[];images=[]
     caches={}
@@ -142,13 +144,17 @@ def prepare(request):
     if image_limit is not None and (type(image_limit) is not int or image_limit<0):
         raise Rejected('image_max_downloads须为非负整数，未配置时不限制下载次数')
     for n,r in enumerate(source['rows'],2):
-        item=resolve(r['code'],ix,cards,history,{'name_ja':r['japanese_name']});item.update(row=n,row_id=r['row_id'],name_ja=r['japanese_name'],source=r['source'])
+        context={'name_ja':r['japanese_name']}
+        for field in ['internal_name','specification','channel','yd','purchase_unit_price']:
+            col=source.get('targets',{}).get(field)
+            if col:context['source_'+field]=source['sheet'].v(r['source_row'],col)
+        item=resolve(r['code'],ix,cards,history,context);item.update(row=n,row_id=r['row_id'],name_ja=r['japanese_name'],source=r['source'])
         fields=item['values'];values[n]={'F':fields.get('name'),'G':fields.get('spec'),'H':fields.get('price'),'P':fields.get('channel'),'Q':fields.get('yd'),
             'S':item.get('material',{}).get('value'),'T':item.get('packaging',{}).get('value')}
         # The existing v2 reader exposes historical working name/spec/category/
         # material slots. Preserve their nonempty contents; do not clear them or
         # treat importing the old sheet as a new business confirmation.
-        for field,col in [('internal_name','F'),('specification','G'),('category','N'),('material_reference','O')]:
+        for field,col in [('internal_name','F'),('specification','G'),('category','N'),('material_reference','O'),('channel','P'),('yd','Q'),('purchase_unit_price','H')]:
             original_col=source.get('targets',{}).get(field)
             original_value=source['sheet'].v(r['source_row'],original_col) if original_col else None
             if original_value not in (None,''):

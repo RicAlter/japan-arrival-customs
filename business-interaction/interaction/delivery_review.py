@@ -53,6 +53,44 @@ def numeric(value):
     try:return Decimal(str(value))
     except Exception:return str(value)
 
+def resolved_formulas(cells):
+    """Resolve ordinary Excel shared formulas without evaluating or saving."""
+    from openpyxl.formula.translate import Translator
+    masters={};result={}
+    for address,c in cells.items():
+        f=c.find(Q+'f')
+        if f is not None and f.get('t')=='shared' and f.text:
+            si=f.get('si')
+            if si in masters:raise Rejected('交付核验：共享公式主节点重复')
+            masters[si]=(address,f.text)
+    for address,c in cells.items():
+        f=c.find(Q+'f')
+        if f is None:result[address]=None
+        elif f.get('t')=='shared' and not f.text:
+            if f.get('si') not in masters:raise Rejected('交付核验：共享公式缺少主节点')
+            origin,text=masters[f.get('si')]
+            result[address]=Translator('='+text,origin=origin).translate_formula(address)[1:]
+        else:result[address]=f.text
+    return result
+
+def worksheet_facts(file,names):
+    """Allow native XML/string/style repacking, retaining actual facts/caches."""
+    if not names:return {}
+    from openpyxl import load_workbook
+    result={}
+    for cached in [False,True]:
+        source=io.BytesIO(file) if isinstance(file,bytes) else file
+        book=load_workbook(source,read_only=True,data_only=cached)
+        try:
+            for name in names:
+                for row in book[name]:
+                    for cell in row:
+                        if cell.value is not None:
+                            v=numeric(cell.value) if cell.data_type=='n' else cell.value
+                            result[(cached,name,cell.coordinate)]=(cell.data_type,v)
+        finally:book.close()
+    return result
+
 
 def review_delivery(config, file=None, *, head=None, output=None):
     from openpyxl import load_workbook
@@ -70,7 +108,7 @@ def review_delivery(config, file=None, *, head=None, output=None):
         if sheet.max_column!=20:raise Rejected('交付核验：不是唯一20列布局')
     finally:workbook.close()
     # Use native projection for formula addresses, without recalculating or saving.
-    expected_package=parts(native_project(source,20));member=sheet_member(package,config['sheet'])
+    expected_data=native_project(source,20);expected_package=parts(expected_data);member=sheet_member(package,config['sheet'])
     expected_sheets=[s.get('name') for s in ET.fromstring(expected_package['xl/workbook.xml']).iter(Q+'sheet')]
     actual_sheets=[s.get('name') for s in ET.fromstring(package['xl/workbook.xml']).iter(Q+'sheet')]
     if actual_sheets!=expected_sheets:raise Rejected('交付核验：页签变化')
@@ -80,14 +118,15 @@ def review_delivery(config, file=None, *, head=None, output=None):
     expected_member=sheet_member(expected_package,config['sheet'])
     cells={c.get('r'):c for c in ET.fromstring(package[member]).iter(Q+'c')}
     expected_cells={c.get('r'):c for c in ET.fromstring(expected_package[expected_member]).iter(Q+'c')}
+    actual_formulas=resolved_formulas(cells);expected_formulas=resolved_formulas(expected_cells)
     for address,c in expected_cells.items():
         if not address.startswith('M') or address=='M1':continue
         actual=cells.get(address)
-        if actual is None or actual.findtext(Q+'f')!=c.findtext(Q+'f') or numeric(actual.findtext(Q+'v'))!=numeric(c.findtext(Q+'v')):
+        if actual is None or actual_formulas.get(address)!=expected_formulas.get(address) or numeric(actual.findtext(Q+'v'))!=numeric(c.findtext(Q+'v')):
             raise Rejected('交付核验：原金额公式或缓存变化 '+address)
-    for name,data in expected_package.items():
-        if re.fullmatch(r'xl/worksheets/sheet\d+\.xml',name) and name!=expected_member and package.get(name)!=data:
-            raise Rejected('交付核验：箱重或其他页签变化 '+name)
+    other_sheets=[name for name in expected_sheets if name!=config['sheet']]
+    if worksheet_facts(expected_data,other_sheets)!=worksheet_facts(file,other_sheets):
+        raise Rejected('交付核验：箱重或其他页签变化')
     evidence=load(back/'evidence.json')['rows']
     completed=load(back/'material-review-complete.json') if (back/'material-review-complete.json').exists() else {}
     dual=load(completed['reference_report']) if completed.get('reference_report') else {'rows':{}}
