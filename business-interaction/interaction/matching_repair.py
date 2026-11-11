@@ -50,7 +50,12 @@ def select_price(jan,records,spec='',special=False):
  applicable=[r for r in orders if not spec or r.get('spec') and spec_same(spec,r['spec'])]
  if orders and not applicable:return None,{'category':'substantive_identity_conflict','candidates':orders,'reason':'order_specification_not_applicable'}
  priced=[r for r in applicable if r.get('price') not in (None,'')]
- if not priced:return None,{'category':'source_missing','candidates':observed,'reason':'no_applicable_effective_order_quote_or_status_not_effective'}
+ if not priced:
+  states={}
+  for r in observed:states.setdefault(identity(r),set()).add(r.get('status'))
+  if any('已采购' in v and len(v)>1 for v in states.values()):
+   return None,{'category':'order_status_conflict','candidates':observed,'reason':'same_order_spec_has_effective_and_non_effective_status'}
+  return None,{'category':'source_missing','candidates':observed,'reason':'no_applicable_effective_order_quote_or_status_not_effective'}
  currencies={currency(r.get('currency')) for r in priced};units={norm(r.get('price_unit')) for r in priced if r.get('price_unit')}
  if len(currencies)!=1 or not currencies<={'JPY','CNY'}:return None,{'category':'unit_or_currency','candidates':priced,'reason':'currency_missing_or_different'}
  if len(units)>1:return None,{'category':'unit_or_currency','candidates':priced,'reason':'different_explicit_pricing_units'}
@@ -90,6 +95,10 @@ def resolve_repaired(jan,index,cards,history,legacy,context=None):
   value=None;review={'category':'substantive_identity_conflict','reason':'explicit_product_version_conflict','candidates':direct}
  if value is None and review['category']=='source_missing' and not review.get('candidates') and result['values'].get('price') is not None:
   value=result['values']['price'];review['category']='safe_auxiliary_reference';review['reason']='unique_legacy_reference_no_effective_order_quote'
+ if value is None and review['category']=='source_missing' and not review.get('candidates'):
+  refs=[r for r in price_records if r.get('price_scope')!='order_total' and r.get('price') not in (None,'') and jan in {code(r.get('jan')),code(r.get('sku'))}]
+  pairs={(Decimal(str(r['price'])),currency(r.get('currency'))) for r in refs}
+  if len(pairs)>1:review={'category':'true_price_conflict','candidates':refs,'reason':'different_auxiliary_reference_quotes_no_effective_order'}
  result['values']['price']=value;result['price_review']=review;result['all_identity_candidates']=allrecords
  result['ordinary_multiple_YD_is_conflict']=False
  result['identity_YDs']=sorted({r['yd'] for r in allrecords if r.get('yd')})

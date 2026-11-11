@@ -53,37 +53,83 @@ def read_cells(data):
         return cells
 
 class Text(HTMLParser):
-    def __init__(self): super().__init__(); self.parts=[]
+    def __init__(self): super().__init__(); self.parts=[];self.ignored=0
     def handle_starttag(self,t,a):
+        if t in ('script','style'):self.ignored+=1
+        if self.ignored:return
         if t in ('br','p','div','li','tr'):self.parts.append('\n')
     def handle_endtag(self,t):
+        if t in ('script','style'):
+            self.ignored=max(0,self.ignored-1);return
+        if self.ignored:return
         if t in ('p','div','li','tr'):self.parts.append('\n')
-    def handle_data(self,d):self.parts.append(d)
+    def handle_data(self,d):
+        if not self.ignored:self.parts.append(d)
 
 def plain(s):
     p=Text();p.feed(str(s));return html.unescape(''.join(p.parts))
 
+try:
+    from .quality import material_quality
+except ImportError:
+    from quality import material_quality
+
+_LABEL=r'(?:製品素材|本体素材|素\s*材(?:・仕様)?|材質|材料|Materials?)'
+
 def extract(body):
-    text=unicodedata.normalize('NFKC',plain(body))
+    # A saved public-browser response may be a JSON string with numbered lines.
+    text_body=str(body)
+    if text_body.lstrip().startswith('"'):
+        try:
+            decoded=json.loads(text_body)
+            if isinstance(decoded,str):text_body=decoded
+        except ValueError:pass
+    text_body=re.sub(r'^L[0-9]+:\s?', '',text_body,flags=re.M)
+    label=re.compile(r'^(?:[■□●○◆◇★☆【〖\[\s]*)?'+_LABEL+r'[】〗\]]?\s*[:：]?\s*(.*)',re.I)
+    # Prefer bounded material elements over a flattened full product page.
+    field=re.search(r'<dd\b[^>]*\bid=["\']spec_material["\'][^>]*>(.*?)</dd\s*>',text_body,re.S|re.I)
+    bounded=[]
+    if field:bounded=[plain(field[1]).strip()]
+    else:
+        for m in re.finditer(r'<(?:dt|th)\b[^>]*>(.*?)</(?:dt|th)>\s*<(?:dd|td)\b[^>]*>(.*?)</(?:dd|td)>',text_body,re.S|re.I):
+            heading=unicodedata.normalize('NFKC',plain(m[1])).strip()
+            if re.fullmatch(_LABEL+r'\s*[:：]?',heading,re.I):bounded.append(plain(m[2]).strip())
+        if not bounded:
+            for m in re.finditer(r'<(li|p)\b[^>]*>(.*?)</\1>',text_body,re.S|re.I):
+                fragment=unicodedata.normalize('NFKC',plain(m[2])).strip();match=label.match(fragment)
+                if match and match[1].strip():bounded.append(match[1].strip())
+    if bounded:
+        value=unicodedata.normalize('NFKC','\n'.join(dict.fromkeys(bounded)))
+        value=re.split(r'\s+(?:サイズ|原産国|生産国|発売元|販売元)\s*[:：]',value)[0].strip()
+        return (value,'explicit_material') if material_quality(value) else ('','parse_error')
+    text=unicodedata.normalize('NFKC',plain(text_body))
+    # Some saved retail pages expose their description only as metadata.
+    if not any(label.match(line.strip()) for line in text.splitlines()):
+        for m in re.finditer(r'<meta\b[^>]*(?:property|name)=["\'](?:og:description|description)["\'][^>]*content=["\'](.*?)["\'][^>]*>',text_body,re.S|re.I):
+            desc=html.unescape(m[1]);match=re.search(_LABEL+r'\s*[:：]\s*(.+)',desc,re.I)
+            if match:
+                value=re.split(r'\s*(?:原産国|サイズ|※|©)',match[1])[0].strip()
+                return (value,'explicit_material') if material_quality(value) else ('','parse_error')
     lines=[x.strip() for x in text.splitlines() if x.strip()]
-    label=re.compile(r'^(?:[■□●○◆◇★☆\s]*)?(?:製品素材|本体素材|素材(?:・仕様)?|材質|材料|Material(?:s)?)\s*[:：]?\s*(.*)',re.I)
-    stop=re.compile(r'^[■□●○◆◇★☆]|^(?:サイズ|商品サイズ|発売元|販売元|原産国|生産国|仕様|スペック|JAN|注意|※|©)',re.I)
+    stop=re.compile(r'^\(C\)|^(?:この商品のレビュー|レビュー|Tweet|ITEM CATEGORY)|^[■□●○◆◇★☆※©]|^(?:サイズ|商品サイズ|発売元|販売元|原産国|生産国|仕様|スペック|JAN|注意|作品|商品仕様|PKG|対象年齢|著作権|ラインナップ|もっと見る|Size\b|Color\b|Features\b|Art by\b|Copyright\b)|^[0-9]+(?:パック|BOX|枚|個)|^(?:本体|台座|パーツ|厚み)[:：].*(?:mm|cm)',re.I)
     values=[];active=False
     for line in lines:
         m=label.match(line)
-        if m: value=m[1];active=True
-        elif active and not stop.search(line): value=line
-        else: active=False;continue
+        if m:value=m[1];active=True
+        elif active and not stop.search(line):value=line
+        else:active=False;continue
         value=re.split(r'\s+(?:サイズ|原産国|生産国|発売元|販売元)\s*[:：]',value)[0].strip()
         if value:values.append(value)
-    if values:return '\n'.join(dict.fromkeys(values)),'explicit_material'
+    if values:
+        value='\n'.join(dict.fromkeys(values))
+        return (value,'explicit_material') if material_quality(value) else ('','parse_error')
     for line in lines:
         m=re.match(r'^[■□●○\s]*(?:仕様|スペック)\s*[:：]\s*(.+)',line)
         if m and re.search(r'アクリル|ブリキ|樹脂|綿|ポリエステル|真鍮|錫|ユリア|紙製|鉄製|PVC|PET|ABS|PP|ナイロン|合皮|素材|材質',m[1],re.I):
-            return m[1],'material_in_specification'
+            return (m[1],'material_in_specification') if material_quality(m[1]) else ('','parse_error')
     return '','no_material'
 
-GLOSSARY={**DEFAULT_GLOSSARY,'亜鉛合金':'锌合金','Tinplate':'马口铁','Zinc alloy':'锌合金','Soft PVC Rubber':'软质PVC橡胶','台座':'底座','チャーム':'挂件','ナスカン':'弹簧扣','リボン':'丝带','錫':'锡','ユリア':'尿素树脂','スチロール':'聚苯乙烯','ユポ紙':'合成纸(ユポ)'}
+GLOSSARY={**DEFAULT_GLOSSARY,'亜鉛合金':'锌合金','Tinplate':'马口铁','Zinc alloy':'锌合金','Soft PVC Rubber':'软质PVC橡胶','台座':'底座','チャーム':'挂件','ナスカン':'弹簧扣','リボン':'丝带','錫':'锡','ユリア':'尿素树脂','スチロール':'聚苯乙烯','ユポ紙':'合成纸(ユポ)','Polypropylene':'聚丙烯','ボールチェーン':'珠链','ステッカー':'贴纸','製品素材':'产品材质','裏面':'背面','製':'制'}
 PAT=re.compile('|'.join(re.escape(k) for k in sorted(GLOSSARY,key=len,reverse=True)),re.I)
 LOOKUP={k.lower():v for k,v in GLOSSARY.items()}
 def translate(s):
@@ -96,11 +142,29 @@ def norm(s): return re.sub(r'[^\w一-龥ぁ-んァ-ヶー]','',unicodedata.norma
 def version_set(s):
     return set(re.findall(r'vol\.?\s*\d+|ver\.?(?:\d+(?:\.\d+)*|[a-z]\d+)|全\s*\d+\s*種',unicodedata.normalize('NFKC',s).lower()))
 
+def _unit_wrapper_name(value):
+    return re.sub(r'[（(]単位[/／](?:BOX|コンプリートBOX)[）)]','',value,flags=re.I).strip()
+
+def _cached_jan_chain(row,candidate):
+    chain=row.get('identity_chain') or {}
+    if chain.get('jan')!=row.get('jan') or chain.get('official_url')!=candidate.get('url'):return False
+    try:
+        p=Path(chain['snapshot']);p=p if p.is_absolute() else ROOT/p;raw=p.read_bytes()
+        if sha(raw)!=chain['content_sha256']:return False
+        records=[r for r in walk(json.loads(raw)) if str(r.get('janCode') or r.get('jancode') or '')==row['jan']
+                 and norm(r.get('name') or r.get('goodsName') or '')==norm(chain.get('title',''))]
+    except (KeyError,OSError,ValueError,UnicodeError):return False
+    return bool(norm(candidate.get('title','')) and any(norm(candidate['title']) in norm(r.get('name') or r.get('goodsName') or '') for r in records))
+
 def identity(row, candidate):
     if candidate.get('jan') != row['jan']:return False,'jan_mismatch'
     q,p=norm(row['name_ja']),norm(candidate.get('title',''))
     if not q or not p:return False,'missing_name'
     # Full Japanese source name is a stronger anchor than Chinese procurement suffixes.
+    if candidate.get('jan_not_displayed'):
+        if not _cached_jan_chain(row,candidate):return False,'name_only_requires_verified_JAN_chain'
+        q,p=norm(_unit_wrapper_name(row['name_ja'])),norm(_unit_wrapper_name(candidate.get('title','')))
+        if q and q in p:return True,'cached_exact_JAN_chain_and_official_name_scope'
     if q in p:return True,('exact_name_spec_jan_not_displayed' if candidate.get('jan_not_displayed') else 'exact_jan_full_japanese_name')
     size_pattern=r'サイズ\s*[/／:：]?\s*([a-z0-9.]+)'
     query=unicodedata.normalize('NFKC',row['name_ja']).lower()
@@ -127,11 +191,18 @@ def identity(row, candidate):
     score=name_similarity(row['name_ja'],candidate.get('title','')) or 0
     return score>=0.8, f'exact_jan_name_score_{score}'
 
+def _local_path(path):
+    path=Path(path)
+    absolute=str(path.absolute())
+    if sys.platform=='win32' and len(absolute)>=248 and not absolute.startswith('\\\\?\\'):
+        return Path('\\\\?\\'+absolute)
+    return path
+
 class Client:
     def __init__(self,site):self.site=site;self.last=0;self.stopped='';self.count=0
     def get(self,url):
         if self.stopped:return {'error':self.stopped}
-        cache=REPORT/'responses'/self.site/(sha(url.encode())+'.txt')
+        cache=_local_path(REPORT/'responses'/self.site/(sha(url.encode())+'.txt'))
         if cache.exists():
             raw=cache.read_bytes();record={'url':url,'status':200,'from_cache':True,'content_sha256':sha(raw),'snapshot':snapshot_name(cache)}
             try:record['data']=json.loads(raw)
@@ -145,7 +216,7 @@ class Client:
             with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=15) as r:
                 raw=r.read();status=r.status
                 record={'url':url,'status':status,'seconds':round(time.monotonic()-t,3),'fetched_at':now(),'content_sha256':sha(raw)}
-                path=REPORT/'responses'/self.site/(sha(url.encode())+'.txt');path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+                path=_local_path(REPORT/'responses'/self.site/(sha(url.encode())+'.txt'));path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
                 record['snapshot']=snapshot_name(path)
                 try:record['data']=json.loads(raw)
                 except (ValueError,UnicodeError):record['text']=raw.decode('utf-8',errors='replace')
@@ -153,8 +224,12 @@ class Client:
         except urllib.error.HTTPError as e:
             if e.code==403:self.stopped='blocked_403'
             if e.code==429:self.stopped='rate_limited_429'
-            return {'url':url,'status':e.code,'error':self.stopped or ('http_'+str(e.code)),'detail':e.read(2000).decode('utf-8',errors='replace'),'fetched_at':now()}
-        except Exception as e:return {'url':url,'error':'network_error','detail':str(e),'fetched_at':now()}
+            raw=e.read();path=_local_path(REPORT/'errors'/self.site/(sha(url.encode())+'.bin'));path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+            return {'url':url,'status':e.code,'error':self.stopped or ('http_'+str(e.code)),'detail':raw[:2000].decode('utf-8',errors='replace'),'fetched_at':now(),'snapshot':snapshot_name(path),'content_sha256':sha(raw),'retry_after':e.headers.get('Retry-After') if e.headers else None}
+        except Exception as e:
+            reason=getattr(e,'reason',e)
+            error='environment_permission_blocked' if isinstance(reason,PermissionError) or getattr(reason,'winerror',None)==10013 else 'network_error'
+            return {'url':url,'error':error,'detail':str(e),'fetched_at':now()}
 
 def walk(obj):
     if isinstance(obj,dict):
@@ -167,7 +242,7 @@ def query(site,client,jan,row):
     attempts=[]
     def get(url):
         r=client.get(url);attempts.append({k:v for k,v in r.items() if k not in ('data','text')});return r
-    candidate=None
+    candidate=None;identity_rejections=[]
     if site=='anime_store':
         r=get(f'https://anime-store.jp/products/{jan}.js');d=r.get('data',{})
         if d:
@@ -203,14 +278,16 @@ def query(site,client,jan,row):
             r=get(ref.url)
             if r.get('text'):
                 ev=adapter.parse_detail(r['text'],q,ref.url,ref)
-                if norm(row['name_ja']) in norm(ev.name_ja) and norm(row['name_ja']):
+                if norm(_unit_wrapper_name(row['name_ja'])) in norm(ev.name_ja) and norm(_unit_wrapper_name(row['name_ja'])):
                     candidate={'jan':jan,'jan_not_displayed':True,'title':ev.name_ja,'body':'素材：'+ev.material_original,'url':ref.url}
+                else:identity_rejections.append({'url':ref.url,'title':ev.name_ja,'reason':'official_name_or_scope_not_verified'})
     result={'site':site,'attempts':attempts,'status':'not_found','queried_at':now()}
     if candidate:
         material,method=extract(candidate.pop('body'))
         result.update(candidate);result.update(material_original=material,extraction=method)
         if material:result.update(status='candidate',material_zh=translate(material))
-        else:result['status']='no_material'
+        else:result['status']='parse_error' if method=='parse_error' else 'no_material'
+    elif identity_rejections:result.update(status='identity_unresolved',rejected_pages=identity_rejections)
     elif attempts and attempts[-1].get('error'):result['status']=attempts[-1]['error']
     return result
 

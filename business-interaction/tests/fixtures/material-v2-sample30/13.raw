@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang='ja'>
+
+<head>
+    <script>
+    (function () {
+        function makeShim() {
+            let store = Object.create(null);
+            return {
+                getItem: function (k) {
+                    k = String(k);
+                    return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null;
+                },
+                setItem: function (k, v) { store[String(k)] = String(v); },
+                removeItem: function (k) { delete store[String(k)]; },
+                clear: function () { store = Object.create(null); },
+                key: function (i) {
+                    const keys = Object.keys(store);
+                    return (i >= 0 && i < keys.length) ? keys[i] : null;
+                },
+                get length() { return Object.keys(store).length; }
+            };
+        }
+
+        // 戻り値 'ok': 正常に使える / 'shimmed': shim を注入した / 'failed': 壊れているが注入にも失敗
+        function ensure(name) {
+            try {
+                const s = window[name];
+                if (s != null) {
+                    s.getItem('__storage_probe__');
+                    return 'ok';
+                }
+            } catch (e) {}
+            try {
+                Object.defineProperty(window, name, { value: makeShim(), writable: true, configurable: true });
+                return 'shimmed';
+            } catch (e) {
+                return 'failed';
+            }
+        }
+
+        const results = [ensure('localStorage'), ensure('sessionStorage')];
+        if (results.indexOf('shimmed') !== -1) { window.__storageShimmed = true; }
+        if (results.indexOf('failed') !== -1) { window.__storageShimFailed = true; }
+    })();
+</script>
+
+    
+        <script>
+        window.__sentryConfig = {"dsn":"https:\/\/59cd3b650edc83d34c10f87fe8f0057f@o4510836447576064.ingest.us.sentry.io\/4511490849177600","environment":"production","release":null,"app":"amnibus","tracesSampleRate":0.01};
+    </script>
+    <script src="/js/sentry/ec.js?id=7b9271d5d94c0c927a77e0c0af6fac18"></script>
+    <!-- Google Tag Manager -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        // A/Bテストの振り分け
+        // パターンA/パターンBを50/50で割り当て、localStorageで固定
+        // 割り当てたvariantはdataLayerにpushし、GA4でvariant別に計測できるようにする
+        // パターンBのときは描画前に html.ab-variant-bを付与
+        // 出し分けたい要素に.patternA/.patternBを用意し、CSS 側でhtml.ab-variant-bを基準に表示を切り替える
+        // localStorageが使えない環境（localstorage-guardのshim含む）は割り当てを固定できないためパターンAにする
+        (function () {
+            function assignVariant() {
+                if (window.__storageShimmed || window.__storageShimFailed) {
+                    return 'A';
+                }
+                var stored = localStorage.getItem('ab_productlist_variant');
+                if (stored === 'A' || stored === 'B') {
+                    return stored;
+                }
+                var picked = Math.random() < 0.5 ? 'A' : 'B';
+                localStorage.setItem('ab_productlist_variant', picked);
+                return picked;
+            }
+
+            var variant;
+            try {
+                variant = assignVariant();
+            } catch (e) {
+                variant = 'A';
+            }
+            if (variant === 'B') {
+                document.documentElement.classList.add('ab-variant-b');
+            }
+            window.dataLayer.push({ ab_productlist_variant: variant });
+        })();
+
+        window.dataLayer.push({
+            "env": "production"
+        });
+                window.dataLayer.push({
+            "deviceType": "default"
+        });
+            </script>
+
+                <script>
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                "products": [{"id":121311,"price":9600,"artworkTitle":"TV\u30a2\u30cb\u30e1\u300e\u5e7d\u2606\u904a\u2606\u767d\u66f8\u300f","isSale":true}]
+            });
+        </script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ ecommerce: null });
+        window.dataLayer.push({
+            event: "view_item",
+            ecommerce: {
+                currency: "JPY",
+                value: 10560,
+                items: [{
+                    item_id: "121311",
+                    item_name: "TV\u30a2\u30cb\u30e1\u300e\u5e7d\u2606\u904a\u2606\u767d\u66f8\u300f\/\u30c8\u30ec\u30fc\u30c7\u30a3\u30f3\u30b0 \u30c7\u30d5\u30a9\u30eb\u30e1Ani-Art \u30d1\u30fc\u30c4\u4ed8\u304d\u30a2\u30af\u30ea\u30eb\u30b9\u30bf\u30f3\u30c9",
+                    price: 10560
+                }]
+            }
+        });
+    </script>
+            <script>
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-TFFLPZ2');
+        </script>
+        <!-- End Google Tag Manager -->
+
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script>
+        // iOS は入力欄フォーカス時に自動ズームするため maximum-scale で抑止する
+        (function() {
+            const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent)
+                || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (isIos && viewport) {
+                viewport.setAttribute('content', viewport.getAttribute('content') + ', maximum-scale=1');
+            }
+        })();
+    </script>
+    <meta name="csrf-token" content="u6Ilu9d61nPXVxohjqG57Q1AtPbZDSvoDCgQ67VG">
+    <meta name="keywords" content="AMNIBUS,アムニバス,あむにばす,アニメ,マンガ,漫画,ゲーム,グッズ,アパレル,通販,通信販売,ec"/>
+    <meta name="description"
+        content="TVアニメ『幽☆遊☆白書』より、トレーディング デフォルメAni-Art パーツ付きアクリルスタンドの登場です。 描き起こしデフォルメイラストの浦飯幽助、桑原和真、飛影、蔵馬、妖狐蔵馬、コエンマ、凍矢、陣、鴉、仙水忍、樹、刃霧要を新たなタッチで魅力的に…"
+    />
+    <meta name="author" content="armabianca.inc"/>
+            <meta name="robots" content="index,follow,noydir,noodp"/>
+        
+            <meta property="og:type" content="product">
+    <meta property="og:site_name" content="AMNIBUS">
+    <meta property="og:title" content="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+    <meta property="og:description" content="TVアニメ『幽☆遊☆白書』より、トレーディング デフォルメAni-Art パーツ付きアクリルスタンドの登場です。 描き起こしデフォルメイラストの浦飯幽助、桑原和真、飛影、蔵馬、妖狐蔵馬、コエンマ、凍矢、陣、鴉、仙水忍、樹、刃霧要を新たなタッチで魅力的に…">
+    <meta property="og:url" content="https://amnibus.com/products/detail/121311">
+            <meta property="og:image" content="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c2cf1e7.52995744.jpg">
+        <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+    <meta name="twitter:description" content="TVアニメ『幽☆遊☆白書』より、トレーディング デフォルメAni-Art パーツ付きアクリルスタンドの登場です。 描き起こしデフォルメイラストの浦飯幽助、桑原和真、飛影、蔵馬、妖狐蔵馬、コエンマ、凍矢、陣、鴉、仙水忍、樹、刃霧要を新たなタッチで魅力的に…">
+            <meta name="twitter:image" content="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c2cf1e7.52995744.jpg">
+        <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"Product","name":"トレーディング デフォルメAni-Art パーツ付きアクリルスタンド","description":"TVアニメ『幽☆遊☆白書』より、トレーディング デフォルメAni-Art パーツ付きアクリルスタンドの登場です。 描き起こしデフォルメイラストの浦飯幽助、桑原和真、飛影、蔵馬、妖狐蔵馬、コエンマ、凍矢、陣、鴉、仙水忍、樹、刃霧要を新たなタッチで魅力的に…","image":["https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c2cf1e7.52995744.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c4d3b21.71475357.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c597e93.99044835.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c688b81.35915901.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c7763b5.58991388.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c863ca4.32655834.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c98c5a8.13140176.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665ca67ad9.00309524.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cb25ed6.54454888.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cbc5769.96032245.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cc99c56.65690291.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cd3f947.42080567.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c16b8e3.31415411.jpg","https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c307bf5.74114205.jpg"],"sku":"121311","brand":{"@type":"Brand","name":"TVアニメ『幽☆遊☆白書』"},"offers":{"@type":"AggregateOffer","lowPrice":880,"highPrice":10560,"priceCurrency":"JPY","availability":"https://schema.org/InStock","url":"https://amnibus.com/products/detail/121311","shippingDetails":{"@type":"OfferShippingDetails","hasShippingService":{"@id":"https://amnibus.com/help/tradelaw#shipping"}},"hasMerchantReturnPolicy":{"@id":"https://amnibus.com/help/tradelaw#return-policy"}}}
+    </script>
+    <title>トレーディング デフォルメAni-Art パーツ付きアクリルスタンド｜AMNIBUS</title>
+    <link href='https://amnibus.com/css/ress.css' rel='stylesheet'>
+    <link href='https://amnibus.com/css/slick.css' rel='stylesheet'>
+    <link href='https://amnibus.com/css/slick-theme.css' rel='stylesheet'>
+    <link href='/css/amnibus/style.css?id=b6c814c67845e46940719a34e5f680fb' rel='stylesheet'>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://amnibus.com/css/smartphoto.min.css" />
+    <link rel="stylesheet" href="/css/swiper-bundle.min.css?id=5b7044f5ef8c39d7fd157d666884938a" />
+    <link rel="icon" href="https://amnibus.com/images/amnibus/favicon.ico" />
+    <script src='https://amnibus.com/js/jquery_3.7.1_min.js'></script>
+    <script src='https://amnibus.com/js/slicks/slick.min.js'></script>
+    <script src="https://amnibus.com/js/ec/font-awesome.js"></script>
+</head>
+
+<body class="overlayContainer">
+            <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TFFLPZ2"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
+        
+            <header class="header" id="header">
+    <div class="header__contents" id="header__contents">
+        <noscript>
+            <div class="headerWarningJavascript">
+                <p>AMNIBUSではJavaScriptを使用しています。 ご利用の際にはブラウザ設定でJavaScript有効にしてください。</p>
+            </div>
+        </noscript>
+
+        <div class="header__innerContents">
+            <div class="header__inner--left">
+                <div class="header__logo">
+                    <a href="https://amnibus.com">
+                        <img src="https://amnibus.com/images/amnibus_logo.png" alt="amnibusのロゴ画像" class="pc-only">
+                        <img src="https://amnibus.com/images/amnibus_sp_logo_white.png" alt="amnibusのロゴ画像" class="sp-only">
+                    </a>
+                </div>
+                <div class="header__searchForm">
+                    <form action="https://amnibus.com/products/list" method="GET">
+                        <div class="header__formContainer" id="header-search-container">
+                            <input
+                                type="text"
+                                name="search_words"
+                                id="search_words"
+                                value=""
+                                placeholder="作品・キャラ・商品名で検索"
+                                aria-label="Search"
+                                required
+                            >
+                            <button type="button" class="header__searchClear" id="header-search-clear" aria-label="入力内容を消去">
+                                <img class="iconWhite" src="https://amnibus.com/images/material_icons/close.svg" alt="">
+                            </button>
+                            <button type="submit" class="header__searchSubmit" id="header-search-submit" aria-label="検索" disabled>
+                                <img class="iconWhite" src="https://amnibus.com/images/material_icons/search.svg" alt="">
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="header__inner--right fontWeight500">
+                <div class="header__sessionContainer" id="header-login-container" style="display: none">
+                    <div id="header-mypage">
+                        <a href="https://amnibus.com/mypage">
+                            <p class="header__sessionContainer--text">マイページ</p>
+                        </a>
+                    </div>
+                    <div id="header-login">
+                        <a href="https://amnibus.com/mypage/login">
+                            <p class="header__sessionContainer--text">ログイン</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="header__cartContainer">
+                    <a href="https://amnibus.com/cart" class="header__cartLink">
+                        <span class="class header__cartLink--badgeCount" id="badgeCount" style="display: none;"></span>
+                        <img class="svg-icon iconWhite" src="https://amnibus.com/images/material_icons/shopping_cart.svg"
+                            alt="">
+                    </a>
+                </div>
+                <div class="header__menuContainer">
+                    <div class="header__menuContainer--icon iconWhite"></div>
+                    
+                    <nav class="header__menu" aria-label="メインナビゲーション">
+                        <div class="header__menu--left">
+                            <p>作品から探す</p>
+                            <ul id="artwork_title-list">
+                                
+                            </ul>
+                            <a class="linkText" href="https://amnibus.com/title">すべて見る</a>
+                        </div>
+                        <div class="header__menu--center">
+                            <p>種類から探す</p>
+                            <ul id="category-list">
+                                
+                            </ul>
+                            <a class="linkText" href="https://amnibus.com/category">すべて見る</a>
+                        </div>
+                        <div class="header__menu--right">
+                            <div class="header__menu--rightAccount">
+                                <p>アカウント管理</p>
+                                <ul>
+                                    <li class="header__menu--logout">
+                                        <form method="POST" action="https://amnibus.com/logout">
+                                            <button>ログアウト</button>
+                                        </form>
+                                    </li>
+                                    <li class="header__menu--register"><a href="https://amnibus.com/entry">新規登録</a></li>
+                                    <li class="header__menu--register"><a href="https://amnibus.com/help/detail/1">ログインについて</a></li>
+                                </ul>
+                            </div>
+                            <div class="header__menu--rightSupport">
+                                <p>サポート</p>
+                                <ul>
+                                    <li><a href="https://amnibus.com/help/about">初めての方へ</a></li>
+                                    <li><a href="https://amnibus.com/help/detail/7">お支払い方法について</a></li>
+                                    <li><a href="https://amnibus.com/help">よくある質問</a></li>
+                                    <li><a href="https://amnibus.com/contact">お問い合わせ</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    <div id="headerNotice" class="headerNotice">
+    <div id="headerNoticeContainer" class="headerNotice__container">
+        
+    </div>
+    <div class="headerNotice__line"></div>
+</div>
+
+</header>
+
+<script src="/js/dayjs.js"></script>
+<script>
+    // メニュー取得・カート件数・ログイン状態表示。
+    // fetch と DOM 操作は vanilla JS で実装し、jQuery 未読込環境でも動作させる
+    (function() {
+        const initHeader = () => {
+            const badge = document.getElementById('badgeCount');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+
+            // 作品を探す
+            fetch('https://amnibus.com/artwork_titles', {
+                method: 'GET'
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err))
+                }
+                return response.json()
+            }).then(data => {
+                const list = document.getElementById('artwork_title-list');
+                if (!list) {
+                    return;
+                }
+                data.forEach((item) => {
+                    list.insertAdjacentHTML(
+                        'beforeend',
+                        `<li><a href="https://amnibus.com/products/title/${item.selfAndChildIds}">${item.title}</a></li>`
+                    )
+                })
+            }).catch(e => {
+                console.error('Artwork titles API request failed:', e);
+            })
+
+            // 種類で探す
+            fetch('https://amnibus.com/recent_categories', {
+                method: 'GET'
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err))
+                }
+                return response.json()
+            }).then(data => {
+                const list = document.getElementById('category-list');
+                if (!list) {
+                    return;
+                }
+                data.forEach((item) => {
+                    list.insertAdjacentHTML(
+                        'beforeend',
+                        `<li><a href="https://amnibus.com/products/list?categoryId=${item.id}">${item.name}</a></li>`
+                    )
+                });
+            }).catch(e => {
+                console.error('Recent categories API request failed:', e);
+            });
+
+            // カート件数
+            fetch('/cart/count', {
+                method: 'GET'
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err))
+                }
+                return response.json()
+            }).then(data => {
+                const count = data.count
+                if (count > 0 && badge) {
+                    badge.textContent = count;
+                    badge.style.opacity = '0';
+                    badge.style.display = '';
+                    requestAnimationFrame(() => {
+                        badge.style.transition = 'opacity 1s';
+                        badge.style.opacity = '1';
+                    });
+                }
+            }).catch(error => {
+                console.error(error);
+            });
+
+            // ログインチェック
+            fetch('/mypage/check', {
+                method: 'GET'
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err))
+                }
+                return response.json()
+            }).then(data => {
+                const mypage = document.getElementById('header-mypage');
+                const login = document.getElementById('header-login');
+                const container = document.getElementById('header-login-container');
+                if (data.check) {
+                    document.querySelectorAll('.header__menu--register').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    if (mypage) {
+                        mypage.style.display = '';
+                    }
+                    if (login) {
+                        login.style.display = 'none';
+                    }
+                } else {
+                    document.querySelectorAll('.header__menu--logout').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    if (mypage) {
+                        mypage.style.display = 'none';
+                    }
+                    if (login) {
+                        login.style.display = '';
+                    }
+                }
+                if (container) {
+                    container.style.display = '';
+                }
+            }).catch(error => {
+                console.error(error);
+            })
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initHeader);
+        } else {
+            initHeader();
+        }
+    })();
+
+    // 検索窓: 入力の有無で消去ボタンの表示と検索ボタンの活性を切り替える
+    (function() {
+        const container = document.getElementById('header-search-container');
+        const input = document.getElementById('search_words');
+        const clear = document.getElementById('header-search-clear');
+        const submit = document.getElementById('header-search-submit');
+        if (!container || !input || !clear || !submit) {
+            return;
+        }
+
+        const sync = () => {
+            const filled = input.value !== '';
+            container.classList.toggle('is-filled', filled);
+            submit.disabled = !filled;
+        };
+
+        input.addEventListener('input', sync);
+        clear.addEventListener('click', () => {
+            input.value = '';
+            sync();
+            input.focus();
+        });
+        // 戻る/進むでブラウザが入力途中の値を復元するため、表示中ページの検索語に戻す
+        window.addEventListener('pageshow', (event) => {
+            const navigation = performance.getEntriesByType('navigation')[0];
+            if (event.persisted || navigation?.type === 'back_forward') {
+                input.value = input.defaultValue;
+            }
+            sync();
+        });
+        sync();
+    })();
+
+    // ハンバーガーメニュー開閉
+    // jQuery が読み込まれていない環境ではガードして以降をスキップ
+    (function() {
+        if (typeof $ === 'undefined') {
+            const message = '[header] jQuery 未読込のためハンバーガーメニュー操作を無効化しました';
+            console.warn(message);
+            if (typeof Sentry !== 'undefined') {
+                Sentry.captureMessage(message, 'warning');
+            }
+            return;
+        }
+
+        $(function() {
+            $('.header__menuContainer').on('click', function(event) {
+                event.stopPropagation();
+                $(this).toggleClass('header__menu--active');
+            });
+
+            // メニュー”以外”がクリックされたときも.header__menu--activeを外す
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('.header__menu').length) {
+                    $('.header__menuContainer').removeClass('header__menu--active');
+                }
+            });
+
+            $('.header__menu').on('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+    })();
+</script>
+    
+    <div id="overlay" class="overlay" style="display: none"></div>
+
+    <main id="main">
+            <div class="productDetail mainColorWhite sectionContent width1400">
+        <nav class="productDetail__breadcrumb fontWeight500" aria-label="パンくずリスト">
+            <ul>
+                <li><a href="https://amnibus.com">トップページ</a></li>
+                <li><a href="https://amnibus.com/products/title/87">TVアニメ『幽☆遊☆白書』</a></li>
+                <li aria-current="page">トレーディング デフォルメAni-Art パーツ付きアクリルスタンド</li>
+            </ul>
+        </nav>
+
+        <div class="productDetail__info">
+            <div class="productDetail__info--visual">
+                <div class="productDetail__infoMessage">
+                                    </div>
+
+                <div class="productDetail__imgsContainer">
+                    <div class="productDetail__imgsContainer--main">
+                        <div class="productDetail__imgsContainer--mainSwiper swiper">
+                            <div class="swiper-wrapper">
+                                
+                                
+                                
+                                                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c2cf1e7.52995744.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c2cf1e7.52995744.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c4d3b21.71475357.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c4d3b21.71475357.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c597e93.99044835.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c597e93.99044835.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c688b81.35915901.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c688b81.35915901.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c7763b5.58991388.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c7763b5.58991388.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c863ca4.32655834.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c863ca4.32655834.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c98c5a8.13140176.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c98c5a8.13140176.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665ca67ad9.00309524.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665ca67ad9.00309524.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cb25ed6.54454888.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cb25ed6.54454888.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cbc5769.96032245.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cbc5769.96032245.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cc99c56.65690291.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cc99c56.65690291.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cd3f947.42080567.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cd3f947.42080567.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c16b8e3.31415411.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c16b8e3.31415411.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                            <div class="swiper-slide">
+                                            <a href="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c307bf5.74114205.jpg" class="js-smartPhoto">
+                                                <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c307bf5.74114205.jpg" alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                            </a>
+                                        </div>
+                                                                                                </div>
+                        </div>
+                        <button type="button" class="productDetail__imgsContainer--prev" aria-label="前の画像"></button>
+                        <button type="button" class="productDetail__imgsContainer--next" aria-label="次の画像"></button>
+                    </div>
+
+                    
+                    <div class="productDetail__imgsContainer--sub swiper">
+                        <div class="swiper-wrapper">
+                            
+                                                                                                <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c2cf1e7.52995744.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c4d3b21.71475357.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c597e93.99044835.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c688b81.35915901.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c7763b5.58991388.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c863ca4.32655834.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c98c5a8.13140176.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665ca67ad9.00309524.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cb25ed6.54454888.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cbc5769.96032245.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cc99c56.65690291.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665cd3f947.42080567.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c16b8e3.31415411.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                    <div class="swiper-slide">
+                                        <img src="https://cdn.amnibus.com/upload/save_image/20260403160356_69cf665c307bf5.74114205.jpg"
+                                             alt="トレーディング デフォルメAni-Art パーツ付きアクリルスタンド">
+                                    </div>
+                                                                                    </div>
+                    </div>
+                    <p class="productDetail__imgsContainer--copyright">©Y.T.90-94/P,S</p>
+                </div>
+
+                <div class="detailNote">
+                    
+                                            <section>
+<p>
+TVアニメ『幽☆遊☆白書』より、トレーディング デフォルメAni-Art パーツ付きアクリルスタンドの登場です。<br>
+描き起こしデフォルメイラストの浦飯幽助、桑原和真、飛影、蔵馬、妖狐蔵馬、コエンマ、凍矢、陣、鴉、仙水忍、樹、刃霧要を新たなタッチで魅力的に表現し、パーツ付きのアクリルスタンドに仕上げました。<br>
+お部屋やデスクまわりなどに飾って、キャラクターとの日常をお楽しみください。
+</p>
+
+<p>
+※「Ani-Artシリーズ」は、キャラクターイラストをアーティスティックな表現で描いたAMNIBUSのオリジナル商品です。
+</p>
+</section>
+                    
+                    
+                                            <div class="detailSpec">
+                            <ul>
+                                                                    <li>
+                                        素材：アクリル
+                                    </li>
+                                                                                                    <li>
+                                        本体：（最大約）58×38mm<br />
+台座：（約）45×17mm<br />
+パーツ：（最大約）25×20mm<br />
+厚み：3mm
+                                    </li>
+                                                            </ul>
+                        </div>
+                    
+                    <div class="detailSupplement">
+                        
+                                                                                    <p>※ 単品販売は全12種のうち、いずれか1種ランダムとなります。</p>
+                                                                                        <p>※ BOX販売は12パック入りとなります。</p>
+                                                                    <p>※ 1BOXご注文で全種類が揃います。</p>
+                                                                                    
+                        
+                                                                                                                        <p>※ 製造・梱包過程において、細かい傷が生じる可能性がございますこと、ご了承ください。</p>
+                                                                                    
+                        
+                        
+                        
+                        <p>※ 予約購入特典がある場合、二次受注および、在庫販売で購入いただいた方には、予約購入特典は付属いたしません。</p>
+                    </div>
+
+                    
+                    
+                    
+                                    </div>
+            </div>
+
+            <div class="productDetail__info--purchase">
+                <div class="productDetail__title">
+                    <a class="productDetail__title--artwork linkText" href="https://amnibus.com/products/title/87">
+                        TVアニメ『幽☆遊☆白書』
+                    </a>
+                    <h1 class="productDetail__title--product">トレーディング デフォルメAni-Art パーツ付きアクリルスタンド</h1>
+                </div>
+
+                <div class="productDetail__price">
+                                                                        <div class="productDetail__price--container">
+                                <p class="productDetail__price--exTax"><span class="text-md">単品：</span>
+                                    <span class="fontWeightBold">¥ 800</span><span class="text-sm">（税抜）</span>
+                                </p>
+                                <p class="productDetail__price--incTax">¥ 880<span class="text-sm">（税込）</span></p>
+                            </div>
+                                                    <div class="productDetail__price--container">
+                                <p class="productDetail__price--exTax"><span class="text-md">BOX：</span>
+                                    <span class="fontWeightBold">¥ 9,600</span><span class="text-sm">（税抜）</span>
+                                </p>
+                                <p class="productDetail__price--incTax">¥ 10,560<span class="text-sm">（税込）</span></p>
+                            </div>
+                                            
+                                                                
+                                                    <p class='productDetail__price--freeShipping'>
+                                                                    11,000円(税込)以上＋2商品以上のご注文で<span class="textRed">送料無料</span>
+                                                            </p>
+                                                            </div>
+
+                
+                <div id="product-status" data-id="121311"></div> 
+
+                
+                <div class="productDetail__form">
+        
+                    
+                            <p>
+                    
+                                    </p>
+                                        <ul class="productDetail__choice productDetail__form--list">
+                                            <li>
+                            <label class="">
+                                <input type="radio" name="productClassId" value="241830" class="hiddenRadio"
+                                     checked                                      data-price="800"
+                                    data-price-inc-tax="880">
+                                <span class="productClassPrice">
+                                    単品
+                                                                            ：¥ 880 <span class="fontSize11">（税込）</span>
+                                                                    </span>
+                            </label>
+                        </li>
+                                            <li>
+                            <label class="">
+                                <input type="radio" name="productClassId" value="241831" class="hiddenRadio"
+                                                                         data-price="9600"
+                                    data-price-inc-tax="10560">
+                                <span class="productClassPrice">
+                                    BOX
+                                                                            ：¥ 10,560 <span class="fontSize11">（税込）</span>
+                                                                    </span>
+                            </label>
+                        </li>
+                                    </ul>
+                    
+        
+        <div class="productDetail__form--action" style="display: none">
+            <div class="productDetail__errorMessage" id="productDetailErrorMessage" style="display: none;">
+                <img class='iconRed' src="https://amnibus.com/images/material_icons/error.svg" alt="">
+                <p>現時点で購入できない商品が含まれておりました。該当商品をカートから削除しました。</p>
+            </div>
+
+            <div class="productDetail__purchaseCount">
+                <span class="quantityButton subQuantity disabled">-</span>
+                <input class="inputQuantity noSpin" type="number" id="quantity" name="quantity"
+                    min="1" max="9999" value="1">
+                <span class="quantityButton addQuantity">+</span>
+            </div>
+
+            <button class="Button productDetail__addCartButton" id="cart_submit" type="submit">
+                <img class='iconWhite' src="https://amnibus.com/images/material_icons/add_shopping_cart.svg" alt="">
+                <span>カートに入れる</span>
+            </button>
+        </div>
+
+        <input type="hidden" id="product_id" name="product_id" value="121311" />
+        <input type="hidden" id="product_class_id" name="product_class_id"
+            value="241830" />
+        <input type="hidden" name="_token" value="u6Ilu9d61nPXVxohjqG57Q1AtPbZDSvoDCgQ67VG" autocomplete="off">    </div>
+
+
+                <dl class="productDetail__notes">
+                    <dt class="fontWeight500">注意事項</dt>
+                    <dd class="textRed fontWeight500"></dd>
+                    
+                    
+                                                                        <dd>※ 在庫がなくなり次第終了いたします。</dd>
+                                                    <dd>※ 商品在庫のない不良品対応は、商品の交換ではなくご返金での対応となります。</dd>
+                                                            </dl>
+
+                
+                <div class="productDetail__snsIcons">
+                    <a href="https://twitter.com/share?url=https://amnibus.com/products/detail/121311&text=TVアニメ『幽☆遊☆白書』%20-%20トレーディング デフォルメAni-Art パーツ付きアクリルスタンド%20%7C%20AMNIBUS%EF%BC%88%E3%82%A2%E3%83%A0%E3%83%8B%E3%83%90%E3%82%B9%EF%BC%89"
+                       onclick="window.open(this.href, 'TWwindow', 'width=533, height=477, menubar=no, toolbar=no, scrollbars=yes'); return false;">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="http://www.facebook.com/share.php?u=https://amnibus.com/products/detail/121311"
+                       onclick="window.open(this.href, 'FBwindow', 'width=650, height=450, menubar=no, toolbar=no, scrollbars=yes'); return false;">
+                        <i class="fa-brands fa-facebook"></i>
+
+                    </a>
+                    <a href="http://line.me/R/msg/text/?TVアニメ『幽☆遊☆白書』%20-%20トレーディング デフォルメAni-Art パーツ付きアクリルスタンド%20%7C%20AMNIBUS%EF%BC%88%E3%82%A2%E3%83%A0%E3%83%8B%E3%83%90%E3%82%B9%EF%BC%89https://amnibus.com/products/detail/121311"
+                       onclick="window.open(this.href, 'Liwindow', 'width=650, height=450, menubar=no, toolbar=no, scrollbars=yes'); return false;">
+                        <i class="fa-brands fa-line"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="relatedProducts">
+            <h2>TVアニメ『幽☆遊☆白書』の関連商品</h2>
+            <div
+                id="related-product"
+                data-product-id="121311"
+                data-artwork-title-ids="87"
+            ></div> 
+        </div>
+    </div>
+
+    <div id="add-cart-modal"></div>
+    </main>
+
+    
+            <footer class="footer">
+    <div class="footer__innerContainer">
+        <div class="footer__innerContainer--top">
+            <div class="footer__innerLeft" style="">
+                <div class="footer__innerLeft--brand">
+                    <ul class="footer__brandList">
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=aure+glass">
+                                <img src="https://amnibus.com/images/brands/aure_glass.png" alt="Aure Glassのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=grunge+canvas">
+                                <img src="https://amnibus.com/images/brands/grunge_canvas.png" alt="Grunge Canvasのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=ani-art+kawaii+label">
+                                <img src="https://amnibus.com/images/brands/aniart_kawaii.png" alt="Ani-Art Kawaii labelのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=petit-sserie">
+                                <img src="https://amnibus.com/images/brands/petit_sserie.png" alt="プティスリーのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=%E3%81%A1%E3%81%B3%E3%81%A8%E3%81%93">
+                                <img src="https://amnibus.com/images/brands/chibitoko.png" alt="ちびとこのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=%E3%82%86%E3%82%8B%E3%82%B3%E3%83%9E">
+                                <img src="https://amnibus.com/images/brands/yurukoma.png" alt="ゆるコマのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=ani-art">
+                                <img src="https://amnibus.com/images/brands/aniart.png" alt="Ani-Artのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=ani-art+aqua+label">
+                                <img src="https://amnibus.com/images/brands/aniart_aqua.png" alt="Ani-Art aqua labelのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=ani-art+clear+label">
+                                <img src="https://amnibus.com/images/brands/aniart_clear.png"
+                                    alt="Ani-Art clear labelのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://amnibus.com/products/list?search_words=%E3%83%87%E3%83%95%E3%82%A9%E3%83%AB%E3%83%A1ani-art">
+                                <img src="https://amnibus.com/images/brands/deformed_aniart.png" alt="デフォルメAni-Artのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=ani-sketch">
+                                <img src="https://amnibus.com/images/brands/anisketch.png" alt="Ani-Sketchのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=ani-neon">
+                                <img src="https://amnibus.com/images/brands/ani_neon.png" alt="Ani-Neonのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=nordiq">
+                                <img src="https://amnibus.com/images/brands/nordiq.png" alt="NordiQのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=popoon">
+                                <img src="https://amnibus.com/images/brands/popoon.png" alt="POPOONのブランドロゴ">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://amnibus.com/products/list?search_words=lette-graph">
+                                <img src="https://amnibus.com/images/brands/letter_graph.png" alt="lette-graphのブランドロゴ">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                
+                
+
+                
+                <div class="footer__innerLeft--app">
+                    <p class="footer__appLead">AMNIBUS公式アプリ</p>
+                    <ul class="appBadges">
+    <li class="appBadges__item">
+        <a href="https://apps.apple.com/jp/app/id6776121187" target="_blank" rel="noopener">
+            <img src="https://amnibus.com/images/app/app_store_badge_black.svg" alt="App Storeからダウンロード">
+        </a>
+    </li>
+    <li class="appBadges__item">
+        <a href="https://play.google.com/store/apps/details?id=aom.armabianca.amnibus" target="_blank" rel="noopener">
+            <img src="https://amnibus.com/images/app/google_play_badge.png" alt="Google Playで手に入れよう">
+        </a>
+    </li>
+</ul>
+                </div>
+            </div>
+                            <div class="footer__innerRight">
+                    <blockquote class="twitter-tweet">
+                        <p lang="ja" dir="ltr">
+                            📱AMNIBUS公式アプリ登場！<br>アニメ・漫画のグッズ通販「AMNIBUS」がアプリに✨<br>新着・ランキング・オンラインくじをいつでもチェック🛍️<br><br>▼DLはこちら<br>iOS→<a
+                                href="https://t.co/6GHPXwloW6">https://t.co/6GHPXwloW6</a><br>Android→<a
+                                href="https://t.co/YpnMaIgaH8">https://t.co/YpnMaIgaH8</a><br><a
+                                href="https://x.com/hashtag/AMNIBUS?src=hash&amp;ref_src=twsrc%5Etfw">#AMNIBUS</a> <a
+                                href="https://t.co/MfSJ4836wJ">pic.twitter.com/MfSJ4836wJ</a></p>&mdash; AMNIBUS（アムニバス）
+                        (@AMNIBUS) <a href="https://x.com/AMNIBUS/status/2083115465510162530?ref_src=twsrc%5Etfw">July
+                            31, 2026</a>
+                    </blockquote>
+                    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                </div>
+                    </div>
+        <div class="footer__innerContainer--bottom">
+            <nav aria-label="フッターナビゲーション">
+                <ul class="footer__menuList">
+                    <li><a href="https://armabianca.com/">会社概要</a></li>
+                    <li><a href="https://amnibus.com/help/agreement">利用規約</a></li>
+                    <li><a href="https://amnibus.com/help/privacy">個人情報保護方針</a></li>
+                    <li><a href="https://amnibus.com/help/tradelaw">特定商品取引法に基づく表示</a></li>
+                </ul>
+            </nav>
+            <p class="footer__copyright">Copyright © arma bianca CO.,LTD. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+    
+    <script src='https://amnibus.com/js/app.js'></script>
+    <script src="https://amnibus.com/js/ec/show-custom-error.js"></script>
+        
+    <script src="https://amnibus.com/js/ec/input-quantity.js"></script>
+
+    <script>
+        // jQuery 未読込時は $ が undefined で ReferenceError になるためスキップする
+        if (typeof $ !== 'undefined') {
+            $('#cart_submit').on('click', async () => {
+                $('#productDetailErrorMessage').hide();
+
+                const productClassId = $('input[name="productClassId"]:checked').val();
+                const quantity = $('#quantity').val();
+                const price = $('input[name="productClassId"]:checked').data('price');
+                const priceIncTax = $('input[name="productClassId"]:checked').data('priceIncTax');
+                const data = {
+                    productClassId,
+                    quantity,
+                    price,
+                }
+
+                const token = (await (await fetch('/cart/token')).json()).token;
+
+                fetch('/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data),
+                }).then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err))
+                    }
+                    return response.json()
+                }).then(data => {
+                    const count = data.count
+                    $('#badgeCount').hide().text(count).fadeIn(1000)
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ ecommerce: null });
+                    window.dataLayer.push({
+                        event: "add_to_cart",
+                        ecommerce: {
+                            currency: "JPY",
+                            value: Number(priceIncTax) * Number(quantity),
+                            items: [{
+                                item_id: "121311",
+                                item_name: "TV\u30a2\u30cb\u30e1\u300e\u5e7d\u2606\u904a\u2606\u767d\u66f8\u300f\/\u30c8\u30ec\u30fc\u30c7\u30a3\u30f3\u30b0 \u30c7\u30d5\u30a9\u30eb\u30e1Ani-Art \u30d1\u30fc\u30c4\u4ed8\u304d\u30a2\u30af\u30ea\u30eb\u30b9\u30bf\u30f3\u30c9",
+                                price: Number(priceIncTax),
+                                quantity: Number(quantity)
+                            }]
+                        }
+                    });
+                    window.dispatchEvent(new CustomEvent('cart:added', { detail: data }));
+                }).catch(error => {
+                    $('#productDetailErrorMessage p').text(error.message);
+                    $('#productDetailErrorMessage').show();
+                });
+            });
+
+            $('#quantity').on('blur', function () {
+                const maxQuantity = 9999
+                const value = $(this).val()
+                if (value >= maxQuantity) {
+                    $(this).val(maxQuantity)
+                    $('.addQuantity').addClass('disabled')
+                    $('.subQuantity').removeClass('disabled')
+                } else if (value <= 1) {
+                    $(this).val(1)
+                    $('.addQuantity').removeClass('disabled')
+                    $('.subQuantity').addClass('disabled')
+                } else {
+                    $('.addQuantity').removeClass('disabled')
+                    $('.subQuantity').removeClass('disabled')
+                }
+            })
+        } else {
+            console.warn('[product] jQuery 未読込のためカート投入を無効化');
+        }
+    </script>
+
+    
+    <script
+        src="https://scaleflex.cloudimg.io/v7/plugins/js-cloudimage-360-view/latest/js-cloudimage-360-view.min.js?func=proxy">
+    </script>
+
+    <script src="/js/amnibus/details/index.js?id=a8941878f2a16273f795b1473251a174"></script>
+    <script src="https://amnibus.com/js/dayjs.js"></script>
+    <script>
+        (function () {
+            // jQuery 未読込環境では ReferenceError になるため以降をスキップする
+            if (typeof $ === 'undefined') {
+                return;
+            }
+
+            let isNotice = false;
+            let noticeHeight = 0;
+
+            // お知らせを取得、DOMに追加
+            fetch('/news_header', {
+                method: 'GET'
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err))
+                }
+                return response.json()
+            }).then(data => {
+                if (data.data.length > 0) {
+                    isNotice = true;
+                    $('.headerNotice').show();
+                    $('#headerNoticeContainer').append(
+                        data.data.map(x =>
+                            `<a href="/news/detail/${x.id}" class="linkText">
+                                <img
+                                    src="https://amnibus.com/images/material_icons/arrow_forward.svg"
+                                    class="drawHeader__news--image icon iconWhite"
+                                />
+                                <span class="drawHeader__news--title">
+                                    ${x.news_title}(${dayjs(x.news_date).format('M/D')})
+                                </span>
+                            </a>`
+                        )
+                    )
+
+                    // DOMの更新後に再計算
+                    adjustMargin();
+                    noticeHeight = $('.headerNotice').outerHeight();
+                }
+            }).catch(error => {
+                console.error(error);
+            });
+
+            // ヘッダー分全体を下げる
+            function adjustMargin() {
+                const $header = $('#header__contents');
+                let headerHeight = $header.outerHeight();
+                const hasBanner = $('.p-headerSuperviseAccount').length > 0;
+                if (isNotice || hasBanner) {
+                    // お知らせまたは監修バナーがある場合はそれ自体で全体を下げるので0
+                    headerHeight = 0;
+                }
+                $('#main').css('margin-top', headerHeight + 'px');
+            }
+
+            adjustMargin();
+            $(window).on('resize', adjustMargin);
+        })();
+    </script>
+    </body>
+
+<script>
+    // 決済画面からレジに戻った時にオーバーレイを非表示にする
+    // jQuery 未読込時でも動作するよう vanilla JS で実装する
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+    }
+
+    window.addEventListener('pageshow', hideOverlay);
+
+    // safari対応
+    document.addEventListener('visibilitychange', hideOverlay);
+</script>
+
+</html>

@@ -61,6 +61,7 @@ def same_binding(row, binding):
 
 def read_evidence(manifests):
     """Reuse audited successes only, preserving each manifest and raw response."""
+    from material_providers.quality import material_quality
     by_jan = defaultdict(list)
     rejected = []
     for filename in manifests:
@@ -78,6 +79,8 @@ def read_evidence(manifests):
                 continue
             if not c.get('material_original') or not c.get('material_zh') or not c.get('url'):
                 reason = 'incomplete_material_or_source'
+            if not material_quality(c.get('material_original')) or not material_quality(c.get('material_zh')):
+                reason = 'material_quality_rejected'
             if not c.get('rows'):
                 reason = 'missing_identity_bindings'
             if c.get('proposed') is False:
@@ -87,6 +90,11 @@ def read_evidence(manifests):
                 rawpaths.append((c['snapshot'], c.get('content_sha256')))
             rawpaths += [(a['snapshot'], a.get('content_sha256'))
                          for a in c.get('attempts', []) if a.get('snapshot')]
+            chain=c.get('identity_chain')
+            if chain:
+                if str(chain.get('jan'))!=str(c.get('jan')) or not chain.get('snapshot') or not chain.get('content_sha256'):
+                    reason='identity_chain_incomplete'
+                else:rawpaths.append((chain['snapshot'],chain['content_sha256']))
             if not rawpaths:
                 reason = 'missing_raw_snapshot'
             for path, sha in rawpaths:
@@ -179,7 +187,10 @@ def apply_material_reference_overlay(config, dual):
         current = list(wb[config['sheet']].values)
     finally:
         wb.close()
-    rows, changes = {}, []
+    from .material_reference import binding as reference_binding
+    record = Path(config['background']) / 'material-reference-overlay.json'
+    prior = load(record).get('rows', {}) if record.exists() else {}
+    rows, changes, overlays = {}, [], dict(prior)
     for text_row, item in report['rows'].items():
         row = int(text_row)
         value = current[row - 1]
@@ -195,13 +206,17 @@ def apply_material_reference_overlay(config, dual):
         if existing in (None, '') and candidate:
             changes.append({'target': 'S' + text_row, 'value': candidate})
             rows[text_row]['written'] = True
+            overlays[text_row] = {'binding': reference_binding(value), 'value': candidate,
+                                  'before': existing, 'sources': item['library'].get('yd_link_sources', []) or item['library'].get('exact_records', []),
+                                  'reference_level': level, 'confirmed': False}
     if changes:
         file.write_bytes(update_cells(file.read_bytes(), config['sheet'], changes))
     payload = {'schema': 'material-reference-overlay/1', 'rows': rows,
                'written_cells': len(changes), 'levels': dict(Counter(r['level'] for r in rows.values())),
                'manual_material_column': 'O', 'manual_material_overwritten': False,
                'file_sha256': digest(file), 'confirmed': 0}
-    save(Path(config['background']) / 'material-reference-overlay.json', payload)
+    save(Path(config['background']) / 'material-reference-overlay-audit.json', payload)
+    save(record, {'schema': 'linked-material-original-overlay/1', 'rows': overlays, 'approved': 0})
     return payload
 
 

@@ -4,6 +4,7 @@ from datetime import datetime
 import json,sys,shutil
 from . import load,save,digest,key,Rejected,ROOT
 from .preparation_workbook import update_cells
+from material_providers.quality import material_quality
 
 def assess_page(row,candidate,similarity):
     from adapter import assess,norm
@@ -68,7 +69,7 @@ def query_materials(config_file,request):
                     good=[]
                     for c in raw['candidates']:
                         checked=assess_page(row,c,name_similarity);c['identity_assessment']=checked
-                        if c.get('material_original') and checked['status']=='candidate_only':good.append(c)
+                        if material_quality(c.get('material_original')) and material_quality(c.get('material_zh') or c.get('material_original')) and checked['status']=='candidate_only':good.append(c)
                     alias_attempts=[]
                     if not good:
                         aliases=set()
@@ -82,7 +83,7 @@ def query_materials(config_file,request):
                             alias_attempts.append(ar)
                             for c in ar['candidates']:
                                 checked=assess_page({**row,'jan':alias},c,name_similarity);c['identity_assessment']=checked;c['linked_from']=row['jan'];c['code_link_evidence']=row['code_links']
-                                if c.get('material_original') and checked['status']=='candidate_only':good.append(c)
+                                if material_quality(c.get('material_original')) and material_quality(c.get('material_zh') or c.get('material_original')) and checked['status']=='candidate_only':good.append(c)
                     material_values={c.get('material_zh') or c['material_original'] for c in good}
                     candidate={'status':'found' if len(material_values)==1 else 'conflict' if len(material_values)>1 else 'not_found',
                                'value':next(iter(material_values)) if len(material_values)==1 else None,'plugin_result':raw,'alias_attempts':alias_attempts,'matched_candidates':good,'identity_key':binding}
@@ -119,6 +120,7 @@ def apply_review_overlay(config,dual):
         if web['status']!='found' or len(web['values'])!=1:continue
         if (str(v[2]),str(v[9] or ''),str(v[6] or ''),str(v[16] or ''))!=(b['jan'],b['name_ja'],b['spec'],b['yd']):continue
         value=web['values'][0]
+        if not material_quality(value) or not web.get('evidence') or not all(material_quality(c.get('material_original')) and material_quality(c.get('material_zh')) for c in web['evidence']):continue
         if v[17] not in (None,'',value):continue
         if v[17]==value and n not in prior:continue
         rows[n]={'status':'found','value':value,'binding':b,'evidence':web['evidence'],
@@ -157,5 +159,6 @@ def apply_overlay(config,file):
     rows=list(load_workbook(file,read_only=True).worksheets[0].values);changes=[]
     for n,r in load(overlay)['rows'].items():
         n=int(n);v=rows[n-1];b=r['binding']
+        if not material_quality(r.get('value')):continue
         if (str(v[2]),str(v[6] or ''),str(v[9] or ''),str(v[16] or ''))==(b['jan'],str(b.get('spec') or ''),b['name_ja'],str(b.get('yd') or '')) and not v[17]:changes.append({'target':'R'+str(n),'value':r['value']})
     if changes:Path(file).write_bytes(update_cells(Path(file).read_bytes(),config['sheet'],changes))

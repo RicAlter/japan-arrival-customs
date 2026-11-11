@@ -39,7 +39,7 @@ def resolve(jan,index,cards,history):
                 if number.is_finite():price=number
             except InvalidOperation:pass
     fields['price']=price
-    refs=cards.get(yd,[]);raw=unique(compatible,'material')
+    refs=cards.get(yd,[]) if str(yd or '').strip() else [];raw=unique(compatible,'material')
     if not raw:
         vals={r['material_original'] for r in refs if r.get('material_original')}
         raw=next(iter(vals)) if len(vals)==1 else '\n'.join(sorted(vals)) or None
