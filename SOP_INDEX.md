@@ -14,3 +14,5 @@
 
 发布前运行治理回归及 material provider发布检查；零有效材质业务问题必须随包声明。
 
+
+原样计算表接入：business-interaction/workbuddy/japan-arrival-customs-trial/references/original-layout.md；实际入口run.py→interaction/original_view.py→submission.Service。开发复现步骤见START_HERE.md及repro/REPLAY.md。历史SOP保留，阶段回传即提交规则优先于旧常规二次确认说明。

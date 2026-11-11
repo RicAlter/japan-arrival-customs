@@ -1,15 +1,15 @@
 # 版本索引
 
-|提交|用途|
+当前唯一集成开发分支：codex/unified-repro-20261111，确切检出SHA由Git读取，本机冻结版本由项目根governance/version-registry.json登记。repro/version-registry.json是随源码分发的无业务数据版本说明。
+
+|来源|已整合范围|
 |---|---|
-|98ce74e|技术冻结保留|
-|068ddf2|匹配/订单价/标色业务优化|
-|86373ad|pcs关联|
-|b5b37e1|DG+JAN|
-|a831f46|大图回传|
-|1e53292|关联材质原文|
-|be90fb9|多站提供器随包恢复；零有效材质未解决|
-|codex/unified-development-20261110 HEAD|唯一主开发候选；确切SHA见项目根当前索引|
+|98ce74e|第一阶段冻结技术基线，保留原提交|
+|068ddf2、86373ad、b5b37e1|订单价/精度/标色、pcs及DG关联|
+|a831f46、1e53292、be90fb9|大图回传、关联材质、多站查询链|
+|7774e50|a295af8与7e70c62中已验证的准确性和SOP V2.0修复|
+|e34f55c|日方价格11/16列适配|
+|548621c|两阶段回传即提交、原数量与总单件数观察|
+|当前分支|原21列视图进入实际run.py、来源SHA和隔离复现工具|
 
-上述旧提交均保留；禁止按mtime选版本。A03/A04/B00及rc依赖清单位于 business-loop/dependency-lock.json、catalogue-pack-loop/reuse-lock.json。
-
+不提升为正式Skill，不迁移历史session，不声称完整业务闭环通过。A03/A04/B00及rc计算规则和依赖锁保留。

@@ -24,6 +24,9 @@ try:
     elif action=='delivery-review':
         from interaction.delivery_review import review_delivery
         result=review_delivery(a.config,**request)
+    elif action in {'start','current','upload','native-preview'} and a.config and load(a.config).get('native_view_binding'):
+        from interaction.original_view import OriginalView
+        result=OriginalView(a.config).operate({'action':action,**request})
     elif action in {'start','current'}:result=Service(a.config).deliver()
     elif action=='upload':result=Service(a.config).upload(**request)
     elif action=='confirm':result=Service(a.config).confirm(**request)

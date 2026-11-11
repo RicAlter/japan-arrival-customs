@@ -6,3 +6,5 @@ SQLite backup产生的快照物理SHA可能不同，必须同时记录原release
 
 三批样本与来源位置见 governance-release/golden-samples.json；旧来源登记见项目根reports/kmt20261002-business-replay-20261109/source-register.json。历史人工值与程序自动补充值分开保留。
 
+
+本批复现数据角色/SHA见repro/inputs-index.json；真实input manifest、session与Excel只在本机保存，不随GitHub发布。release SHA603d7ba2与本次SQLite快照SHA39603296均须核验，不能互相冒充。缺任何原来源时停止真实回放并说明缺项，不复制历史完成答案填算法结果。

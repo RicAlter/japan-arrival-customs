@@ -1,0 +1,22 @@
+{
+  "schema": "source-development-index/1",
+  "development_branch": "codex/unified-repro-20261111",
+  "commit_resolution": "git rev-parse HEAD; full frozen commit recorded in local project governance/version-registry.json",
+  "base_git_sha": "548621c48f99c2e3c538228d7fa42ee0c5dc4713",
+  "unified_previous_baseline": "055ef6f4f7f2cc87b08494f6415a109f3954bc94",
+  "entry": "business-interaction/run.py",
+  "original_view": "business-interaction/interaction/original_view.py",
+  "scope": "development_candidate_only",
+  "formal_installed_commit": "b93ce6e89b803487e1f1e7379dbfb455096c9403",
+  "database_release": "20261110-603d7ba2",
+  "database_sha256": "603d7ba2db7933534607ca293be63281884880fe997891ad5894af36bfd61853",
+  "snapshot_sha256": "39603296fdf2269d5a382509f3d539e88b5def252c1c8eb4dedb6d4cb9a6239b",
+  "business_blockers": [
+    "WEB-MATERIAL-100: historical 100 targets zero effective material",
+    "REAL-CLOSURE: actual operator calculation return and complete historical dual-output acceptance pending",
+    "52 unit-ratio rows; packaging/tax source gates incomplete",
+    "FORMAL-METADATA-001: installed manifest rc.7 vs SKILL description rc.6"
+  ],
+  "real_business_approved": false,
+  "formal_output": false
+}

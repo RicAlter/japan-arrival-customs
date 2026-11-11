@@ -7,6 +7,8 @@ description: "日本到货候选：从日本仓原始Excel补齐资料库、采�
 
 本候选的阶段提交以[回传即提交规则](references/stage-submission.md)优先：运营返回Excel表示提交，实际run.py自动校验并保存合格范围，不要求常规二次确认。异常单独列出，历史确认协议仅供旧session回放；正式海关外发仍独立关闭。
 
+已保存批次若采用运营原样计算表，先读[原样表格接入](references/original-layout.md)。实际run.py按session.native_view_binding调用原样视图适配；保持原列序与样式，不把后台技术审核列交给运营。该路径只在新隔离副本绑定，不改旧session。
+
 统一开发候选先读[集成治理与业务规则入口](references/integration-governance.md)。该入口标明已确认规则、回归要求和未完成业务阻断；不得按文件日期替换绑定源码或迁移历史会话。
 
 业务上传日本仓原始到货表即可开始，宿主负责请求JSON和来源配置。第一阶段先读[2026-11-09业务版SOP](references/business-preparation-sop.md)及[执行SOP](references/preparation-sop.md)，调用时读[宿主请求合同](references/request-contract.md)。本目录为工作区候选，不代替已安装正式Skill，不将技术验证称作WorkBuddy原生或真人验证。
