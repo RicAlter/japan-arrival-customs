@@ -1,5 +1,7 @@
 # 宿主请求合同
 
+2026-11-11候选口径：基础/计算upload即运营提交，run.py使用submission.Service自动校验保存合格范围，不再展示常规待确认按钮。结果confirmation_required=false，返回submission_id、accepted_cells/rows与exceptions。关键价格依据仍通过purchase_evidence传来源与单位，业务无需填写JSON；R/S不作为O。update价格角色仍需有明确实际价采用依据。旧confirm仅用于历史协议，不要求新业务再点一次。见stage-submission.md。
+
 业务不填写JSON。运行工作区run.py --request request.json --result-file result.json；除prepare外须传--config session.json。operate.py从runtime.json读取入口和默认session；新批prepare不要求session。
 
 ## prepare

@@ -1,5 +1,7 @@
 # SOP索引
 
+本候选阶段提交新规则优先：business-interaction/workbuddy/japan-arrival-customs-trial/references/stage-submission.md；实际run.py调用interaction.submission.Service。基础/计算回传校验保存不再常规二次确认；日方价格角色和外发门禁不取消。
+
 统一操作顺序：固定输入/显式资料库release → run.py prepare → 完整性检查 → 唯一20列核对表 → upload实际差异 → 明确确认保存 → 实际日方价格和计算审核 → 再次人工确认 → 受控双草稿。每一步保留原件、来源SHA及未知原因。
 
 - business-interaction/workbuddy/japan-arrival-customs-trial/SKILL.md：宿主入口。

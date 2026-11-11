@@ -1,5 +1,7 @@
 # 唯一开发入口
 
+2026-11-11独立业务提交候选：实际run.py已绑定interaction.submission.Service，阶段回传即提交，校验通过自动保存；见references/stage-submission.md。基于7774e50并复用e34f55c价格适配；未替换统一冻结055或正式安装。旧历史session协议保留，不自动迁移。该段优先于下文旧版本的常规二次确认描述。
+
 先读 CURRENT_STATUS.md、BUSINESS_RULES.md、SOP_INDEX.md，再读 governance/ 下的版本、来源、测试和归档索引。
 
 唯一开发分支：codex/unified-development-20261110。源码工作树为本目录；确切提交及可运行封包位置见项目根目录 outputs/统一开发候选_当前.json。历史业务 session 继续使用各自绑定 runtime，不自动迁移。

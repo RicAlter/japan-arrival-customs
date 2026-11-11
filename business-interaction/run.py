@@ -1,6 +1,6 @@
 """WorkBuddy host adapter. Business users never prepare JSON/commands themselves."""
 import argparse,json,sys
-from interaction.service import Service
+from interaction.submission import Service
 from interaction.seven_column_adapter import install
 install()
 p=argparse.ArgumentParser();p.add_argument('--config');p.add_argument('--request',required=True);p.add_argument('--result-file');a=p.parse_args()

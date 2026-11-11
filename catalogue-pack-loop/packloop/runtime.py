@@ -17,7 +17,9 @@ class Updates(OriginalUpdates):
         catalogue=support.load(snapshot);support.check_hashes({catalogue['database']:catalogue['sha256']})
 updates.Service=Updates
 sys.modules[NAME+'.prices']=load_module(NAME+'.prices',source/'prices.py')
-base_review=load_module(NAME+'.base_review',source/'review.py')
+base_review=load_module(NAME+'.base_review',source/'review.py',{
+    "oldplan=load(parent/'technical/authoring-plan.json')":
+    "oldplan=load(parent/'technical/authoring-plan.json') if (parent/'technical/authoring-plan.json').exists() else {}"})
 from . import review
 review.base=base_review;review.legacy_recalculate=base_review.recalculate;base_review.current_price=review.current_price
 base_review.EDIT=review.EDIT;base_review.recalculate=review.recalculate
