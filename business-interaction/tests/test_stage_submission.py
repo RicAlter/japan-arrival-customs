@@ -107,4 +107,20 @@ class SubmissionPolicy(unittest.TestCase):
         self.assertIn('operator',redo.call_args.kwargs['price_basis_reference']);self.assertFalse(r['confirmation_required'])
         self.assertEqual(final.call_args.args[1],'accepted-basis-preview')
 
+class OriginalQuantityContract(unittest.TestCase):
+    def test_real_native_qty_and_invoice_quantity_schemas_preserve_originals_without_filling_actual_price(self):
+        from interaction import calculation_context as ctx
+        # First KMT20261003 original row: qty=260, observed JPY=289, amount=75140.
+        # The established A03 schema names this field qty; price-update rows use quantity.
+        for field in ('qty','quantity'):
+            with self.subTest(field=field),tempfile.TemporaryDirectory() as d:
+                row={'parent_id':'original-real-row','values':[None]*41,'basic_fields':{},'raw':None,'source_row':2}
+                p={'headers':['header']*41,'rows':[row],'code':{},'formulas':{}}
+                batch={'rows':[{'id':'original-real-row','raw':{field:'260','price':'289','amount':'75140'},'source':{'sheet':'invoice (計算)','row':2}}]}
+                svc=SimpleNamespace(bid='a'*24,root=Path(d),store=SimpleNamespace(load=lambda bid:batch))
+                with patch.object(ctx,'original_prepare',return_value=p),patch.object(ctx.rt.updates,'Service',return_value=svc),patch.object(ctx,'put',return_value='test-plan'):
+                    result=ctx.prepare(d)
+                v=result['rows'][0]['values'];self.assertEqual(v[41:44],['260','289','75140'])
+                self.assertIsNone(v[7]);self.assertIsNone(v[9])  # Original observations never stand in for missing actual supplier update.
+
 if __name__=='__main__':unittest.main()

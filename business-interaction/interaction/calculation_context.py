@@ -34,7 +34,7 @@ def prepare(root):
             col=next(c for c,k in rt.review.EDIT.items() if k==name)
             from openpyxl.utils.cell import column_index_from_string
             r['values'][column_index_from_string(col)-1]=item['value']
-        r['values'] += [raw.get('quantity'),raw.get('price'),raw.get('amount'),fs.get('purchase_unit_price',{}).get('value',{}).get('value'),
+        r['values'] += [raw.get('quantity',raw.get('qty')),raw.get('price'),raw.get('amount'),fs.get('purchase_unit_price',{}).get('value',{}).get('value'),
             old['source']['sheet']+'!'+str(old['source']['row']),fs.get('material_reference',{}).get('value',{}).get('value'),
             i.get('hs_status','未找到本轮独立税号依据；不从历史最终成品反填'),
             '缺可靠日方实际价格' if r['raw'] is None else '日方更新价有来源；K总单件数口径已明确，采购单位/盒规仍独立核验',
