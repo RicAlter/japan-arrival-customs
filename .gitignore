@@ -8,7 +8,7 @@
 /runtime/
 /deliveries/
 /analysis/
-/repro/private/
+/AGENTS.md
 
 # Legacy project documents and regression tests refer to local business assets.
 # Only the repository-safe documentation and synthetic smoke test below are tracked.
