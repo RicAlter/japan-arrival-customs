@@ -8,3 +8,5 @@
 6. 既有273项技术回归：regression_existing.py的units模式复用202项基础、15项提交规则并加入14项原样回归（231）；loop21、pack16分别提供原有只读隔离fixture位置；19项test_price_input仍读取已固定真实价格来源。明确CANDIDATE_SOURCE、CANDIDATE_VERSION、PRIVATE_PROJECT_ROOT、REGRESSION_OUTPUT。所有旧fixture写入以copy-on-write导向新目录，禁止直接在历史session运行可写测试。
 
 仓库包含源码、SOP、锁定文本及脱敏结果索引；真实Excel、数据库、session、网页和税费证据不在GitHub。新机器必须另取得原SHA一致的资料。源码可检出不代表私有业务数据已迁移，离线回放也不代表联网或运营业务批准。
+
+私有来源清单由tools/index_private_inputs.py读取已登记文件及配置中的现存文件引用生成，不扫描全盘；数百MiB的不可变历史JSON只核验SHA，不重新解析全体业务记录。本轮176份依赖清单只保存在本机。保全报告294项不变，包含原session、正式安装和数据库。
