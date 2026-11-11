@@ -1,11 +1,11 @@
 """Load existing flow unchanged in private namespace; replace only adapter seams."""
 import sys,types
-from . import support,ROOT,REPO
+from . import support,ROOT,REPO,price_input
 from .support import load_module
 NAME='packloop.flow';package=types.ModuleType(NAME);package.__path__=[];sys.modules[NAME]=package
 sys.modules[NAME+'.support']=support
 source=REPO/'business-loop/loop'
-updates=load_module(NAME+'.updates',source/'updates.py')
+updates=price_input.load_updates(NAME+'.updates',source/'updates.py')
 OriginalUpdates=updates.Service
 class Updates(OriginalUpdates):
     def __init__(self,root):

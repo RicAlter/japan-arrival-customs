@@ -32,6 +32,14 @@
 - update须用户明确实际价格版本；calculation提供真实price_basis_reference。重复身份links须有明确依据。
 - confirm：confirmation_id、explicit_confirmation=true、reference，对应刚展示范围。原CAS、幂等、旧版本保护及正式外发关闭保持。
 
+### 日方价格11/16列兼容候选
+
+价格更新复用原读取器识别完整11列日方原表和已登记16列布局。11列保留Ref/HS及原行偏移规则；16列按实际来源行号、箱号/JAN/日文名/产地关联，不重写原表，不把20列基础表或历史最终单价冒充日方原价。箱重页按读取器登记的名称定位，不迁移或覆盖原session。
+
+已有可靠主JAN/pcs关联可在具体行的links中附code_link：path、sha256、sheet、row和columns（jan/pcs/name/spec对应原Excel列字母）。系统逐格核验主码、单个码以及当前保存的名称和规格，并要求箱号、日文名、产地一致。仅reference文字、相似名称或重复编码不足以跨码关联。原11列的new_row/reference合同不变。
+
+每条价格观察保留原文件SHA、工作表、实际行号、JPY币种及版本。无明确计价/数量单位时price_unit和quantity_unit为空，盒规仍待独立依据；不按价格比、JAN或规格尾数推算。本适配不改变基础字段的saved_pending状态，不自动批准品类/材质，不自动确认计算或发布双表。
+
 宿主负责命令和JSON；业务仅查看摘要、编辑和回传Excel、明确确认。
 # 最终Codex候选补充（2026-11-09）
 
