@@ -29,7 +29,17 @@ def view_token(file):
         root=ET.fromstring(z.read('xl/workbook.xml'))
     return next((x.text for x in root.iter(Q+'definedName') if x.get('name')=='stage2_view_token'),None)
 
-def patch_workbook(source,authored,target,changed,token):
+def confirmation_attention(facts,rows):
+    """Same sparse yellow/red convention as stage one; no explanation cells."""
+    result={}
+    for fact,row in zip(facts,rows):
+        errors=row['errors'];cell='U'+str(row['row'])
+        if any('冲突' in e or '不能整除' in e for e in errors):result[cell]='red'
+        elif '缺独立盒规，参考盒数待核' in errors and '整盒' in str(fact['identity'].get('spec') or ''):result[cell]='yellow'
+        if row['rounded_price'] is None:result['I'+str(row['row'])]='red'
+    return result
+
+def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None):
     """Keep old cells/styles/cache, pictures and weight members intact."""
     with zipfile.ZipFile(authored) as z:
         xml=z.read(MEMBER).replace(b'<x:',b'<').replace(b'</x:',b'</')
@@ -63,6 +73,22 @@ def patch_workbook(source,authored,target,changed,token):
         block=m[0];block=re.sub(rb'count="\d+"',('count="%d"'%(index+2)).encode(),block,count=1)
         return block.replace(b'</cellXfs>',appended+b'</cellXfs>')
     parts['xl/styles.xml']=re.sub(rb'<cellXfs\b.*?</cellXfs>',extend,styles,flags=re.S)
+    attention=attention or {};attention_styles={}
+    if compact and attention:
+        root=ET.fromstring(parts['xl/styles.xml']);fills=root.find(Q+'fills');fill_start=len(fills)
+        additions=b''.join(('<fill><patternFill patternType="solid"><fgColor rgb="%s"/><bgColor indexed="64"/></patternFill></fill>'%color).encode() for color in ['FFFFF2CC','FFFCE4D6'])
+        parts['xl/styles.xml']=re.sub(rb'<fills\b.*?</fills>',lambda m:re.sub(rb'count="\d+"',('count="%d"'%(fill_start+2)).encode(),m[0],count=1).replace(b'</fills>',additions+b'</fills>'),parts['xl/styles.xml'],flags=re.S)
+        extra_styles=[];keys={}
+        for addr,color in attention.items():
+            if addr not in old:continue
+            original_style=re.search(rb'\bs="(\d+)"',old[addr]);sid=int(original_style[1])if original_style else 0
+            k=(sid,color)
+            if k not in keys:
+                x=copy.deepcopy(xf[sid]);x.set('fillId',str(fill_start+int(color=='red')));x.set('applyFill','1')
+                keys[k]=index+2+len(extra_styles)
+                extra_styles.append(ET.tostring(x,encoding='utf-8').replace(b'ns0:',b'').replace(b':ns0',b''))
+            attention_styles[addr]=keys[k]
+        parts['xl/styles.xml']=re.sub(rb'<cellXfs\b.*?</cellXfs>',lambda m:re.sub(rb'count="\d+"',('count="%d"'%(index+2+len(extra_styles))).encode(),m[0],count=1).replace(b'</cellXfs>',b''.join(extra_styles)+b'</cellXfs>'),parts['xl/styles.xml'],flags=re.S)
     def newcell(a):
         c=new[a];style=header_style if a.endswith('1') and not re.search(r'\d',a[:-1]) else body_style
         # Header row is addressed explicitly, not by a string suffix (row11 etc).
@@ -86,17 +112,25 @@ def patch_workbook(source,authored,target,changed,token):
                     return b'<c'+attrs+b'>'+inner+b'</c>'
                 return c[0]
             rr=CELL.sub(replace,rr)
-            extras=b''.join(newcell(col(i)+str(n)) for i in range(22,40) if col(i)+str(n) in new)
+            extras=b'' if compact else b''.join(newcell(col(i)+str(n)) for i in range(22,40) if col(i)+str(n) in new)
             rr=rr.replace(b'</row>',extras+b'</row>')
         return rr
     raw=re.sub(rb'<row\b[^>]*>.*?</row>',row,raw,flags=re.S)
+    if attention_styles:
+        def recolor(m):
+            a=address(m[0])
+            if a not in attention_styles:return m[0]
+            c=re.sub(rb'\s+s="[^"]*"',b'',m[0])
+            return c.replace(b'<c ',('<c s="%d" '%attention_styles[a]).encode(),1)
+        raw=CELL.sub(recolor,raw)
     dim=re.search(rb'<dimension\b[^>]*\bref="([^"]+)"',raw)
     last=max(max(changed),int(re.search(rb'(\d+)$',dim[1])[1]) if dim else 1)
-    raw=re.sub(rb'(<dimension\b[^>]*\bref=")[^"]+("[^>]*/>)',rb'\g<1>A1:AM'+str(last).encode()+rb'\g<2>',raw)
+    raw=re.sub(rb'(<dimension\b[^>]*\bref=")[^"]+("[^>]*/>)',rb'\g<1>A1:'+ (b'U'if compact else b'AM')+str(last).encode()+rb'\g<2>',raw)
     # Append only new column widths. Preserve original A:U definitions exactly.
     extra=b''.join(('<col min="%d" max="%d" width="%s" customWidth="1"/>'%(i,i,44 if i==39 else 30 if i in {37,38} else 18)).encode() for i in range(22,40))
-    if b'</cols>' in raw:raw=raw.replace(b'</cols>',extra+b'</cols>')
-    else:raw=raw.replace(b'<sheetData>',b'<cols>'+extra+b'</cols><sheetData>')
+    if not compact:
+        if b'</cols>' in raw:raw=raw.replace(b'</cols>',extra+b'</cols>')
+        else:raw=raw.replace(b'<sheetData>',b'<cols>'+extra+b'</cols><sheetData>')
     parts[MEMBER]=raw
     wb=parts['xl/workbook.xml'];name=('<definedName name="stage2_view_token">"'+token+'"</definedName>').encode()
     if b'</definedNames>' in wb:wb=wb.replace(b'</definedNames>',name+b'</definedNames>')
@@ -155,8 +189,10 @@ class CalculationView:
         save(folder/'plan.json',plan)
         authored=subprocess.run([self.config['node'],str(Path(__file__).parents[1]/'stage2-author.mjs'),str(folder/'plan.json')],capture_output=True,text=True,encoding='utf-8')
         if authored.returncode:raise Rejected('计算表生成失败：'+authored.stderr[-2500:])
-        file=folder/(self.config['batch_label']+'_第二阶段计算审核.xlsx')
-        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity)
+        compact=self.binding.get('layout')=='confirmation21'
+        file=folder/(self.config['batch_label']+('_计算确认表.xlsx'if compact else '_第二阶段计算审核.xlsx'))
+        attention=confirmation_attention(self.binding['rows'],rows)if compact else {}
+        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention)
         counts=Counter(r['values'][-2]for r in rows)
         state={'schema':'stage2-calculation-state/2','policy':POLICY,'binding_sha256':digest(self.path),'base_head':self.binding['base_head'],
                'revision':revision,'view_hash':identity,'file':str(file),'sha256':digest(file),'totals':totals,
@@ -167,12 +203,13 @@ class CalculationView:
             prior=load(self.pointer)['revision'] if self.pointer.exists() else -1
             if prior!=revision-1:raise Rejected('并发回传版本已变化，未覆盖当前计算表')
             save(self.pointer,state)
-        save(folder/'calculation-evidence.json',{'state':state,'rows':rows})
+        save(folder/'calculation-evidence.json',{'state':state,'rows':rows,'attention':attention,'layout':self.binding.get('layout','detailed39')})
         return state
     def result(self,state,**extra):
         public=self.service._publish(state['file'],Path(state['file']).name)
         result={**state,'stage':'calculation','head':state['base_head'],'business_files':[public],
                 'confirmation_required':False,'message':'第二阶段计算审核表；回传校验后保存，异常集中列示；完整业务门禁及正式外发仍独立。',**extra}
+        if self.binding.get('layout')=='confirmation21':result['message']='请按第一阶段的颜色标记核对并回传本表；校验后保存。'
         save(self.service.background/'current-stage2-delivery.json',result)
         return result
     def preview(self,file):

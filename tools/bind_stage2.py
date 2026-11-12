@@ -54,7 +54,7 @@ def sheet(file,formulas=False):
     try:return w.worksheets[0].title,list(w.worksheets[0].values)
     finally:w.close()
 
-def bind(manifest_file,output):
+def bind(manifest_file,output,*,display_layout='detailed39'):
     m=json.loads(Path(manifest_file).read_text('utf8'));out=Path(output).resolve()
     if out.exists():raise ValueError('新计算副本目录已存在，禁止覆盖')
     for file,expected in m['files'].items():
@@ -78,6 +78,8 @@ def bind(manifest_file,output):
     try:
         for t,s in a:
             n=t['source_row'];rr=b[n]['source_row'];v=current[n-1];rf=reference[rr-1]
+            factor=raw[s['source_row']-1][10]
+            if number(factor)!=number(raw[s['source_row']-1][11])/number(t['quantity']):raise ValueError('空运原始表K倍数与本行单个数/原Qty不一致：'+str(n))
             identity=dict(code=str(v[2]),name=v[5],spec=v[6],yd=v[17],database_sha256=dbsha)
             duty=rf[14]
             if isinstance(duty,str) and duty.endswith('%'):duty=str(number(duty[:-1])/100)
@@ -98,6 +100,7 @@ def bind(manifest_file,output):
                 note='采购观察：'+'、'.join('数量%s/砍单%s'%(x.get('quantity'),x.get('cut_quantity'))for x in list(observed.values())[:3])+'（单位、取消及范围待核，不重复减砍单）'
             rows.append({**t,'row_id':rowmap[n],'identity':identity,'total_pieces':raw[s['source_row']-1][11],
                          'reference_boxes':rf[7],'duty_rate':duty,'vat_rate':vat,'pack_candidates':card_candidates(db,identity),
+                         'unit_factor_reference':{'value':factor,'row':s['source_row'],'column':'K','sha256':m['files'][m['raw']]},
                          'purchase_note':note,'source_coordinates':{'raw_row':s['source_row'],'reference_row':rr},
                          'purchase_reference':{'jan':str(v[2]),'status':qrow.get('status'),'reasons':notes}})
     finally:db.close()
@@ -110,6 +113,7 @@ def bind(manifest_file,output):
     original=out/'original-21-columns.xlsx';shutil.copyfile(m['workbook'],original)
     code={str(REPO/p):sha(REPO/p) for p in ['business-interaction/interaction/stage2_math.py','business-interaction/interaction/calculation_view.py','business-interaction/stage2-author.mjs','tools/bind_stage2.py']}
     binding={'schema':'business-calculation-view/2','policy':POLICY,'base_head':layout['head'],'rows':rows,'sheet':title,
+             'layout':display_layout,
              'original_workbook':str(original),'sources':{**m['files'],str(original):sha(original),dbfile:sha(dbfile),
               config['quantity_review']['path']:sha(config['quantity_review']['path'])},'code':code,'manifest_sha256':sha(manifest_file)}
     save(out/'binding.json',binding);config['calculation_view_binding']=str(out/'binding.json');config['calculation_view_binding_sha256']=sha(out/'binding.json')
@@ -120,5 +124,5 @@ def bind(manifest_file,output):
     save(out/'binding-report.json',report);return report
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);a=p.parse_args()
-    print(json.dumps(bind(a.manifest,a.output),ensure_ascii=False))
+    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);p.add_argument('--layout',choices=['detailed39','confirmation21'],default='detailed39');a=p.parse_args()
+    print(json.dumps(bind(a.manifest,a.output,display_layout=a.layout),ensure_ascii=False))
