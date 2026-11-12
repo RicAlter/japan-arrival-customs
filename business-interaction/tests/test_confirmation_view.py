@@ -69,3 +69,13 @@ class ConfirmationViewTests(unittest.TestCase):
         self.assertIsNone(s.find('.//'+Q+'c[@r="U2"]/'+Q+'v'))
         self.assertEqual(s.find('.//'+Q+'c[@r="L2"]/'+Q+'v').text,'20')
         with zipfile.ZipFile(self.source)as z:self.assertIn(b'<v>box</v>',z.read('xl/worksheets/sheet1.xml'))
+    def test_reviewed_reference_changes_only_authorized_cell_and_clears_color(self):
+        with zipfile.ZipFile(self.authored)as z:xml=z.read('xl/worksheets/sheet1.xml').replace(b'V2',b'U2').replace(b'backend reason',b'8 per box')
+        with zipfile.ZipFile(self.authored,'w')as z:z.writestr('xl/worksheets/sheet1.xml',xml)
+        s=self.build(results_only=True,reviewed_references={'U2'})
+        self.assertEqual(s.find('.//'+Q+'c[@r="U2"]/'+Q+'v').text,'8 per box')
+        self.assertEqual(s.find('.//'+Q+'c[@r="L2"]/'+Q+'v').text,'20')
+        with zipfile.ZipFile(self.out)as z:styles=ET.fromstring(z.read('xl/styles.xml'))
+        self.assertEqual(styles.find(Q+'cellXfs')[int(s.find('.//'+Q+'c[@r="U2"]').get('s'))].get('fillId'),'0')
+    def test_review_cannot_rewrite_quantity(self):
+        with self.assertRaises(ValueError):self.build(results_only=True,reviewed_references={'L2'})

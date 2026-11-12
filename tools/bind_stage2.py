@@ -70,6 +70,12 @@ def bind(manifest_file,output,*,display_layout='detailed39',i_role='price'):
     for file,expected in m['files'].items():
         if sha(file)!=expected:raise ValueError('输入SHA不符：'+file)
     prior={}
+    review={}
+    if m.get('yellow_review'):
+        if m['yellow_review']not in m['files']:raise ValueError('黄标复核清单须固定SHA')
+        review=json.loads(Path(m['yellow_review']).read_text('utf8'))
+        if review.get('schema')!='pinned-yellow-review/1'or review.get('previous_file')not in m['files']:raise ValueError('黄标复核须固定前版业务表')
+        if review.get('previous_binding')!=m.get('previous_binding'):raise ValueError('黄标复核前版不符')
     if m.get('previous_binding'):
         if m['previous_binding']not in m['files']:raise ValueError('旧计算绑定须登记输入SHA')
         previous=json.loads(Path(m['previous_binding']).read_text('utf8'));prior={x['source_row']:x for x in previous['rows']}
@@ -88,6 +94,10 @@ def bind(manifest_file,output,*,display_layout='detailed39',i_role='price'):
     quantity=json.loads(Path(config['quantity_review']['path']).read_text('utf8'))
     if sha(config['quantity_review']['path'])!=config['quantity_review']['sha256']:raise ValueError('采购参考版本漂移')
     db=sqlite3.connect('file:'+Path(dbfile).as_posix()+'?mode=ro',uri=True)
+    price_index={}
+    if review:
+        from stage2_review import purchase_observations
+        price_index=purchase_observations(quantity,m['files'])
     rows=[]
     try:
         for t,s in a:
@@ -115,12 +125,30 @@ def bind(manifest_file,output,*,display_layout='detailed39',i_role='price'):
             rejected=[];candidates=card_candidates(db,identity,rejected)
             old=prior.get(n)
             if old and (old['row_id']!=rowmap[n] or old['identity']!=identity or any(number(old[k])!=number(t[k])for k in ['quantity','price','amount'])or number(old['total_pieces'])!=number(raw[s['source_row']-1][11])):raise ValueError('旧计算绑定与本行原始事实不一致：'+str(n))
-            rows.append({**t,'row_id':rowmap[n],'identity':identity,'total_pieces':raw[s['source_row']-1][11],
+            requested=review.get('rows',{}).get(str(n))
+            if requested and requested['identity']!=identity:raise ValueError('黄标商品身份变化：'+str(n))
+            if requested and 'U'in requested['columns']and not candidates:
+                from stage2_review import reviewed_cards
+                candidates=reviewed_cards(db,identity)
+            fact={**t,'row_id':rowmap[n],'identity':identity,'total_pieces':raw[s['source_row']-1][11],
                          'reference_boxes':rf[7],'duty_rate':duty,'vat_rate':vat,'pack_candidates':candidates,'rejected_pack_candidates':rejected,
-                         'clear_inapplicable_pack_reference':bool(rejected and old and old.get('pack_candidates'))and not candidates,
+                         'clear_inapplicable_pack_reference':bool(rejected and old and(old.get('pack_candidates')or old.get('clear_inapplicable_pack_reference')))and not candidates,
                          'unit_factor_reference':{'value':factor,'row':s['source_row'],'column':'K','sha256':m['files'][m['raw']]},
                          'purchase_note':note,'source_coordinates':{'raw_row':s['source_row'],'reference_row':rr},
-                         'purchase_reference':{'jan':str(v[2]),'status':qrow.get('status'),'reasons':notes}})
+                         'purchase_reference':{'jan':str(v[2]),'status':qrow.get('status'),'reasons':notes}}
+            if requested and 'U'in requested['columns']and candidates:
+                sizes={x['pieces_per_box']for x in candidates}
+                if len(sizes)==1:
+                    c=candidates[0]
+                    fact['reviewed_pack_reference']=('每包%s枚，1盒%s包'%(c['units_per_pack'],c['packs_per_box']))if c['units_per_pack']and c['packs_per_box']else'整盒%s枚入'%c['pieces_per_box']
+            if requested and 'U'in requested['columns']:
+                fact['yellow_pack_review']=[{'source_sha256':h,'source_row':r,'context':json.loads(c)}for h,r,c in db.execute('select source_sha256,source_row,context_json from yd_product_card_details where yd_key=?',(identity['yd'],))]
+            if requested and 'H'in requested['columns']:
+                if v[7]not in(None,''):raise ValueError('禁止覆盖已有采购参考价：'+str(n))
+                from stage2_review import price_review
+                fact['yellow_price_review']=price_review(identity,fact,price_index)
+                if fact['yellow_price_review']['value']is not None:fact['reviewed_reference_price']=fact['yellow_price_review']['value']
+            rows.append(fact)
     finally:db.close()
     out.mkdir(parents=True)
     run=out/'saved-batch';shutil.copytree(source.parent,run,ignore=shutil.ignore_patterns('__pycache__'))
@@ -129,7 +157,7 @@ def bind(manifest_file,output,*,display_layout='detailed39',i_role='price'):
             'isolation_note':'New opt-in stage2 calculation copy; inherited4302 approvals, no prepare; no formal release.'}
     config.pop('native_view_binding',None)
     original=out/'original-21-columns.xlsx';shutil.copyfile(m['workbook'],original)
-    code={str(REPO/p):sha(REPO/p) for p in ['business-interaction/interaction/stage2_math.py','business-interaction/interaction/calculation_view.py','business-interaction/stage2-author.mjs','tools/bind_stage2.py']}
+    code={str(REPO/p):sha(REPO/p) for p in ['business-interaction/interaction/stage2_math.py','business-interaction/interaction/calculation_view.py','business-interaction/stage2-author.mjs','tools/bind_stage2.py','tools/stage2_review.py']}
     binding={'schema':'business-calculation-view/2','policy':POLICY,'base_head':layout['head'],'rows':rows,'sheet':title,
              'layout':display_layout,'i_role':i_role,
              'original_workbook':str(original),'sources':{**m['files'],str(original):sha(original),dbfile:sha(dbfile),

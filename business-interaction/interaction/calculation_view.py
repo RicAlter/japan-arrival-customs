@@ -39,7 +39,7 @@ def confirmation_attention(facts,rows):
         if row['rounded_price'] is None:result['I'+str(row['row'])]='red'
     return result
 
-def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None,results_only=False,factor_column=False,clear_references=None):
+def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None,results_only=False,factor_column=False,clear_references=None,reviewed_references=None):
     """Keep old cells/styles/cache, pictures and weight members intact."""
     with zipfile.ZipFile(authored) as z:
         xml=z.read(MEMBER).replace(b'<x:',b'<').replace(b'</x:',b'</')
@@ -73,7 +73,10 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
         block=m[0];block=re.sub(rb'count="\d+"',('count="%d"'%(index+2)).encode(),block,count=1)
         return block.replace(b'</cellXfs>',appended+b'</cellXfs>')
     parts['xl/styles.xml']=re.sub(rb'<cellXfs\b.*?</cellXfs>',extend,styles,flags=re.S)
-    attention=attention or {};attention_styles={}
+    attention=dict(attention or {});attention_styles={}
+    for a in reviewed_references or set():
+        if not re.fullmatch(r'(H|U)\d+',a):raise ValueError('复核只可更新H/U参考')
+        if a not in attention:attention[a]='clear'
     if (compact or results_only) and attention:
         root=ET.fromstring(parts['xl/styles.xml']);fills=root.find(Q+'fills');fill_start=len(fills)
         additions=b''.join(('<fill><patternFill patternType="solid"><fgColor rgb="%s"/><bgColor indexed="64"/></patternFill></fill>'%color).encode() for color in ['FFFFF2CC','FFFCE4D6'])
@@ -85,7 +88,7 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
             original_style=re.search(rb'\bs="(\d+)"',old.get(addr,b''));sid=int(original_style[1])if original_style else 0
             k=('result'if result_cell else sid,color)
             if k not in keys:
-                x=copy.deepcopy(base if result_cell else xf[sid]);x.set('fillId',str(fill_start+int(color=='red')));x.set('applyFill','1')
+                x=copy.deepcopy(base if result_cell else xf[sid]);x.set('fillId','0'if color=='clear'else str(fill_start+int(color=='red')));x.set('applyFill','1')
                 keys[k]=index+2+len(extra_styles)
                 extra_styles.append(ET.tostring(x,encoding='utf-8').replace(b'ns0:',b'').replace(b':ns0',b''))
             attention_styles[addr]=keys[k]
@@ -104,6 +107,9 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
         if n==1 or n in changed:
             def replace(c):
                 a=address(c[0])
+                if a in (reviewed_references or set()):
+                    if a not in new:raise ValueError('复核参考缺少实际生成值：'+a)
+                    return newcell(a)
                 if factor_column and a=='I1':return newcell('I1')
                 if a in (clear_references or set()):
                     attrs=re.search(rb'<c\b([^>]*?)(?:/?>)',c[0])[1]
@@ -180,6 +186,8 @@ class CalculationView:
             rows.append({'row':fact['source_row'],'quantity':fact['quantity'],'price':fact['price'],'amount':fact['amount'],
                          'total_pieces':scalar(r['total_pieces']),'rounded_price':r['rounded_price'],
                          'values':[scalar(x) for x in r['values']],'errors':r['errors'],'exact':r['exact']})
+            for key,target in [('reviewed_reference_price','reference_price'),('reviewed_pack_reference','pack_reference')]:
+                if key in fact:rows[-1][target]=fact[key]
         groups={}
         for fact,r in zip(self.binding['rows'],rows):
             i=fact['identity'];key=(i['code'],i['yd'],i['spec'])
@@ -207,7 +215,8 @@ class CalculationView:
                     attention['V'+n]=attention['U'+n];attention['Y'+n]=attention['U'+n]
                 if any('税率' in e for e in row['errors']):attention['Y'+n]='yellow';attention['Z'+n]='yellow'
         clear_references={'U'+str(f['source_row'])for f in self.binding['rows']if f.get('clear_inapplicable_pack_reference')}
-        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention,results_only=results_only,factor_column=factor_column,clear_references=clear_references)
+        reviewed={'H'+str(f['source_row'])for f in self.binding['rows']if 'reviewed_reference_price'in f}|{'U'+str(f['source_row'])for f in self.binding['rows']if 'reviewed_pack_reference'in f}
+        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention,results_only=results_only,factor_column=factor_column,clear_references=clear_references,reviewed_references=reviewed)
         counts=Counter(r['values'][-2]for r in rows)
         state={'schema':'stage2-calculation-state/2','policy':POLICY,'binding_sha256':digest(self.path),'base_head':self.binding['base_head'],
                'revision':revision,'view_hash':identity,'file':str(file),'sha256':digest(file),'totals':totals,

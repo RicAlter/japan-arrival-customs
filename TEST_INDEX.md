@@ -1,5 +1,7 @@
 # 测试索引
 
+第二阶段黄标复核：`business-interaction/tests/test_yellow_review.py`覆盖已接受商品名/YD/SKU与版本、类别、包装层数、原订单币种及重复报价、单位/状态冲突；`test_confirmation_view.py`覆盖仅H/U参考更新和清色保全。`tools/replay_yellow_review.py`从固定前版副本经实际run.py检查逐项结果、原数量/I倍数/金额和箱重保全，并保存缺依据清单。执行结果与完整候选SHA在本机项目治理登记，不视为运营放行。
+
 本轮结果位于治理封包 governance-release/tests.json 与各stdout/stderr日志。覆盖第一阶段匹配、pcs/DG、材质分层、多站域名停站、大图回传、数量未知、标色、交付保全及既有计算/包装。
 
 只读实样：KMT1002/1003/1101及各fixed-inputs，原件SHA；历史网站证据复核，不把缓存当联网。真人回传依据reports/workbuddy-native-phase1-20261109/user-native-acceptance-readback.json；不在旧业务session运行可写current/confirm。

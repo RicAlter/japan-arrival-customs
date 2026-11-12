@@ -4,10 +4,11 @@ import re
 import unicodedata
 
 POLICY = 'fixed-sku-packaging/20261112'
-PRODUCT_KINDS=['姓名吧唧','文件夹','吧唧','透卡','贴纸','明信片','立牌','拍立得','相卡','挂件','卡片','收藏卡','亚克力']
+PRODUCT_KINDS=['姓名吧唧','文件夹','吧唧','冰箱贴','徽章','透卡','贴纸','明信片','立牌','拍立得','相卡','挂件','卡片','收藏卡','亚克力']
 
 def product_kinds(text):
     found=[k for k in PRODUCT_KINDS if k in str(text or '')]
+    if any('吧唧' in k for k in found):found=[k for k in found if k!='徽章']
     # A named badge is a separate SKU class, not the generic trading badge.
     return [k for k in found if not any(k!=other and k in other for other in found)]
 HEADERS = ['每包单个数','每盒包数','每盒单个数','本行盒数','每原Qty单个数','每盒原Qty数',
@@ -51,7 +52,11 @@ def packaging(text, *, identity_scoped=False, product_kind=None, product_spec=No
         present = [k for k in labels if k in clause]
         parts = re.split(r'[,，、](?=(?:'+ '|'.join(labels)+r'|[A-Z]整盒|vol\.?\s*\d+整盒))',clause,flags=re.I)
         for part in parts:
-            version=re.match(r'\s*(vol\.?\s*\d+|[A-Z])整盒',part,re.I)
+            alternatives=re.match(r'\s*([A-Za-z]{1,2}(?:[、,，][A-Za-z]{1,2})+)整盒',part)
+            if alternatives:
+                selected=re.match(r'([A-Za-z]{1,2})整盒',norm(product_spec))
+                if not selected or selected[1].lower() not in [s.lower()for s in re.split('[、,，]',alternatives[1])]:continue
+            version=re.match(r'\s*(vol\.?\s*\d+|[A-Z]{1,2})整盒',part,re.I)
             if version:
                 selected=re.sub(r'[.\s]','',norm(product_spec)).lower()
                 prefix=re.sub(r'[.\s]','',version[1]).lower()+'整盒'

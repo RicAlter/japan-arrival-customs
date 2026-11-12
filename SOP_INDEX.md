@@ -16,3 +16,6 @@
 
 
 原样计算表接入：business-interaction/workbuddy/japan-arrival-customs-trial/references/original-layout.md；实际入口run.py→interaction/original_view.py→submission.Service。开发复现步骤见START_HERE.md及repro/REPLAY.md。历史SOP保留，阶段回传即提交规则优先于旧常规二次确认说明。
+# 第二阶段黄标复核补充
+
+`business-interaction/workbuddy/japan-arrival-customs-trial/references/stage2-calculation.md`：前版/SHA/身份固定、具体SKU盒规、原订单参考价及颜色处理；`tools/stage2_review.py`和`tools/bind_stage2.py`接入主流程，不重新prepare。

@@ -11,6 +11,8 @@ if(p.layout==='results26'){
  s.getRange('V1:Z1').values=[['本行盒数','取整后金额JPY','取整差额JPY','每盒税金JPY','本行税金JPY']];
  for(const r of p.rows){
   const n=r.row,v=r.values;
+  if(r.reference_price!==undefined)s.getRange(`H${n}`).values=[[r.reference_price]];
+  if(r.pack_reference!==undefined)s.getRange(`U${n}`).values=[[r.pack_reference]];
   s.getRange(`K${n}:N${n}`).values=[[r.total_pieces,Number(r.quantity),Number(r.price),Number(r.amount)]];
   if(r.rounded_price!==null)s.getRange(`I${n}`).formulas=[[p.i_role==='factor'?`=K${n}/L${n}`:`=ROUND(M${n}/(K${n}/L${n}),0)`]];
   s.getRange(`V${n}:Z${n}`).values=[[v[3],v[7],v[8],v[13],v[14]]];

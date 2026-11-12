@@ -47,6 +47,7 @@ def replay(manifest,output,candidate,layout='confirmation21',i_role='price'):
         before=ET.fromstring(old.read('xl/worksheets/sheet1.xml'));original={c.get('r'):c for c in before.iter(Q+'c')};after={c.get('r'):c for c in s.iter(Q+'c')}
         def content(c):return(c.get('t'),[(x.tag,x.text,tuple(x.attrib.items()))for x in c.iter()if x is not c])
         cleared={'U'+str(f['source_row'])for f in binding['rows']if f.get('clear_inapplicable_pack_reference')}
+        cleared|={'H'+str(f['source_row'])for f in binding['rows']if 'reviewed_reference_price'in f}|{'U'+str(f['source_row'])for f in binding['rows']if 'reviewed_pack_reference'in f}
         check('all source cells except authorized I/K/reference corrections preserve content/formulas/cache',all(content(c)==content(after[a])for a,c in original.items()if not(a[0]in 'IK'and a[1:].isdigit()and 2<=int(a[1:])<=1968)and not(i_role=='factor'and a=='I1')and a not in cleared))
     p=action(2,{'action':'native-preview','file':issued});check('compact return preview has zero changes',p['modified_cells']==0)
     first=action(3,{'action':'upload','file':issued,'reference':'TECHNICAL compact view return; not operator approval'});again=action(4,{'action':'upload','file':issued,'reference':'TECHNICAL same compact attachment retry'})
