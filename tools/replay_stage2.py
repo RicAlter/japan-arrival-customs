@@ -46,6 +46,8 @@ def replay(manifest,output,candidate):
     check('source totals 104148 / original amount50083400 / ROUND0 difference216',sum(values[n-1][10]for n in range(2,1969))==104148 and sum(values[n-1][13]for n in range(2,1969))==50083400 and sum(values[n-1][29]for n in range(2,1969))==216)
     examples={n:{'c':values[n-1][23],'boxes':values[n-1][24],'tax_per_box':values[n-1][34]}for n in [125,759,790,834,1010]}
     check('five real examples incl36 pieces and17 boxes',[(examples[n]['c'],examples[n]['boxes'])for n in examples]==[(10,60),(51,13),(36,12),(10,21),(36,5)] and examples[1010]['tax_per_box']==315.12)
+    scoped={121:10,237:7,238:6,458:8,670:12,671:15,773:24}
+    check('real mixed-type A/B and volume-specific card selection',all(values[n-1][23]==c for n,c in scoped.items()))
     with zipfile.ZipFile(binding['original_workbook']) as a,zipfile.ZipFile(initial) as b:
         changed=[n for n in a.namelist()if a.read(n)!=b.read(n)]
         before,after=xml_cells(a.read('xl/worksheets/sheet1.xml')),xml_cells(b.read('xl/worksheets/sheet1.xml'))
@@ -102,7 +104,7 @@ def replay(manifest,output,candidate):
     exceptions=Counter(e for x in restored['exceptions']for e in x['reasons'])
     report={'candidate':candidate,'passed':len(records),'failed':0,'not_executed':0,'records':records,'kind':'real source copy through locked actual run.py; technical only',
             'rows':1967,'columns':39,'corrected_rows':84,'split_groups':73,'total_pieces':104148,'original_JPY_amount':50083400,'ROUND0_difference_JPY':216,
-            'examples':examples,'exceptions':dict(exceptions),'calculated_rows':restored['calculated_rows'],'partial_rows':restored['partial_rows'],
+            'examples':examples,'additional_scoped_examples':scoped,'exceptions':dict(exceptions),'calculated_rows':restored['calculated_rows'],'partial_rows':restored['partial_rows'],
             'session':str(config),'current_file':final,'current_file_sha256':sha(final),'original_session_changed':False,'formal_output':False,'operator_acceptance':False}
     save(out/'verification.json',report);return report
 

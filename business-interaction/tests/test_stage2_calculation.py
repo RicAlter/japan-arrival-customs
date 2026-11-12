@@ -43,6 +43,19 @@ class CalculationTests(unittest.TestCase):
         self.assertEqual({x['pieces_per_box']for x in m.packaging('整盒10枚入，整盒12枚入',identity_scoped=True)},{10,12})
     def test_layer_and_direct_conflict_both_retained(self):
         self.assertEqual({x['pieces_per_box']for x in m.packaging('1包3枚，1盒12包，整盒10枚',identity_scoped=True)},{10,36})
+    def test_real_121_458_mixed_types(self):
+        for text,c in [('吧唧收藏卡整盒10枚入，挂件整盒5枚入',10),('吧唧整盒8枚入，卡片整盒10枚入',8)]:
+            self.assertEqual([x['pieces_per_box']for x in m.packaging(text,identity_scoped=True,product_kind='吧唧')],[c])
+    def test_real_237_238_shared_code_A_B(self):
+        for spec,c in [('A整盒18',7),('B整盒11',6)]:
+            self.assertEqual([x['pieces_per_box']for x in m.packaging('A整盒7个入，B整盒6个入',identity_scoped=True,product_spec=spec)],[c])
+    def test_real_670_671_volume_selection(self):
+        for spec,c in [('Vol.1整盒47',12),('Vol.2整盒11',15)]:
+            self.assertEqual([x['pieces_per_box']for x in m.packaging('vol1整盒12枚入，vol2整盒15枚入',identity_scoped=True,product_spec=spec)],[c])
+    def test_missing_volume_does_not_adopt(self):
+        self.assertEqual(m.packaging('vol1整盒12枚入，vol2整盒15枚入',identity_scoped=True),[])
+    def test_real_773_only_sticker_layers(self):
+        self.assertEqual([x['pieces_per_box']for x in m.packaging('挂件整盒8个入；贴纸整盒12包，每包2枚入',identity_scoped=True,product_kind='贴纸')],[24])
     def test_fractional_boxes_not_rounded(self):
         f=self.fact();f.update(total_pieces=183,reference_boxes=None)
         r=m.calculate(f);self.assertEqual(r['values'][3],F(61,12));self.assertIn('总单个数不能整除固定盒规',r['errors'])

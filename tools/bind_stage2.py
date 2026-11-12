@@ -10,9 +10,9 @@ from functools import lru_cache
 from freeze_unified import sha,save
 REPO=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(REPO/'business-interaction/interaction'))
-from stage2_math import POLICY,packaging,unique_match,norm,number
+from stage2_math import POLICY,PRODUCT_KINDS,packaging,unique_match,norm,number
 
-KINDS=['吧唧','透卡','贴纸','明信片','立牌','拍立得','相卡']
+KINDS=PRODUCT_KINDS
 def kind(spec,name):
     for text in [spec,name]:
         found=[k for k in KINDS if k in str(text or '')]
@@ -43,7 +43,7 @@ def card_candidates(db,identity):
         names=[norm(e.get('internal_name')) for e in entries if e.get('internal_name')]
         cardname=norm(card.get('商品名称'))
         if not cardname or not any(n==cardname for n in names):continue
-        for candidate in packaging(text,identity_scoped=True,product_kind=selected_kind):
+        for candidate in packaging(text,identity_scoped=True,product_kind=selected_kind,product_spec=identity['spec']):
             result.append({**candidate,'source_sha256':source,'source_row':row,'source_version':context['source'],
                            'database_sha256':identity['database_sha256'],'identity':identity,'text':text})
     return result

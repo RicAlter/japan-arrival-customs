@@ -4,6 +4,7 @@ import re
 import unicodedata
 
 POLICY = 'fixed-sku-packaging/20261112'
+PRODUCT_KINDS=['吧唧','透卡','贴纸','明信片','立牌','拍立得','相卡','挂件','卡片','收藏卡','亚克力']
 HEADERS = ['每包单个数','每盒包数','每盒单个数','本行盒数','每原Qty单个数','每盒原Qty数',
            '未取整单个价JPY','取整后金额JPY','取整差额JPY','关税率参考','增值税率参考',
            '每原Qty关税JPY','每原Qty增值税JPY','每盒税金JPY','本行税金JPY','采购数量核对','计算状态','异常说明']
@@ -35,19 +36,21 @@ def unique_match(targets, sources):
         used.add(found[0]['source_row']); matches.append((row, found[0]))
     return matches
 
-def packaging(text, *, identity_scoped=False, product_kind=None):
+def packaging(text, *, identity_scoped=False, product_kind=None, product_spec=None):
     """Return all distinct explicit candidates; caller must retain source/identity."""
     text = unicodedata.normalize('NFKC', str(text or ''))
     found = []
     # Separate labelled alternatives, retaining adjacent packet/box descriptions.
     for clause in re.split('[;；]', text):
-        labels = ['吧唧','透卡','贴纸','明信片','立牌','拍立得','相卡']
+        labels = PRODUCT_KINDS
         present = [k for k in labels if k in clause]
-        if len(present) > 1:
-            parts = re.split(r'[,，、](?=(?:吧唧|透卡|贴纸|明信片|立牌|拍立得|相卡))',clause)
-        else:
-            parts = [clause]
+        parts = re.split(r'[,，、](?=(?:'+ '|'.join(labels)+r'|[A-Z]整盒|vol\.?\s*\d+整盒))',clause,flags=re.I)
         for part in parts:
+            version=re.match(r'\s*(vol\.?\s*\d+|[A-Z])整盒',part,re.I)
+            if version:
+                selected=re.sub(r'[.\s]','',norm(product_spec)).lower()
+                prefix=re.sub(r'[.\s]','',version[1]).lower()+'整盒'
+                if not selected.startswith(prefix):continue
             labelled = [k for k in labels if k in part]
             if labelled:
                 if product_kind not in labelled:
