@@ -39,7 +39,7 @@ def confirmation_attention(facts,rows):
         if row['rounded_price'] is None:result['I'+str(row['row'])]='red'
     return result
 
-def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None,results_only=False):
+def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None,results_only=False,factor_column=False):
     """Keep old cells/styles/cache, pictures and weight members intact."""
     with zipfile.ZipFile(authored) as z:
         xml=z.read(MEMBER).replace(b'<x:',b'<').replace(b'</x:',b'</')
@@ -104,11 +104,12 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
         if n==1 or n in changed:
             def replace(c):
                 a=address(c[0])
+                if factor_column and a=='I1':return newcell('I1')
                 if n in changed and a in {'I'+str(n),'K'+str(n)}:
                     replacement=new[a];inner=re.search(rb'<c\b[^>]*>(.*)</c>',replacement,re.S)[1]
                     # Preserve exact original XML for numerically unchanged I/K.
                     before=re.search(rb'<v>([^<]+)</v>',c[0]);after=re.search(rb'<v>([^<]+)</v>',replacement)
-                    if before and after and number(before[1].decode())==number(after[1].decode()):return c[0]
+                    if not(factor_column and a.startswith('I')) and before and after and number(before[1].decode())==number(after[1].decode()):return c[0]
                     attrs=re.search(rb'<c\b([^>]*?)(?:/?>)',c[0])[1];attrs=re.sub(rb'\s+t="[^"]*"',b'',attrs)
                     return b'<c'+attrs+b'>'+inner+b'</c>'
                 return c[0]
@@ -186,14 +187,15 @@ class CalculationView:
                 for r in grouped:r['values'][15]='本批同SKU合计'+str(boxes)+'盒；'+r['values'][15]
         identity=hashlib.sha256(json.dumps({'binding':digest(self.path),'revision':revision,'totals':totals,'extra_errors':extra_errors},sort_keys=True).encode()).hexdigest()
         folder=self.background/identity;folder.mkdir(exist_ok=True)
-        plan={'rows':rows,'headers':HEADERS,'layout':self.binding.get('layout','detailed39'),'draft_file':str(folder/'cells.xlsx'),
+        plan={'rows':rows,'headers':HEADERS,'layout':self.binding.get('layout','detailed39'),'i_role':self.binding.get('i_role','price'),'draft_file':str(folder/'cells.xlsx'),
               'artifact_node_modules':str(Path(self.config['node']).parent.parent/'node_modules')}
         save(folder/'plan.json',plan)
         authored=subprocess.run([self.config['node'],str(Path(__file__).parents[1]/'stage2-author.mjs'),str(folder/'plan.json')],capture_output=True,text=True,encoding='utf-8')
         if authored.returncode:raise Rejected('计算表生成失败：'+authored.stderr[-2500:])
         compact=self.binding.get('layout')=='confirmation21'
         results_only=self.binding.get('layout')=='results26'
-        file=folder/(self.config['batch_label']+('_计算结果确认表.xlsx'if results_only else '_计算确认表.xlsx'if compact else '_第二阶段计算审核.xlsx'))
+        factor_column=self.binding.get('i_role')=='factor'
+        file=folder/(self.config['batch_label']+('_倍数计算确认表.xlsx'if factor_column else '_计算结果确认表.xlsx'if results_only else '_计算确认表.xlsx'if compact else '_第二阶段计算审核.xlsx'))
         attention=confirmation_attention(self.binding['rows'],rows)if compact or results_only else {}
         if results_only:
             for row in rows:
@@ -201,7 +203,7 @@ class CalculationView:
                 if attention.get('U'+n):
                     attention['V'+n]=attention['U'+n];attention['Y'+n]=attention['U'+n]
                 if any('税率' in e for e in row['errors']):attention['Y'+n]='yellow';attention['Z'+n]='yellow'
-        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention,results_only=results_only)
+        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention,results_only=results_only,factor_column=factor_column)
         counts=Counter(r['values'][-2]for r in rows)
         state={'schema':'stage2-calculation-state/2','policy':POLICY,'binding_sha256':digest(self.path),'base_head':self.binding['base_head'],
                'revision':revision,'view_hash':identity,'file':str(file),'sha256':digest(file),'totals':totals,

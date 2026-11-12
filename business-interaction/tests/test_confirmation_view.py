@@ -55,3 +55,12 @@ class ConfirmationViewTests(unittest.TestCase):
         xf=styles.find(Q+'cellXfs')[int(c.get('s'))];fill=styles.find(Q+'fills')[int(xf.get('fillId'))]
         self.assertEqual(fill.find(Q+'patternFill/'+Q+'fgColor').get('rgb'),'FFFCE4D6')
         self.assertFalse(any(c.get('r','').startswith(('AA','AB','AM'))for c in s.iter(Q+'c')))
+    def test_factor_column_replaces_price_formula_and_header(self):
+        with zipfile.ZipFile(self.source)as z:parts={n:z.read(n)for n in z.namelist()}
+        parts['xl/worksheets/sheet1.xml']=parts['xl/worksheets/sheet1.xml'].replace(b'<row r="1">',b'<row r="1"><c r="I1" t="str"><v>old price header</v></c>')
+        with zipfile.ZipFile(self.source,'w')as z:
+            for n,b in parts.items():z.writestr(n,b)
+        with zipfile.ZipFile(self.authored,'w')as z:z.writestr('xl/worksheets/sheet1.xml','<worksheet><sheetData><row r="1"><c r="I1" t="str"><v>倍数</v></c></row><row r="2"><c r="I2"><f>K2/L2</f><v>100</v></c><c r="K2"><v>40</v></c></row></sheetData></worksheet>')
+        s=self.build(results_only=True,factor_column=True)
+        self.assertEqual(s.find('.//'+Q+'c[@r="I1"]/'+Q+'v').text,'倍数')
+        self.assertEqual(s.find('.//'+Q+'c[@r="I2"]/'+Q+'f').text,'K2/L2')

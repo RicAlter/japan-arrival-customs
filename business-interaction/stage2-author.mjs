@@ -7,14 +7,15 @@ const require=createRequire(path.join(p.artifact_node_modules,'..','stage2-runti
 const {Workbook,SpreadsheetFile}=await import(pathToFileURL(require.resolve('@oai/artifact-tool')).href);
 const w=Workbook.create(),s=w.worksheets.add('invoice (計算)');
 if(p.layout==='results26'){
+ if(p.i_role==='factor')s.getRange('I1').values=[['倍数']];
  s.getRange('V1:Z1').values=[['本行盒数','取整后金额JPY','取整差额JPY','每盒税金JPY','本行税金JPY']];
  for(const r of p.rows){
   const n=r.row,v=r.values;
   s.getRange(`K${n}:N${n}`).values=[[r.total_pieces,Number(r.quantity),Number(r.price),Number(r.amount)]];
-  if(r.rounded_price!==null)s.getRange(`I${n}`).formulas=[[`=ROUND(M${n}/(K${n}/L${n}),0)`]];
+  if(r.rounded_price!==null)s.getRange(`I${n}`).formulas=[[p.i_role==='factor'?`=K${n}/L${n}`:`=ROUND(M${n}/(K${n}/L${n}),0)`]];
   s.getRange(`V${n}:Z${n}`).values=[[v[3],v[7],v[8],v[13],v[14]]];
   if(v[2]!==null&&v[3]!==null)s.getRange(`V${n}`).formulas=[[`=K${n}/${v[2]}`]];
-  if(v[7]!==null)s.getRange(`W${n}`).formulas=[[`=I${n}*K${n}`]];
+  if(v[7]!==null)s.getRange(`W${n}`).formulas=[[p.i_role==='factor'?`=ROUND(M${n}/I${n},0)*K${n}`:`=I${n}*K${n}`]];
   if(v[8]!==null)s.getRange(`X${n}`).formulas=[[`=W${n}-N${n}`]];
   const tax=`M${n}*(${v[9]}+(1+${v[9]})*${v[10]})`;
   if(v[13]!==null)s.getRange(`Y${n}`).formulas=[[`=${tax}*L${n}/V${n}`]];

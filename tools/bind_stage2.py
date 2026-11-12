@@ -54,7 +54,8 @@ def sheet(file,formulas=False):
     try:return w.worksheets[0].title,list(w.worksheets[0].values)
     finally:w.close()
 
-def bind(manifest_file,output,*,display_layout='detailed39'):
+def bind(manifest_file,output,*,display_layout='detailed39',i_role='price'):
+    if i_role=='factor'and display_layout!='results26':raise ValueError('倍数I列须使用保留必要结果的results26布局')
     m=json.loads(Path(manifest_file).read_text('utf8'));out=Path(output).resolve()
     if out.exists():raise ValueError('新计算副本目录已存在，禁止覆盖')
     for file,expected in m['files'].items():
@@ -113,7 +114,7 @@ def bind(manifest_file,output,*,display_layout='detailed39'):
     original=out/'original-21-columns.xlsx';shutil.copyfile(m['workbook'],original)
     code={str(REPO/p):sha(REPO/p) for p in ['business-interaction/interaction/stage2_math.py','business-interaction/interaction/calculation_view.py','business-interaction/stage2-author.mjs','tools/bind_stage2.py']}
     binding={'schema':'business-calculation-view/2','policy':POLICY,'base_head':layout['head'],'rows':rows,'sheet':title,
-             'layout':display_layout,
+             'layout':display_layout,'i_role':i_role,
              'original_workbook':str(original),'sources':{**m['files'],str(original):sha(original),dbfile:sha(dbfile),
               config['quantity_review']['path']:sha(config['quantity_review']['path'])},'code':code,'manifest_sha256':sha(manifest_file)}
     save(out/'binding.json',binding);config['calculation_view_binding']=str(out/'binding.json');config['calculation_view_binding_sha256']=sha(out/'binding.json')
@@ -124,5 +125,5 @@ def bind(manifest_file,output,*,display_layout='detailed39'):
     save(out/'binding-report.json',report);return report
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);p.add_argument('--layout',choices=['detailed39','confirmation21','results26'],default='detailed39');a=p.parse_args()
-    print(json.dumps(bind(a.manifest,a.output,display_layout=a.layout),ensure_ascii=False))
+    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);p.add_argument('--layout',choices=['detailed39','confirmation21','results26'],default='detailed39');p.add_argument('--i-role',choices=['price','factor'],default='price');a=p.parse_args()
+    print(json.dumps(bind(a.manifest,a.output,display_layout=a.layout,i_role=a.i_role),ensure_ascii=False))
