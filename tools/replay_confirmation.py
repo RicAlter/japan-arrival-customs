@@ -3,12 +3,13 @@ from pathlib import Path
 import argparse,json,subprocess,sys,zipfile,xml.etree.ElementTree as ET
 from fractions import Fraction
 from bind_stage2 import bind
+from stage2_math import calculate
 from freeze_unified import save,sha
 REPO=Path(__file__).resolve().parents[1]
 Q='{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 
-def replay(manifest,output,candidate):
-    out=Path(output);bound=bind(manifest,out,display_layout='confirmation21');config=bound['session'];records=[]
+def replay(manifest,output,candidate,layout='confirmation21'):
+    out=Path(output);bound=bind(manifest,out,display_layout=layout);config=bound['session'];records=[]
     def check(name,value):
         records.append(dict(test=name,status='passed'if value else'failed'))
         if not value:raise AssertionError(name)
@@ -20,7 +21,16 @@ def replay(manifest,output,candidate):
     r=action(1,{'action':'start'});issued=r['file'];binding=json.loads((out/'binding.json').read_text('utf8'))
     from openpyxl import load_workbook
     w=load_workbook(issued,read_only=True,data_only=True);values=list(w.worksheets[0].values);names=w.sheetnames;w.close()
-    check('only21 original columns; no extra calculation/reason sheet',len(values[0])==21 and names==['invoice (計算)','重さとサイズ (2)'])
+    columns=26 if layout=='results26'else 21
+    check('requested columns; no calculation-detail/reason sheet',len(values[0])==columns and names==['invoice (計算)','重さとサイズ (2)'])
+    if layout=='results26':
+        check('five necessary result columns retained',values[0][21:26]==('本行盒数','取整后金额JPY','取整差额JPY','每盒税金JPY','本行税金JPY'))
+        matches=True
+        for fact in binding['rows']:
+            expected=[calculate(fact)['values'][i]for i in [3,7,8,13,14]];actual=values[fact['source_row']-1][21:26]
+            matches=matches and all(a is None if e is None else a is not None and abs(float(e)-a)<1e-7 for a,e in zip(actual,expected))
+        check('all1967 five-result caches match exact backend calculations',matches)
+        check('1010 retains5 boxes/315.12 box tax/1575.6 row tax',values[1009][21]==5 and values[1009][24]==315.12 and abs(values[1009][25]-1575.6)<1e-7)
     check('1967 source K multipliers match s/q and I calculation',all(Fraction(str(f['unit_factor_reference']['value']))==Fraction(str(f['total_pieces']))/Fraction(str(f['quantity'])) and values[f['source_row']-1][8]==int(Fraction(str(f['price']))/Fraction(str(f['unit_factor_reference']['value']))+Fraction(1,2)) for f in binding['rows']))
     check('original quantities, prices and amounts preserved',all(values[f['source_row']-1][11:14]==(f['quantity'],f['price'],f['amount'])for f in binding['rows']))
     check('total pieces104148 and ROUND0 difference216 preserved',sum(v[10]for v in values[1:1968])==104148 and sum(v[8]*v[10]-v[13]for v in values[1:1968])==216)
@@ -39,7 +49,7 @@ def replay(manifest,output,candidate):
     first=action(3,{'action':'upload','file':issued,'reference':'TECHNICAL compact view return; not operator approval'});again=action(4,{'action':'upload','file':issued,'reference':'TECHNICAL same compact attachment retry'})
     check('compact save/readback/idempotency',first['saved']and again['receipt_replayed']and first['revision']==again['revision'])
     runtime=json.loads((REPO.parent/'skill/runtime.json').read_text('utf8'));runtime['session']=config;save(out/'runtime.json',runtime)
-    report=dict(candidate=candidate,passed=len(records),failed=0,not_executed=0,records=records,file=first['business_files'][0],sha256=sha(first['business_files'][0]),session=config,runtime=str(out/'runtime.json'),rows=1967,columns=21,unit_factor_matches=1967,attention=dict(red=sum(c=='FFFCE4D6'for c in colors.values()),yellow=sum(c=='FFFFF2CC'for c in colors.values())),formal_output=False,operator_approval=False)
+    report=dict(candidate=candidate,passed=len(records),failed=0,not_executed=0,records=records,file=first['business_files'][0],sha256=sha(first['business_files'][0]),session=config,runtime=str(out/'runtime.json'),rows=1967,columns=columns,unit_factor_matches=1967,attention=dict(red=sum(c=='FFFCE4D6'for c in colors.values()),yellow=sum(c=='FFFFF2CC'for c in colors.values())),formal_output=False,operator_approval=False)
     save(out/'verification.json',report);return report
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);p.add_argument('--candidate',required=True);a=p.parse_args();r=replay(a.manifest,a.output,a.candidate);print(json.dumps({k:v for k,v in r.items()if k!='records'},ensure_ascii=False))
+    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);p.add_argument('--candidate',required=True);p.add_argument('--layout',choices=['confirmation21','results26'],default='confirmation21');a=p.parse_args();r=replay(a.manifest,a.output,a.candidate,a.layout);print(json.dumps({k:v for k,v in r.items()if k!='records'},ensure_ascii=False))

@@ -38,3 +38,20 @@ class ConfirmationViewTests(unittest.TestCase):
         facts=[{'identity':{'spec':s}}for s in ['本体','整盒17','整盒']]
         rows=[dict(row=n,errors=['缺独立盒规，参考盒数待核']if n<4 else ['推导盒数与参考盒数冲突'],rounded_price=10)for n in [2,3,4]]
         self.assertEqual(confirmation_attention(facts,rows),{'U3':'yellow','U4':'red'})
+    def result_fixture(self):
+        with zipfile.ZipFile(self.authored,'w')as z:
+            z.writestr('xl/worksheets/sheet1.xml','<worksheet><sheetData><row r="1"><c r="V1" t="str"><v>boxes</v></c><c r="Z1" t="str"><v>row tax</v></c></row><row r="2"><c r="I2"><v>50</v></c><c r="K2"><v>40</v></c><c r="V2"><v>4</v></c><c r="W2"><f>I2*K2</f><v>2000</v></c><c r="X2"><v>0</v></c><c r="Z2"><v>260</v></c></row></sheetData></worksheet>')
+    def test_results_layout_keeps_boxes_amount_and_tax_columns(self):
+        self.result_fixture();s=self.build(results_only=True)
+        self.assertEqual(s.find(Q+'dimension').get('ref'),'A1:Z3')
+        self.assertEqual(s.find('.//'+Q+'c[@r="V2"]/'+Q+'v').text,'4')
+        self.assertEqual(s.find('.//'+Q+'c[@r="Z2"]/'+Q+'v').text,'260')
+        self.assertEqual(s.find('.//'+Q+'c[@r="W2"]/'+Q+'f').text,'I2*K2')
+        self.assertEqual(len(s.find(Q+'cols')),6)
+    def test_unavailable_tax_is_blank_red_without_explanation(self):
+        self.result_fixture();s=self.build(results_only=True,attention={'V2':'red','Y2':'red'})
+        c=s.find('.//'+Q+'c[@r="Y2"]');self.assertIsNotNone(c);self.assertIsNone(c.find(Q+'v'))
+        with zipfile.ZipFile(self.out)as z:styles=ET.fromstring(z.read('xl/styles.xml'))
+        xf=styles.find(Q+'cellXfs')[int(c.get('s'))];fill=styles.find(Q+'fills')[int(xf.get('fillId'))]
+        self.assertEqual(fill.find(Q+'patternFill/'+Q+'fgColor').get('rgb'),'FFFCE4D6')
+        self.assertFalse(any(c.get('r','').startswith(('AA','AB','AM'))for c in s.iter(Q+'c')))

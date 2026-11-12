@@ -124,5 +124,5 @@ def bind(manifest_file,output,*,display_layout='detailed39'):
     save(out/'binding-report.json',report);return report
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);p.add_argument('--layout',choices=['detailed39','confirmation21'],default='detailed39');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--output',required=True);p.add_argument('--layout',choices=['detailed39','confirmation21','results26'],default='detailed39');a=p.parse_args()
     print(json.dumps(bind(a.manifest,a.output,display_layout=a.layout),ensure_ascii=False))

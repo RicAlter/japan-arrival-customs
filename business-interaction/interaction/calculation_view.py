@@ -39,7 +39,7 @@ def confirmation_attention(facts,rows):
         if row['rounded_price'] is None:result['I'+str(row['row'])]='red'
     return result
 
-def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None):
+def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None,results_only=False):
     """Keep old cells/styles/cache, pictures and weight members intact."""
     with zipfile.ZipFile(authored) as z:
         xml=z.read(MEMBER).replace(b'<x:',b'<').replace(b'</x:',b'</')
@@ -74,23 +74,24 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
         return block.replace(b'</cellXfs>',appended+b'</cellXfs>')
     parts['xl/styles.xml']=re.sub(rb'<cellXfs\b.*?</cellXfs>',extend,styles,flags=re.S)
     attention=attention or {};attention_styles={}
-    if compact and attention:
+    if (compact or results_only) and attention:
         root=ET.fromstring(parts['xl/styles.xml']);fills=root.find(Q+'fills');fill_start=len(fills)
         additions=b''.join(('<fill><patternFill patternType="solid"><fgColor rgb="%s"/><bgColor indexed="64"/></patternFill></fill>'%color).encode() for color in ['FFFFF2CC','FFFCE4D6'])
         parts['xl/styles.xml']=re.sub(rb'<fills\b.*?</fills>',lambda m:re.sub(rb'count="\d+"',('count="%d"'%(fill_start+2)).encode(),m[0],count=1).replace(b'</fills>',additions+b'</fills>'),parts['xl/styles.xml'],flags=re.S)
         extra_styles=[];keys={}
         for addr,color in attention.items():
-            if addr not in old:continue
-            original_style=re.search(rb'\bs="(\d+)"',old[addr]);sid=int(original_style[1])if original_style else 0
-            k=(sid,color)
+            result_cell=results_only and re.fullmatch(r'(V|W|X|Y|Z)\d+',addr)
+            if addr not in old and not result_cell:continue
+            original_style=re.search(rb'\bs="(\d+)"',old.get(addr,b''));sid=int(original_style[1])if original_style else 0
+            k=('result'if result_cell else sid,color)
             if k not in keys:
-                x=copy.deepcopy(xf[sid]);x.set('fillId',str(fill_start+int(color=='red')));x.set('applyFill','1')
+                x=copy.deepcopy(base if result_cell else xf[sid]);x.set('fillId',str(fill_start+int(color=='red')));x.set('applyFill','1')
                 keys[k]=index+2+len(extra_styles)
                 extra_styles.append(ET.tostring(x,encoding='utf-8').replace(b'ns0:',b'').replace(b':ns0',b''))
             attention_styles[addr]=keys[k]
         parts['xl/styles.xml']=re.sub(rb'<cellXfs\b.*?</cellXfs>',lambda m:re.sub(rb'count="\d+"',('count="%d"'%(index+2+len(extra_styles))).encode(),m[0],count=1).replace(b'</cellXfs>',b''.join(extra_styles)+b'</cellXfs>'),parts['xl/styles.xml'],flags=re.S)
     def newcell(a):
-        c=new[a];style=header_style if a.endswith('1') and not re.search(r'\d',a[:-1]) else body_style
+        c=new.get(a,('<c r="'+a+'"/>').encode());style=header_style if a.endswith('1') and not re.search(r'\d',a[:-1]) else body_style
         # Header row is addressed explicitly, not by a string suffix (row11 etc).
         style=header_style if re.sub(r'\D','',a)=='1' else body_style
         c=re.sub(rb'\s+s="[^"]*"',b'',c)
@@ -112,7 +113,8 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
                     return b'<c'+attrs+b'>'+inner+b'</c>'
                 return c[0]
             rr=CELL.sub(replace,rr)
-            extras=b'' if compact else b''.join(newcell(col(i)+str(n)) for i in range(22,40) if col(i)+str(n) in new)
+            end=27 if results_only else 40
+            extras=b'' if compact and not results_only else b''.join(newcell(col(i)+str(n)) for i in range(22,end) if col(i)+str(n) in new or col(i)+str(n) in attention_styles)
             rr=rr.replace(b'</row>',extras+b'</row>')
         return rr
     raw=re.sub(rb'<row\b[^>]*>.*?</row>',row,raw,flags=re.S)
@@ -125,10 +127,10 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
         raw=CELL.sub(recolor,raw)
     dim=re.search(rb'<dimension\b[^>]*\bref="([^"]+)"',raw)
     last=max(max(changed),int(re.search(rb'(\d+)$',dim[1])[1]) if dim else 1)
-    raw=re.sub(rb'(<dimension\b[^>]*\bref=")[^"]+("[^>]*/>)',rb'\g<1>A1:'+ (b'U'if compact else b'AM')+str(last).encode()+rb'\g<2>',raw)
+    raw=re.sub(rb'(<dimension\b[^>]*\bref=")[^"]+("[^>]*/>)',rb'\g<1>A1:'+ (b'Z'if results_only else b'U'if compact else b'AM')+str(last).encode()+rb'\g<2>',raw)
     # Append only new column widths. Preserve original A:U definitions exactly.
-    extra=b''.join(('<col min="%d" max="%d" width="%s" customWidth="1"/>'%(i,i,44 if i==39 else 30 if i in {37,38} else 18)).encode() for i in range(22,40))
-    if not compact:
+    extra=b''.join(('<col min="%d" max="%d" width="%s" customWidth="1"/>'%(i,i,22 if results_only else 44 if i==39 else 30 if i in {37,38} else 18)).encode() for i in range(22,27 if results_only else 40))
+    if not compact or results_only:
         if b'</cols>' in raw:raw=raw.replace(b'</cols>',extra+b'</cols>')
         else:raw=raw.replace(b'<sheetData>',b'<cols>'+extra+b'</cols><sheetData>')
     parts[MEMBER]=raw
@@ -184,15 +186,22 @@ class CalculationView:
                 for r in grouped:r['values'][15]='本批同SKU合计'+str(boxes)+'盒；'+r['values'][15]
         identity=hashlib.sha256(json.dumps({'binding':digest(self.path),'revision':revision,'totals':totals,'extra_errors':extra_errors},sort_keys=True).encode()).hexdigest()
         folder=self.background/identity;folder.mkdir(exist_ok=True)
-        plan={'rows':rows,'headers':HEADERS,'draft_file':str(folder/'cells.xlsx'),
+        plan={'rows':rows,'headers':HEADERS,'layout':self.binding.get('layout','detailed39'),'draft_file':str(folder/'cells.xlsx'),
               'artifact_node_modules':str(Path(self.config['node']).parent.parent/'node_modules')}
         save(folder/'plan.json',plan)
         authored=subprocess.run([self.config['node'],str(Path(__file__).parents[1]/'stage2-author.mjs'),str(folder/'plan.json')],capture_output=True,text=True,encoding='utf-8')
         if authored.returncode:raise Rejected('计算表生成失败：'+authored.stderr[-2500:])
         compact=self.binding.get('layout')=='confirmation21'
-        file=folder/(self.config['batch_label']+('_计算确认表.xlsx'if compact else '_第二阶段计算审核.xlsx'))
-        attention=confirmation_attention(self.binding['rows'],rows)if compact else {}
-        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention)
+        results_only=self.binding.get('layout')=='results26'
+        file=folder/(self.config['batch_label']+('_计算结果确认表.xlsx'if results_only else '_计算确认表.xlsx'if compact else '_第二阶段计算审核.xlsx'))
+        attention=confirmation_attention(self.binding['rows'],rows)if compact or results_only else {}
+        if results_only:
+            for row in rows:
+                n=str(row['row'])
+                if attention.get('U'+n):
+                    attention['V'+n]=attention['U'+n];attention['Y'+n]=attention['U'+n]
+                if any('税率' in e for e in row['errors']):attention['Y'+n]='yellow';attention['Z'+n]='yellow'
+        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention,results_only=results_only)
         counts=Counter(r['values'][-2]for r in rows)
         state={'schema':'stage2-calculation-state/2','policy':POLICY,'binding_sha256':digest(self.path),'base_head':self.binding['base_head'],
                'revision':revision,'view_hash':identity,'file':str(file),'sha256':digest(file),'totals':totals,
@@ -209,7 +218,7 @@ class CalculationView:
         public=self.service._publish(state['file'],Path(state['file']).name)
         result={**state,'stage':'calculation','head':state['base_head'],'business_files':[public],
                 'confirmation_required':False,'message':'第二阶段计算审核表；回传校验后保存，异常集中列示；完整业务门禁及正式外发仍独立。',**extra}
-        if self.binding.get('layout')=='confirmation21':result['message']='请按第一阶段的颜色标记核对并回传本表；校验后保存。'
+        if self.binding.get('layout')in {'confirmation21','results26'}:result['message']='请核对计算结果及颜色标记后回传；校验后保存。'
         save(self.service.background/'current-stage2-delivery.json',result)
         return result
     def preview(self,file):
