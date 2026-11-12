@@ -9,6 +9,7 @@ from collections import defaultdict
 from functools import lru_cache
 from freeze_unified import sha,save
 REPO=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(REPO/'business-interaction'))
 sys.path.insert(0,str(REPO/'business-interaction/interaction'))
 from stage2_math import POLICY,PRODUCT_KINDS,product_kinds,packaging,unique_match,norm,number
 
