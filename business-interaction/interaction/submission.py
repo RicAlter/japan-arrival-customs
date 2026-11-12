@@ -12,7 +12,13 @@ from . import calculation_context  # Add immutable original facts and sourced ta
 POLICY='stage-return-is-submission/20261111'
 
 class Service(Legacy):
+    def stage2(self,request):
+        from .calculation_view import CalculationView
+        return CalculationView(self).operate(request)
+
     def deliver(self):
+        if self.config.get('calculation_view_binding'):
+            return self.stage2({'action':'current'})
         pointer=self.background/'current-review-submission.json'
         if pointer.exists():
             r=load(pointer)
@@ -27,6 +33,8 @@ class Service(Legacy):
         return r
 
     def upload(self,file,*,kind=None,reference,**kwargs):
+        if self.config.get('calculation_view_binding'):
+            return self.stage2({'action':'upload','file':file,'reference':reference,**kwargs})
         if not str(reference or '').strip():raise Rejected('回传必须保留提交来源')
         source=Path(file).resolve(strict=True);sha=digest(source)
         context=key({k:v for k,v in kwargs.items() if k in {'purchase_evidence','selection','price_basis_reference'}})

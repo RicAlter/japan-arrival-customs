@@ -1,0 +1,27 @@
+# 第二阶段：固定SKU盒规计算审核表
+
+仅对配置calculation_view_binding的新版本采用fixed-sku-packaging/20261112策略。阶段目标是一份保留原A:U、追加V:AM计算业务列的审核表，承接已保存第一阶段，不重新prepare或要求常规二次确认。旧native_view_binding和人工盒规策略不变。
+
+1. 固定实际来源SHA和上游head；按箱号、商品码、产地、日文名、原Qty、日方价、原金额唯一匹配。重复或多义拒绝，不按JAN取第一条。
+2. 盒规只能从当前SKU/YD/规格及版本有依据的商品卡选取。1包3枚、整盒12包为36枚/盒；整盒10枚可直接采用，不默认一包或一件。本体、款式数、规格尾数和价格比不能作盒规。同YD混合品只取相应品种，有冲突不采用。
+3. q=原Qty、u=日方原价、s=逐行总单个数、c=每盒单个数。b=s/c为盒数；s/q、q/b与c分别记录。非整盒不取整，冲突列异常。有明确参考盒数但缺独立盒规时可保留参考盒数，标记盒规待核，不倒推批准c。
+4. 单个价u/(s/q)，只对整数日元展示价ROUND0。原金额q*u保留，整数价乘s的差单列。采购价缺失不阻断可独立完成的单个价算术。
+5. 税率须有给定来源，0有效，缺失不是0。单位关税u*r，单位增值税u*(1+r)*v；每盒税乘q/b，整行税乘q。不得先取整单个价再改税基，或将每盒税直接当整行税。专业税率批准和正式外发保持原门禁。
+6. 采购总量是独立核对，不替代分箱数量；同来源重复观察不相加，“数量17/砍单3”不无依据再次减3。
+7. 回传仅接收合格总单个数，服务端重算并归档原件、差异、合格范围和异常；公式不受客户端缓存支配。原数据保护、CAS、幂等、源SHA及上游身份变化失效均需验证。基础字段改动先交既有基础资料同步链，旧绑定不能继续计算。
+
+1010/790行：180/36=5盒、432/36=12盒，合计17盒；每盒12包、每包3枚为两个层级。每盒参考税金315.12JPY采用202JPY/包原价基数，不能改为67JPY/枚先取整后的313.56JPY。
+
+印证：stage2_math.py的唯一匹配/盒规解析/精确calculate；calculation_view.py的版本、来源和回传保护；test_stage2_calculation.py及真实主入口回放证据。技术自回传不等于运营验收，不自动修改旧session或交付最终双表。
+
+| SOP条款 | 程序校验 | 测试与真实证据 |
+| --- | --- | --- |
+| 1 完整商品/分箱唯一匹配 | stage2_math.unique_match；bind_stage2.bind | duplicate_full_keys、two_targets_cannot_reuse_source；replay_stage2全批1967行及84行修正 |
+| 2 SKU/来源版本及混合卡 | bind_stage2.card_candidates；stage2_math.packaging | IdentityScopeTests六例、mixed_yd_specific_kind；125/759/834商品卡原行 |
+| 3 固定盒规、精确候选、不取整 | stage2_math.calculate使用Fraction | fractional_boxes、conflict_retained、reference_conflict；1010/790共17盒；73组146行 |
+| 4 原价与ROUND0差额 | calculate；stage2-author公式重算比对 | no_procurement_price_required；真实104148枚/50083400JPY/差216JPY |
+| 5 税基、零及缺税率 | calculate按u算税；作者公式AE:AJ | zero_duty、missing_duty；1010每盒315.12JPY |
+| 6 采购独立不二次减取消 | bind_stage2保留采购观察不折算；publish独立汇总盒数 | procurement_not_used_to_force_total；790/1010显示采购观察17/砍单3与本批17盒，仍待单位/范围确认 |
+| 7 版本、保全、回传、保存 | CalculationView.validate/preview/publish/operate | replay_stage2实际run.py保存、回读、幂等、旧版/CAS拒绝、基础变化及源SHA漂移；既有21列回归 |
+
+宿主接入：tools/bind_stage2.py仅把SHA锁定的私有输入和已保存session复制到新目录；新配置绑定calculation_view_binding及其SHA。业务入口始终为run.py → submission.Service.stage2 → CalculationView。后台保存精确分数、来源坐标/版本、异常、不可变发出件、回传原件及提交回执。日常只交付39列当前文件。K总单个数是本阶段可编辑输入；基础资料变化先同步基础链并重新绑定。
