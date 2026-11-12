@@ -12,6 +12,11 @@ from . import calculation_context  # Add immutable original facts and sourced ta
 POLICY='stage-return-is-submission/20261111'
 
 class Service(Legacy):
+    def confirm(self,*args,**kwargs):
+        if self.config.get('calculation_view_binding'):
+            raise Rejected('第二阶段审核表不代表完整业务批准；须完成后续独立门禁')
+        return super().confirm(*args,**kwargs)
+
     def stage2(self,request):
         from .calculation_view import CalculationView
         return CalculationView(self).operate(request)

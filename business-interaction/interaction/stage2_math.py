@@ -54,14 +54,16 @@ def packaging(text, *, identity_scoped=False, product_kind=None):
                     continue
             elif not identity_scoped:
                 continue
-            inner = re.search(r'(?:1|每)包\s*(\d+)\s*(?:枚|张|个|件)',part)
-            outer = re.search(r'(?:1盒|每盒|整盒)\s*(\d+)\s*包',part)
-            direct = re.search(r'(?:1盒|每盒|整盒)\s*(\d+)\s*(?:枚|张|个|件)(?:入)?',part)
+            inner = re.findall(r'(?:1|每)包\s*(\d+)\s*(?:枚|张|个|件)',part)
+            outer = re.findall(r'(?:1盒|每盒|整盒)\s*(\d+)\s*包',part)
+            direct = re.findall(r'(?:1盒|每盒|整盒)\s*(\d+)\s*(?:枚|张|个|件)(?:入)?',part)
             if inner and outer:
-                u,p = int(inner[1]),int(outer[1])
-                if u>0 and p>0:found.append({'units_per_pack':u,'packs_per_box':p,'pieces_per_box':u*p})
-            elif direct:
-                c=int(direct[1])
+                for units in inner:
+                    for packets in outer:
+                        u,p = int(units),int(packets)
+                        if u>0 and p>0:found.append({'units_per_pack':u,'packs_per_box':p,'pieces_per_box':u*p})
+            for value in direct:
+                c=int(value)
                 if c>0:found.append({'units_per_pack':None,'packs_per_box':None,'pieces_per_box':c})
     distinct = {tuple(x.values()):x for x in found}
     return list(distinct.values())

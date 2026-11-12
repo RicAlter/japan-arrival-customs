@@ -39,6 +39,10 @@ class CalculationTests(unittest.TestCase):
     def test_conflict_retained(self):
         r=m.packaging('1包3枚，整盒12包；1包2枚，整盒12包',identity_scoped=True);self.assertEqual(len(r),2)
         f=self.fact();f['pack_candidates']=r;self.assertIn('同SKU盒规来源冲突',m.calculate(f)['errors'])
+    def test_multiple_sizes_in_one_clause_are_not_first_match(self):
+        self.assertEqual({x['pieces_per_box']for x in m.packaging('整盒10枚入，整盒12枚入',identity_scoped=True)},{10,12})
+    def test_layer_and_direct_conflict_both_retained(self):
+        self.assertEqual({x['pieces_per_box']for x in m.packaging('1包3枚，1盒12包，整盒10枚',identity_scoped=True)},{10,36})
     def test_fractional_boxes_not_rounded(self):
         f=self.fact();f.update(total_pieces=183,reference_boxes=None)
         r=m.calculate(f);self.assertEqual(r['values'][3],F(61,12));self.assertIn('总单个数不能整除固定盒规',r['errors'])

@@ -90,6 +90,8 @@ def replay(manifest,output,candidate):
         check('basis change '+cell+' requires revalidation',p['status']=='requires_basics_sync_before_calculation' and not p['business_saved'])
     rejected=action({'action':'upload','file':final,'reference':'TECHNICAL compare-and-swap','expected_view_hash':'stale'},1)
     check('explicit stale CAS token rejected',rejected['status']=='blocked')
+    rejected=action({'action':'confirm'},1)
+    check('calculation view cannot confirm inherited legacy computation',rejected['status']=='blocked')
     original_config=json.loads(config.read_text('utf8'))
     for label,edit in [('head',{'base_head':'stale-head'}),('source',{'sources':{binding['original_workbook']:'0'*64}}),('code',{'code':{str(REPO/'business-interaction/stage2-author.mjs'):'0'*64}})]:
         bad=out/('bad-binding-'+label+'.json');save(bad,{**binding,**edit});cfg=out/('bad-config-'+label+'.json');save(cfg,{**original_config,'calculation_view_binding':str(bad),'calculation_view_binding_sha256':sha(bad)})
