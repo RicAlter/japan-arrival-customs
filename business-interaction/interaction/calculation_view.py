@@ -39,7 +39,7 @@ def confirmation_attention(facts,rows):
         if row['rounded_price'] is None:result['I'+str(row['row'])]='red'
     return result
 
-def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None,results_only=False,factor_column=False):
+def patch_workbook(source,authored,target,changed,token,*,compact=False,attention=None,results_only=False,factor_column=False,clear_references=None):
     """Keep old cells/styles/cache, pictures and weight members intact."""
     with zipfile.ZipFile(authored) as z:
         xml=z.read(MEMBER).replace(b'<x:',b'<').replace(b'</x:',b'</')
@@ -105,6 +105,9 @@ def patch_workbook(source,authored,target,changed,token,*,compact=False,attentio
             def replace(c):
                 a=address(c[0])
                 if factor_column and a=='I1':return newcell('I1')
+                if a in (clear_references or set()):
+                    attrs=re.search(rb'<c\b([^>]*?)(?:/?>)',c[0])[1]
+                    return b'<c'+re.sub(rb'\s+t="[^"]*"',b'',attrs)+b'/>'
                 if n in changed and a in {'I'+str(n),'K'+str(n)}:
                     replacement=new[a];inner=re.search(rb'<c\b[^>]*>(.*)</c>',replacement,re.S)[1]
                     # Preserve exact original XML for numerically unchanged I/K.
@@ -203,7 +206,8 @@ class CalculationView:
                 if attention.get('U'+n):
                     attention['V'+n]=attention['U'+n];attention['Y'+n]=attention['U'+n]
                 if any('税率' in e for e in row['errors']):attention['Y'+n]='yellow';attention['Z'+n]='yellow'
-        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention,results_only=results_only,factor_column=factor_column)
+        clear_references={'U'+str(f['source_row'])for f in self.binding['rows']if f.get('clear_inapplicable_pack_reference')}
+        patch_workbook(self.binding['original_workbook'],plan['draft_file'],file,{r['row'] for r in rows},identity,compact=compact,attention=attention,results_only=results_only,factor_column=factor_column,clear_references=clear_references)
         counts=Counter(r['values'][-2]for r in rows)
         state={'schema':'stage2-calculation-state/2','policy':POLICY,'binding_sha256':digest(self.path),'base_head':self.binding['base_head'],
                'revision':revision,'view_hash':identity,'file':str(file),'sha256':digest(file),'totals':totals,

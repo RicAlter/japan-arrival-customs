@@ -4,7 +4,12 @@ import re
 import unicodedata
 
 POLICY = 'fixed-sku-packaging/20261112'
-PRODUCT_KINDS=['吧唧','透卡','贴纸','明信片','立牌','拍立得','相卡','挂件','卡片','收藏卡','亚克力']
+PRODUCT_KINDS=['姓名吧唧','文件夹','吧唧','透卡','贴纸','明信片','立牌','拍立得','相卡','挂件','卡片','收藏卡','亚克力']
+
+def product_kinds(text):
+    found=[k for k in PRODUCT_KINDS if k in str(text or '')]
+    # A named badge is a separate SKU class, not the generic trading badge.
+    return [k for k in found if not any(k!=other and k in other for other in found)]
 HEADERS = ['每包单个数','每盒包数','每盒单个数','本行盒数','每原Qty单个数','每盒原Qty数',
            '未取整单个价JPY','取整后金额JPY','取整差额JPY','关税率参考','增值税率参考',
            '每原Qty关税JPY','每原Qty增值税JPY','每盒税金JPY','本行税金JPY','采购数量核对','计算状态','异常说明']
@@ -51,7 +56,7 @@ def packaging(text, *, identity_scoped=False, product_kind=None, product_spec=No
                 selected=re.sub(r'[.\s]','',norm(product_spec)).lower()
                 prefix=re.sub(r'[.\s]','',version[1]).lower()+'整盒'
                 if not selected.startswith(prefix):continue
-            labelled = [k for k in labels if k in part]
+            labelled = product_kinds(part)
             if labelled:
                 if product_kind not in labelled:
                     continue

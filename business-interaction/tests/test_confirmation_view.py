@@ -64,3 +64,8 @@ class ConfirmationViewTests(unittest.TestCase):
         s=self.build(results_only=True,factor_column=True)
         self.assertEqual(s.find('.//'+Q+'c[@r="I1"]/'+Q+'v').text,'倍数')
         self.assertEqual(s.find('.//'+Q+'c[@r="I2"]/'+Q+'f').text,'K2/L2')
+    def test_clear_inapplicable_reference_keeps_quantity_and_raw_archive(self):
+        s=self.build(results_only=True,clear_references={'U2'})
+        self.assertIsNone(s.find('.//'+Q+'c[@r="U2"]/'+Q+'v'))
+        self.assertEqual(s.find('.//'+Q+'c[@r="L2"]/'+Q+'v').text,'20')
+        with zipfile.ZipFile(self.source)as z:self.assertIn(b'<v>box</v>',z.read('xl/worksheets/sheet1.xml'))

@@ -117,3 +117,26 @@ class IdentityScopeTests(unittest.TestCase):
     def test_conflicting_versions_remain_candidates(self):
         self.db.execute('insert into yd_product_card_details values(?,?,?,?)',('source-v2',13,'YD1',self.json.dumps(dict(source={'revision':2},product_card={'商品名称':'商品A','产品配件':'吧唧整盒8枚入'}))))
         self.assertEqual({c['pieces_per_box']for c in self.b.card_candidates(self.db,self.identity)},{8,10})
+    def scenario(self,spec,name,text):
+        self.db.execute('delete from catalogue_entries');self.db.execute('insert into catalogue_entries values(?)',(self.json.dumps(dict(code_raw='shared',yd='YD1',specification=spec,internal_name=name)),))
+        self.db.execute('update yd_product_card_details set context_json=?',(self.json.dumps(dict(source={'revision':1},product_card={'商品名称':name,'产品配件':text})),))
+        identity={**self.identity,'name':name,'spec':spec+'5'};rejected=[]
+        return self.b.card_candidates(self.db,identity,rejected),rejected
+    def test_file_folder_spec_does_not_fall_back_to_parent_photo_card(self):
+        self.assertEqual(self.b.kind('文件夹角色5','透卡文件夹'),'文件夹')
+    def test_named_badge_subtype_is_not_trading_badge(self):
+        self.assertEqual(self.b.kind('姓名吧唧角色2','吧唧姓名徽章'),'姓名吧唧')
+    def test_photo_card_box_rule_cannot_apply_to_character_folder(self):
+        candidates,rejected=self.scenario('文件夹角色','透卡文件夹','透卡整盒5枚入')
+        self.assertEqual(candidates,[]);self.assertEqual(rejected[0]['reason'],'box_rule_targets_different_SKU_kind')
+    def test_trading_badge_box_rule_cannot_apply_to_named_badge(self):
+        candidates,rejected=self.scenario('姓名吧唧角色','吧唧卡片姓名吧唧','吧唧整盒8枚入，卡片整盒10枚入')
+        self.assertEqual(candidates,[]);self.assertTrue(rejected)
+    def test_generic_shared_box_rule_cannot_apply_to_single_stand(self):
+        candidates,rejected=self.scenario('立牌路德','吧唧挂件立牌','整盒8枚入')
+        self.assertEqual(candidates,[]);self.assertEqual(rejected[0]['reason'],'shared_generic_box_rule_not_scoped_to_nonbox_SKU')
+    def test_explicit_box_sku_keeps_previous_generic_box_reference(self):
+        candidates,rejected=self.scenario('挂件整盒','吧唧挂件立牌','整盒8枚入')
+        self.assertEqual([x['pieces_per_box']for x in candidates],[8]);self.assertEqual(rejected,[])
+    def test_named_badge_rule_cannot_flow_back_to_general_badge(self):
+        self.assertEqual(m.packaging('姓名吧唧整盒4枚入',identity_scoped=True,product_kind='吧唧'),[])

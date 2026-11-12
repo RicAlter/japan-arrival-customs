@@ -41,11 +41,13 @@ def replay(manifest,output,candidate,layout='confirmation21',i_role='price'):
             if c.get('r','').startswith('U')and c.get('r')!='U1':
                 fill=fills[int(xfs[int(c.get('s','0'))].get('fillId','0'))];fg=fill.find(Q+'patternFill/'+Q+'fgColor')
                 if fg is not None and fg.get('rgb')in ['FFFCE4D6','FFFFF2CC']:colors[c.get('r')]=fg.get('rgb')
-        check('13 real conflicts red; sparse yellow only for explicit box SKU',sum(c=='FFFCE4D6'for c in colors.values())==13 and sum(c=='FFFFF2CC'for c in colors.values())<1890)
+        expected_red=sum(any('冲突'in e or'不能整除'in e for e in calculate(f)['errors'])for f in binding['rows'])
+        check('red matches actual conflicts; sparse yellow only for explicit box SKU',sum(c=='FFFCE4D6'for c in colors.values())==expected_red and sum(c=='FFFFF2CC'for c in colors.values())<1890)
         check('images/weights and all other ZIP members byte preserved',all(z.read(name)==old.read(name)for name in old.namelist()if name not in ['xl/styles.xml','xl/workbook.xml','xl/worksheets/sheet1.xml']))
         before=ET.fromstring(old.read('xl/worksheets/sheet1.xml'));original={c.get('r'):c for c in before.iter(Q+'c')};after={c.get('r'):c for c in s.iter(Q+'c')}
         def content(c):return(c.get('t'),[(x.tag,x.text,tuple(x.attrib.items()))for x in c.iter()if x is not c])
-        check('all source cells except authorized I/K preserve content/formulas/cache',all(content(c)==content(after[a])for a,c in original.items()if not(a[0]in 'IK'and a[1:].isdigit()and 2<=int(a[1:])<=1968)and not(i_role=='factor'and a=='I1')))
+        cleared={'U'+str(f['source_row'])for f in binding['rows']if f.get('clear_inapplicable_pack_reference')}
+        check('all source cells except authorized I/K/reference corrections preserve content/formulas/cache',all(content(c)==content(after[a])for a,c in original.items()if not(a[0]in 'IK'and a[1:].isdigit()and 2<=int(a[1:])<=1968)and not(i_role=='factor'and a=='I1')and a not in cleared))
     p=action(2,{'action':'native-preview','file':issued});check('compact return preview has zero changes',p['modified_cells']==0)
     first=action(3,{'action':'upload','file':issued,'reference':'TECHNICAL compact view return; not operator approval'});again=action(4,{'action':'upload','file':issued,'reference':'TECHNICAL same compact attachment retry'})
     check('compact save/readback/idempotency',first['saved']and again['receipt_replayed']and first['revision']==again['revision'])

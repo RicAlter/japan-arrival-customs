@@ -10,12 +10,12 @@ from functools import lru_cache
 from freeze_unified import sha,save
 REPO=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(REPO/'business-interaction/interaction'))
-from stage2_math import POLICY,PRODUCT_KINDS,packaging,unique_match,norm,number
+from stage2_math import POLICY,PRODUCT_KINDS,product_kinds,packaging,unique_match,norm,number
 
 KINDS=PRODUCT_KINDS
 def kind(spec,name):
     for text in [spec,name]:
-        found=[k for k in KINDS if k in str(text or '')]
+        found=product_kinds(text)
         if len(found)==1:return found[0]
     return None
 
@@ -31,7 +31,7 @@ def descriptors(db):
         x=json.loads(raw);result[str(x.get('code_raw'))].append(x)
     return result
 
-def card_candidates(db,identity):
+def card_candidates(db,identity,rejected=None):
     """JAN AND YD AND compatible SKU, followed by specific mixed-card selection."""
     entries=descriptors(db).get(str(identity['code']),[])
     entries=[x for x in entries if norm(x.get('yd'))==norm(identity['yd']) and compatible(identity['spec'],x.get('specification'))]
@@ -43,7 +43,16 @@ def card_candidates(db,identity):
         names=[norm(e.get('internal_name')) for e in entries if e.get('internal_name')]
         cardname=norm(card.get('商品名称'))
         if not cardname or not any(n==cardname for n in names):continue
-        for candidate in packaging(text,identity_scoped=True,product_kind=selected_kind,product_spec=identity['spec']):
+        card_kinds=product_kinds(card.get('商品名称'));reference_kinds=product_kinds(text)
+        box_sku=any(t in str(identity['spec'] or '').upper() for t in ['整盒','盒装','BOX'])
+        generic_scoped=box_sku or len(card_kinds)<=1
+        reason=None
+        if selected_kind and reference_kinds and selected_kind not in reference_kinds:reason='box_rule_targets_different_SKU_kind'
+        elif not reference_kinds and not generic_scoped:reason='shared_generic_box_rule_not_scoped_to_nonbox_SKU'
+        if reason:
+            if rejected is not None:rejected.append({'reason':reason,'source_sha256':source,'source_row':row,'source_version':context['source'],'identity':identity,'text':text,'card_product_name':card.get('商品名称')})
+            continue
+        for candidate in packaging(text,identity_scoped=generic_scoped,product_kind=selected_kind,product_spec=identity['spec']):
             result.append({**candidate,'source_sha256':source,'source_row':row,'source_version':context['source'],
                            'database_sha256':identity['database_sha256'],'identity':identity,'text':text})
     return result
@@ -60,6 +69,10 @@ def bind(manifest_file,output,*,display_layout='detailed39',i_role='price'):
     if out.exists():raise ValueError('新计算副本目录已存在，禁止覆盖')
     for file,expected in m['files'].items():
         if sha(file)!=expected:raise ValueError('输入SHA不符：'+file)
+    prior={}
+    if m.get('previous_binding'):
+        if m['previous_binding']not in m['files']:raise ValueError('旧计算绑定须登记输入SHA')
+        previous=json.loads(Path(m['previous_binding']).read_text('utf8'));prior={x['source_row']:x for x in previous['rows']}
     source=Path(m['session']);config=json.loads(source.read_text('utf8'))
     layout=json.loads(Path(m['layout']).read_text('utf8'));rowmap={x['source_row']:x['row_id'] for x in layout['row_map']}
     title,current=sheet(m['workbook']);_,raw=sheet(m['raw']);_,reference=sheet(m['reference']);_,formulas=sheet(m['reference'],True)
@@ -99,8 +112,12 @@ def bind(manifest_file,output,*,display_layout='detailed39',i_role='price'):
                 observed[k]=order
             if observed:
                 note='采购观察：'+'、'.join('数量%s/砍单%s'%(x.get('quantity'),x.get('cut_quantity'))for x in list(observed.values())[:3])+'（单位、取消及范围待核，不重复减砍单）'
+            rejected=[];candidates=card_candidates(db,identity,rejected)
+            old=prior.get(n)
+            if old and (old['row_id']!=rowmap[n] or old['identity']!=identity or any(number(old[k])!=number(t[k])for k in ['quantity','price','amount'])or number(old['total_pieces'])!=number(raw[s['source_row']-1][11])):raise ValueError('旧计算绑定与本行原始事实不一致：'+str(n))
             rows.append({**t,'row_id':rowmap[n],'identity':identity,'total_pieces':raw[s['source_row']-1][11],
-                         'reference_boxes':rf[7],'duty_rate':duty,'vat_rate':vat,'pack_candidates':card_candidates(db,identity),
+                         'reference_boxes':rf[7],'duty_rate':duty,'vat_rate':vat,'pack_candidates':candidates,'rejected_pack_candidates':rejected,
+                         'clear_inapplicable_pack_reference':bool(rejected and old and old.get('pack_candidates'))and not candidates,
                          'unit_factor_reference':{'value':factor,'row':s['source_row'],'column':'K','sha256':m['files'][m['raw']]},
                          'purchase_note':note,'source_coordinates':{'raw_row':s['source_row'],'reference_row':rr},
                          'purchase_reference':{'jan':str(v[2]),'status':qrow.get('status'),'reasons':notes}})
