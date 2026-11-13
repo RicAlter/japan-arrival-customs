@@ -1,5 +1,7 @@
 # 测试索引
 
+最终流程测试出口：`test_final_flow.py`验证缺盒规参考计算、原数量/税基与ROUND0差额、缺税率留空、原件/缓存漂移拒绝、公开表内部信息排除、明确测试范围与独立配置、旧确认门禁不变和箱重公式/cache原文保全。`tools/replay_test_final.py`经run.py验证整批双表生成、保存回读、幂等、374箱及原session保全；该范围不替代B00/A04业务确认或完整真实业务验收。
+
 第二阶段黄标复核：`business-interaction/tests/test_yellow_review.py`覆盖已接受商品名/YD/SKU与版本、类别、包装层数、原订单币种及重复报价、单位/状态冲突；`test_confirmation_view.py`覆盖仅H/U参考更新和清色保全。`tools/replay_yellow_review.py`从固定前版副本经实际run.py检查逐项结果、原数量/I倍数/金额和箱重保全，并保存缺依据清单。执行结果与完整候选SHA在本机项目治理登记，不视为运营放行。
 
 本轮结果位于治理封包 governance-release/tests.json 与各stdout/stderr日志。覆盖第一阶段匹配、pcs/DG、材质分层、多站域名停站、大图回传、数量未知、标色、交付保全及既有计算/包装。

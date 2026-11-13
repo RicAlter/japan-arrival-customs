@@ -24,7 +24,7 @@ try:
     elif action=='delivery-review':
         from interaction.delivery_review import review_delivery
         result=review_delivery(a.config,**request)
-    elif action in {'start','current','upload','native-preview'} and a.config and load(a.config).get('calculation_view_binding'):
+    elif action in {'start','current','upload','native-preview','test-final'} and a.config and load(a.config).get('calculation_view_binding'):
         result=Service(a.config).stage2({'action':action,**request})
     elif action in {'start','current','upload','native-preview'} and a.config and load(a.config).get('native_view_binding'):
         from interaction.original_view import OriginalView
