@@ -18,10 +18,17 @@ class Service(Legacy):
         return super().confirm(*args,**kwargs)
 
     def stage2(self,request):
+        if request['action']=='presentation-preview':
+            from .presentation import generate
+            from a_confirm.locking import writer
+            with writer(self.root,self.engine.bid):return generate(self,request)
         if request['action']=='test-final':
             from .test_final import generate
             from a_confirm.locking import writer
             with writer(self.root,self.engine.bid):return generate(self,request)
+        if request['action']in{'start','current'}and self.config.get('flow_test_final')and(self.background/'presentation/current.json').exists():
+            from .presentation import current
+            return current(self)
         if request['action']in{'start','current'}and self.config.get('flow_test_final')and(self.background/'test-final/current.json').exists():
             from .test_final import current
             return current(self)

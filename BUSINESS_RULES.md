@@ -13,10 +13,16 @@
 |R须完整材质原文、身份、快照及来源；不覆盖已有R|material_review.py、website_query.py / test_material_review.py|
 |原始数量金额公式cache箱重人工值和原图保全|delivery_review.py、large_return.py / 对应测试|
 |采购数量独立汇总；未知单位/来源不得推累计差额|quantity_review.py / test_quantity_review.py|
-|基础20列一份；upload只预览、明确范围confirm保存；不自动批准|service.py / test_large_return.py、test_delivery.py|
+|新阶段回传即提交，服务端校验保存；旧session协议原样保留|service.py / test_large_return.py、test_delivery.py|
 |实际日方价、确认单位盒规、ROUND0及金额差额保持既有计算规则|business-loop、catalogue-pack-loop / test_loop.py、test_units.py|
 
 统一SOP为此规则表加 SOP_INDEX.md 指向的既有操作细则；发生冲突先查版本证据，不用新文档反向覆盖历史人工确认。
 
 
 2026-11-11统一候选：原21列表格适配通过run.py显式session.native_view_binding接入。K是整行总单个数，单个价试算=ROUND(原M单价/(K/原L数量),0)，只修改原I预留列；原M/N不覆盖。原表价格齐备与其他更新文件未匹配分开统计；参考历史的84行总数差异保留当前输入。基础字段回传变化先由宿主同步既有基础资料链，再重算，不静默沿用旧值。完整单位、盒规、税费及正式外发门禁不变。
+
+## 2026-11-13当前口径（优先于历史I列说明）
+
+新绑定results26的I列是倍数s/q，公式K/L，须对应空运原始表K；单个价u/(s/q)留后台，ROUND0金额差另列。原L数量、M价格、N金额和箱重保全；同款分箱按完整身份匹配，固定盒规逐行算盒数，不按JAN取首条，不强制取整。税金沿原价u基数，零税率有效、缺税率留空。
+
+业务返回表即提交，校验后保存，不再常规二次确认。当前正常计算表到B00/A04主链仍未接通；test-final及presentation-preview只限显式历史测试配置，生成表不产生批准。当前21列来源的O品类、P人工材质、R为YD、S网站、T数据库、U盒规，与新批默认20列坐标分别处理。当前待补清单和统计见CURRENT_STATUS.md，不采用上文历史52行状态。

@@ -13,6 +13,8 @@ description: "日本到货候选：从日本仓原始Excel补齐资料库、采�
 
 业务上传日本仓原始到货表即可开始，宿主负责请求JSON和来源配置。第一阶段先读[2026-11-09业务版SOP](references/business-preparation-sop.md)及[执行SOP](references/preparation-sop.md)，调用时读[宿主请求合同](references/request-contract.md)。本目录为工作区候选，不代替已安装正式Skill，不将技术验证称作WorkBuddy原生或真人验证。
 
+已保存第二阶段先读[当前计算口径](references/stage2-calculation.md)：当前I列是倍数，日常交付26列必要结果。历史双表展示不等于正常B00/A04主链已接通或业务已放行。
+
 ## 从原始表开始
 
 “处理这批日本到货/从原表整理”使用prepare，无需已有A03根目录。原件归档、固定数据库快照，先补中文名称/规格原文、采购参考价、渠道、YD、材质和盒规，再补采购链接图片，登记唯一20列基础资料表。

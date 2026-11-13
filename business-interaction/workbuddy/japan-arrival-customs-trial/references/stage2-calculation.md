@@ -1,3 +1,11 @@
+# 当前适用版本说明（2026-11-13）
+
+当前新绑定以results26+i_role=factor为准：I=K/L倍数，保留盒数、取整金额、差额、每盒及本行税金；39列/21列/I单个价仅保留历史兼容。正常回传即提交，旧审批不自动重做。
+
+历史批次经已封存test-final生成的双表可调用presentation-preview，要求historical_preview=true及本次用户出处，实际run.py接入presentation模块。它只删测试展示标题和审核颜色，改为简洁业务表头；原数据、公式及缓存、箱重和批准状态保全。current和重试须核对来源/输出SHA，漂移拒绝。对应test_presentation及replay_presentation真实副本证据。正常26列提交到B00/A04和完整业务最终表仍未接通，不能因历史展示版通过而宣告完成。
+
+以下为分次固化的历史规则，冲突时以上述当前口径优先。
+
 # 第二阶段：固定SKU盒规计算审核表
 
 2026-11-13本次用户明确允许忽略待补资料，以走到最终结果表。仅在另建的本地流程测试副本配置flow_test_final，并以test-final动作、purpose=flow_test、allow_pending=true及本次用户出处调用。复用当前已保存审核结果、精确算术、既有ROUND0执行函数和箱重核对，生成内部到货表与海关报关单两份可见“流程测试”稿；原数量/原价/原金额、源I倍数、箱重公式和缓存保全，待核项保留颜色，不取整盒数或调平金额，不猜盒规/材质/税率。采购参考价缺失不阻断已有原价与单个数支持的试算。测试结果全行回读、金额差、374箱、公开字段隐私、重复调用和原件SHA均须核验。
@@ -40,7 +48,7 @@ I列初始单个价按完整商品/分箱身份对应空运原始表K列倍数�
 | 6 采购独立不二次减取消 | bind_stage2保留采购观察不折算；publish独立汇总盒数 | procurement_not_used_to_force_total；790/1010显示采购观察17/砍单3与本批17盒，仍待单位/范围确认 |
 | 7 版本、保全、回传、保存 | CalculationView.validate/preview/publish/operate | replay_stage2实际run.py保存、回读、幂等、旧版/CAS拒绝、基础变化及源SHA漂移；既有21列回归 |
 
-宿主接入：tools/bind_stage2.py仅把SHA锁定的私有输入和已保存session复制到新目录；新配置绑定calculation_view_binding及其SHA。业务入口始终为run.py → submission.Service.stage2 → CalculationView。后台保存精确分数、来源坐标/版本、异常、不可变发出件、回传原件及提交回执。日常只交付39列当前文件。K总单个数是本阶段可编辑输入；基础资料变化先同步基础链并重新绑定。
+宿主接入：tools/bind_stage2.py仅把SHA锁定的私有输入和已保存session复制到新目录；新配置绑定calculation_view_binding及其SHA。业务入口始终为run.py → submission.Service.stage2 → CalculationView。后台保存精确分数、来源坐标/版本、异常、不可变发出件、回传原件及提交回执。当前日常交付26列结果表，39列仅保留历史兼容。K总单个数是本阶段可编辑输入；基础资料变化先同步基础链并重新绑定。
 # 黄标逐行复核（可选，新绑定生效）
 
 黄标复核清单须固定前版绑定、前版业务表及全部来源SHA，并绑定原行、编码、完整商品名、YD和规格。维持原数量、I倍数、原价/金额和箱重，不重新prepare。只更新经核实的H采购参考价和U盒规文字；解决项清除黄色，未解决项保持黄色，原因集中留独立待补资料清单。
