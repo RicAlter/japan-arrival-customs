@@ -27,6 +27,10 @@ def native(p):
 def mapped(p):
     if isinstance(p,int):return p
     s=normalized(p)
+    # Some unchanged tests derive report/helper paths from the frozen source.
+    # Redirect those writes too; package and results need not share a directory.
+    frozen=normalized(SRC.parent)
+    if inside(s,frozen) and not inside(s,run):return str(overlay/'frozen-runtime'/Path(os.path.relpath(s,frozen)))
     return str(overlay/Path(os.path.relpath(s,base))) if inside(s,base) and not inside(s,run) else p
 def exists(p):
     try:original['stat'](native(p));return True
