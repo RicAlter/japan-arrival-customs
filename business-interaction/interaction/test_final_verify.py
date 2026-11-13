@@ -13,7 +13,9 @@ def verify(data,weights,weight_formulas,files,source,logistics):
         return a==b
     result={};checks=[]
     for kind,file in zip(['internal','customs'],files):
-        w=load_workbook(file,read_only=True,data_only=True);wf=load_workbook(file,read_only=True,data_only=False)
+        # Dense color/formula lookups need one in-memory read; streaming random
+        # access would reparse the complete worksheet for every marked cell.
+        w=load_workbook(file,read_only=False,data_only=True);wf=load_workbook(file,read_only=False,data_only=False)
         try:
             sheet=w.worksheets[0];rows=list(sheet.values);expected=data[kind]
             if '流程测试'not in str(rows[0][0]):raise Rejected('缺少可见的流程测试标记')
