@@ -88,7 +88,7 @@ def restore_weight_caches(source,target,formulas=None):
         if value is not None:ET.SubElement(new,NS+'v').text=value.text
         new.attrib.pop('t',None)
         if old.get('t'):new.set('t',old.get('t'))
-    parts['xl/worksheets/sheet2.xml']=ET.tostring(sheet,encoding='utf8',xml_declaration=True)
+    parts['xl/worksheets/sheet2.xml']=ET.tostring(sheet,encoding='utf-8',xml_declaration=True)
     with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED)as z:
         for info in infos:z.writestr(info,parts[info.filename])
 

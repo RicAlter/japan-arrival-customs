@@ -51,9 +51,12 @@ class FinalFlowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory()as tmp:
             a=Path(tmp)/'a.xlsx';b=Path(tmp)/'b.xlsx'
             for file,value in [(a,'0.05379199999999999'),(b,'0.053792')]:
-                with zipfile.ZipFile(file,'w')as z:z.writestr('xl/worksheets/sheet2.xml','<worksheet xmlns="'+NS[1:-1]+'"><sheetData><row r="2"><c r="H2"><f>C2*E2*F2*G2/1000000</f><v>'+value+'</v></c></row></sheetData></worksheet>')
+                with zipfile.ZipFile(file,'w')as z:z.writestr('xl/worksheets/sheet2.xml','<worksheet xmlns="'+NS[1:-1]+'"><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>箱番</t></is></c></row><row r="2"><c r="H2"><f>C2*E2*F2*G2/1000000</f><v>'+value+'</v></c></row></sheetData></worksheet>')
             restore_weight_caches(a,b)
-            with zipfile.ZipFile(b)as z:self.assertIn(b'0.05379199999999999',z.read('xl/worksheets/sheet2.xml'))
+            with zipfile.ZipFile(b)as z:
+                self.assertIn(b'0.05379199999999999',z.read('xl/worksheets/sheet2.xml'))
+                import xml.etree.ElementTree as ET
+                self.assertEqual(ET.fromstring(z.read('xl/worksheets/sheet2.xml')).find('.//'+NS+'t').text,'箱番')
     def test_cached_result_tamper_rejected(self):
         with tempfile.TemporaryDirectory()as tmp:
             root=Path(tmp);file=root/'out.xlsx';file.write_bytes(b'changed');save(root/'test-final/current.json',{'calculation_sha256':'fixed','output_sha256':{str(file):'bad'}})
