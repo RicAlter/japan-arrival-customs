@@ -1,5 +1,6 @@
 """Explicit local flow-test final projection. Never creates business approvals."""
 from pathlib import Path
+from copy import deepcopy
 from fractions import Fraction
 import json,re,subprocess,zipfile,xml.etree.ElementTree as ET
 from . import load,save,key,digest,Rejected
@@ -69,15 +70,18 @@ def inputs(service):
     if state['sha256']!=manifest['calculation_file_sha256']:raise Rejected('流程测试须重新绑定当前计算版本')
     return manifest,view,state
 
-def restore_weight_caches(source,target):
+def restore_weight_caches(source,target,formulas=None):
     """Artifact authors the sheet; retain each original weight formula/cache exactly."""
     with zipfile.ZipFile(source)as z:original=ET.fromstring(z.read('xl/worksheets/sheet2.xml'))
     with zipfile.ZipFile(target)as z:infos=z.infolist();parts={x.filename:z.read(x.filename)for x in infos}
     sheet=ET.fromstring(parts['xl/worksheets/sheet2.xml']);cells={c.get('r'):c for c in sheet.iter(NS+'c')}
+    expanded={x['cell']:x['formula'].removeprefix('=')for x in formulas or []}
     for old in original.iter(NS+'c'):
         if old.find(NS+'f')is None:continue
         new=cells[old.get('r')]
-        if new.find(NS+'f')is None or new.find(NS+'f').text!=old.find(NS+'f').text:raise Rejected('箱重原公式变化')
+        expected=expanded.get(old.get('r'),old.find(NS+'f').text)
+        if expected is None or new.find(NS+'f')is None or new.find(NS+'f').text!=expected:raise Rejected('箱重原公式变化')
+        new.remove(new.find(NS+'f'));new.insert(0,deepcopy(old.find(NS+'f')))
         cached=new.find(NS+'v')
         if cached is not None:new.remove(cached)
         value=old.find(NS+'v')
@@ -122,7 +126,7 @@ def generate(service,request):
     command=subprocess.run([service.config['node'],str(Path(__file__).resolve().parents[1]/'test-final-author.mjs'),str(folder/'plan.json')],capture_output=True,text=True,encoding='utf8')
     if command.returncode:raise Rejected('最终测试表生成失败：'+command.stderr[-2000:])
     files=[folder/(service.config['batch_label']+suffix)for suffix in ['_内部到货表_流程测试.xlsx','_海关报关单_流程测试.xlsx']]
-    restore_weight_caches(state['file'],files[0])
+    restore_weight_caches(state['file'],files[0],weight_formulas)
     from .test_final_verify import verify
     verification=verify(data,weights,weight_formulas,files,state['file'],logistics)
     inputs(service)

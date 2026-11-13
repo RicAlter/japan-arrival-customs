@@ -59,5 +59,15 @@ class FinalFlowTests(unittest.TestCase):
             root=Path(tmp);file=root/'out.xlsx';file.write_bytes(b'changed');save(root/'test-final/current.json',{'calculation_sha256':'fixed','output_sha256':{str(file):'bad'}})
             with patch('interaction.test_final.inputs',return_value=({},None,{'sha256':'fixed'})):
                 with self.assertRaises(Rejected):current(SimpleNamespace(background=root))
+    def test_shared_weight_formulas_restored_without_changing_expanded_meaning(self):
+        with tempfile.TemporaryDirectory()as tmp:
+            a=Path(tmp)/'a.xlsx';b=Path(tmp)/'b.xlsx'
+            source='<row r="2"><c r="D2"><f t="shared" si="0" ref="D2:D3">B2*C2</f><v>15</v></c></row><row r="3"><c r="D3"><f t="shared" si="0"/><v>16</v></c></row>'
+            target='<row r="2"><c r="D2"><f>B2*C2</f><v>15</v></c></row><row r="3"><c r="D3"><f>B3*C3</f><v>16</v></c></row>'
+            for file,xml in [(a,source),(b,target)]:
+                with zipfile.ZipFile(file,'w')as z:z.writestr('xl/worksheets/sheet2.xml','<worksheet xmlns="'+NS[1:-1]+'"><sheetData>'+xml+'</sheetData></worksheet>')
+            restore_weight_caches(a,b,[{'cell':'D2','formula':'=B2*C2'},{'cell':'D3','formula':'=B3*C3'}])
+            with zipfile.ZipFile(b)as z:
+                self.assertIn(b't="shared"',z.read('xl/worksheets/sheet2.xml'));self.assertIn(b'ref="D2:D3"',z.read('xl/worksheets/sheet2.xml'))
 
 if __name__=='__main__':unittest.main()
