@@ -1,0 +1,29 @@
+{
+  "records": [
+    {
+      "jan": "4571608537527",
+      "material_zh": "纸",
+      "material_original": "紙",
+      "name_ja": "テスト フィギュア 通常版",
+      "source": "测试用本地报单",
+      "updated_at": "2026-10-01",
+      "record_id": "demo-1"
+    },
+    {
+      "jan": "4571608537534",
+      "material_zh": "棉100%",
+      "name_ja": "テスト フィギュア 通常版",
+      "source": "测试用本地报单",
+      "updated_at": "2026-10-02",
+      "record_id": "demo-2"
+    },
+    {
+      "jan": "4571608537534",
+      "material_zh": "聚酯纤维100%",
+      "name_ja": "テスト フィギュア 通常版",
+      "source": "测试用本地报单（冲突）",
+      "updated_at": "2026-10-03",
+      "record_id": "demo-3"
+    }
+  ]
+}

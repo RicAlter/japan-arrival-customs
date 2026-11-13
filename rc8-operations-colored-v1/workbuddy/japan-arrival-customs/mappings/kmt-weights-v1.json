@@ -1,0 +1,8 @@
+{
+  "id": "kmt-weights-v1", "version": 1, "role": "weights", "start_row": 2,
+  "headers": {"箱号组": "箱番", "实际箱数": "カートン個数", "箱组总重量KG": "合計重量（KGS)", "单箱重KG": "重さ"},
+  "columns": {"箱号组": "A", "单箱重KG": "B", "实际箱数": "C", "箱组总重量KG": "D"},
+  "anchored_blank_headers": [], "optional": [], "formula_products": {"箱组总重量KG": ["单箱重KG", "实际箱数"]}, "inherit_carton": false,
+  "footer_marker": {"column": "B", "value": "合計"},
+  "observed_dimensions": {"长度CM": "E", "宽度CM": "F", "高度CM": "G"}
+}

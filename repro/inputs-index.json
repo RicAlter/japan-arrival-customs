@@ -1,0 +1,13 @@
+{
+  "schema": "private-input-role-index/1",
+  "batch": "KMT20261003",
+  "rows": 1967,
+  "columns": 21,
+  "private_manifest_sha256": "70cf8042401b6e5780145d235150ddb521c2fd021a7ab5643f71a86e3ed933cc",
+  "local_manifest_relative_to_original_worktree": "outputs/integration-20261111/inputs-complete.json",
+  "source_workbook_sha256": "eda0bd5b751d8325599bb3632cab60ee9a4320f42efebf1805a5a90bd2f573d5",
+  "issued_sha256": "6987fac61752a48f24295079de937c82a321edb1eb4b44d882f982153867b2e4",
+  "source_files": 176,
+  "private_data_in_git": false,
+  "availability": "On original host only; another machine must obtain exact private source files separately and pass SHA checks."
+}

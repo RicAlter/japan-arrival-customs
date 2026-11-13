@@ -1,0 +1,1 @@
+{"id":"kmt-japanese-invoice-reference-v1","sheet":"invoice (計算)","header_row":17,"headers":{"A":"CartonNo.","D":"ProductCode(JANCode)","H":"DescriptionofGoods","M":"Qty"},"columns":{"code_raw":"D","japanese_name":"H"},"item_column":"A"}

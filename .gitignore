@@ -16,10 +16,25 @@
 !/docs/REPOSITORY_HYGIENE.md
 /tests/*
 !/tests/test_repository_smoke.py
+!/tests/test_v070_core.py
+!/tests/test_workbuddy_router.py
+!/tests/test_v070_workflow.py
+!/tests/test_business_setup.py
+!/tests/test_report_templates.py
+!/tests/test_single_person_mode.py
+!/tests/test_product_maintenance_skill.py
+!/tests/test_rc7_*.py
+!/docs/V070_TECHNICAL_DELIVERY.md
+!/docs/RC6_TEMPLATE_INTEGRATION.md
+!/docs/PRODUCT_LIBRARY_INTERFACE_SYNC.md
+!/docs/contracts/PRODUCT_SOURCE_V1_FREEZE.md
 
 # Per-run state, decision libraries, and credentials
 **/runs/
 **/security/trusted_sessions.json
+**/security/
+**/rule_registry.json
+**/source_evidence/
 *.sqlite3
 *.sqlite3-*
 *.db
@@ -37,3 +52,24 @@ __pycache__/
 htmlcov/
 .DS_Store
 Thumbs.db
+
+# rc.8 source-only progress; no real workbooks, archives, or run evidence.
+!/tests/test_confirmed_arrival_v1.py
+!/tests/test_operations_adapter.py
+!/docs/RC8_PROGRESS.md
+!/docs/WORKBUDDY_RC3_UAT.md
+*.xlsx
+*.xlsm
+*.xls
+*.pdf
+*.zip
+*.sqlite
+*.sqlite-*
+*.jsonl
+*.jsonl.gz
+*.log
+*.pem
+*.key
+
+# Independent rc.5 source successor; sanitized progress only.
+!/docs/WEEKLY_PROGRESS_20261030.md

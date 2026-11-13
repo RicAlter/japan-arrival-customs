@@ -1,0 +1,27 @@
+{
+  "schema": "stage1-sidecar-reuse/1",
+  "baseline": "c130a9b",
+  "files": {
+    "a-stage-first-phase/ACCEPTANCE.md": "2802f32bf6e0f189d4df2af0edda19cdc6d29714cd1dba7cf1803d5a9d955634",
+    "a-stage-first-phase/README.md": "68f2d5cc5b96e34ee7ebe87f49d8635cbe6f3e3da2e73424e03128ab8e7c1335",
+    "a-stage-first-phase/author.mjs": "948ee2563521d685561f6c72aa1ed668f7757d85d6a8e3e81dd452c47e8a8e4b",
+    "a-stage-first-phase/dependency-lock.json": "e61d8e68cf121a30fa07d5f6f4c6d4b87cda175d91772e3d77e66fa8c5214326",
+    "a-stage-first-phase/stage1/__init__.py": "df8f58edc131906eb1e150cb196aab6ab456d8c579080282e093dc6dffe5c02d",
+    "a-stage-first-phase/stage1/__main__.py": "4de8ae779de237beb6560f81cb18ea6afd51d1b16f1fae5788b17cddd8184244",
+    "a-stage-first-phase/stage1/build.py": "2fb41b2e6c0604251373745e42633c981d97496196300b9211aa7cab25501013",
+    "a-stage-first-phase/stage1/model.py": "8a3e0e165d938319c70222f417829db606ce2db4df5982ebd397ace9e535b39b",
+    "a-stage-first-phase/stage1/projection.py": "8000123e6841a436cf18f77977ebcd99fb1245e29c85c1d26376a7136a62c412",
+    "a-stage-first-phase/stage1/references.py": "befd4a871c9dd0594ec2c17b6d067a26e7520b4ff18e8f13e5bf5fd17b3cafb4",
+    "a-stage-first-phase/stage1/service.py": "a9bf5a75b388e3b40dfc7b0a7f0e19d1653d2aa80d720983edf8398a486e2356",
+    "a-stage-first-phase/stage1/support.py": "8de1b4e6581b36bb0baca7a606fbc653eb528ba8c5bfbc66214c28759772a494",
+    "a-stage-first-phase/stage1/workbook.py": "6c0ce9674154b810557a9021bc4db9ce7a7be38af9d7a5d9c42d7fbc48d9ff20",
+    "a-stage-first-phase/tests/test_model.py": "2880a886b42851e7fd35ade42e680a367485fdefbac0088a0cfa64e47c126524",
+    "a-stage-first-phase/tests/test_roundtrip.py": "5d6c924c112ddd5b4d42d89f0316365300ccb26947f9c8143f3fe5f6a0402cfd",
+    "a03-confirmation/a_confirm/__init__.py": "7bea802b4dd329f1611d5711a2c7f6e9e5ff8a1f407f8952b55c01bb54b358a5",
+    "a03-confirmation/a_confirm/__main__.py": "e91753bb07ded30fe06082e720a3e8122f8829a4a09410dba77369723023a629",
+    "a03-confirmation/a_confirm/locking.py": "e38c57ebe780b1a5c362303e1c97317ab1401c8cbfc8f74d1f7be10ee84677e1",
+    "a03-confirmation/a_confirm/model.py": "2d7933bd01b95dfec459dcb1b4e6d9bc56decd83791b76e16994919ade4e8a77",
+    "a03-confirmation/a_confirm/service.py": "7ca8762f2de32223c45e4c65be58f9af53769ca56b6fbe795079597e8a802e80",
+    "a03-confirmation/a_confirm/support.py": "a74ac971e47d76b8f3fdec15580d25d4d741cab3fb8d5fde7b7c6e5eff92b92b"
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "cases": [
+    {
+      "sample_id": 10,
+      "file": "10.raw",
+      "sha256": "5e8be0feea46562b65bff4f50b533fda3ffe1e96d3e9715b659025dcc7facd64",
+      "encoding": "utf8",
+      "api_json": true,
+      "expected": "Cotton 100%",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\fast-material-batch-20261106\\responses\\amiami\\3907879fbc04b740f5fde43b669d92f69546e8122529fce8c2fec7b0af014ffd.txt",
+      "source_url": "https://www.amiami.jp/top/detail/detail?gcode=GOODS-04409465"
+    },
+    {
+      "sample_id": 11,
+      "file": "11.raw",
+      "sha256": "5e65bc745e33f1e47c75507d692becefc13d5fb70a3e434446d67b9aa52591bb",
+      "encoding": "utf8",
+      "api_json": true,
+      "expected": "Acrylic",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\fast-material-batch-20261106\\responses\\amiami\\a2e9e0d3b5ab9882079144960b39b42cbfe6a78590f8d4432f607ec6cfc60fc3.txt",
+      "source_url": "https://www.amiami.jp/top/detail/detail?gcode=GOODS-04853066"
+    },
+    {
+      "sample_id": 13,
+      "file": "13.raw",
+      "sha256": "090a15a26a9036f46f2b98abee033f05865657056695d0bbfae54685723c11fb",
+      "encoding": "utf8",
+      "api_json": false,
+      "expected": "アクリル",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\channel-material-agent2-20261109\\responses\\amnibus_official\\a552ff959b90023b15cdcdb9fdf23330e1adf753529957ae2974533f49f26285.txt",
+      "source_url": "https://amnibus.com/products/detail/121311"
+    },
+    {
+      "sample_id": 18,
+      "file": "18.raw",
+      "sha256": "b9edd810fc0ffcedf8d4075574dba5c4bf6cd39afb70d73a7711341faabfb07b",
+      "encoding": "utf8",
+      "api_json": false,
+      "expected": "PP製",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\fast-material-agent2-20261109\\web-jujutsu-card.json",
+      "source_url": "https://www.movic.jp/shop/g/g04161-00213-00162/"
+    },
+    {
+      "sample_id": 19,
+      "file": "19.raw",
+      "sha256": "57fc6d56908514df1fe3a637e79707a3ec3976aa44329b49cbc2abf02c765e51",
+      "encoding": "utf8",
+      "api_json": false,
+      "expected": "アクリル製、裏面オーロラホロ",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\channel-material-agent1-20261109\\responses\\metalbox-900395.html",
+      "source_url": "https://www.metal-box.jp/product_detail/hobby/goods_miscellaneous_goods/900395"
+    },
+    {
+      "sample_id": 20,
+      "file": "20.raw",
+      "sha256": "27d49163427b238b078e2fcb7b297c6f697c6fdaa38f9a8315c38701531fe0e5",
+      "encoding": "utf8",
+      "api_json": false,
+      "expected": "Polypropylene (PP)",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\channel-material-agent1-20261109\\responses\\ad09dc18caa788480364e3ce6cff13263be44d3d52e1f172ae83d0d71989f20a.bin",
+      "source_url": "https://hobby-genki.com/en/puella-magi-madoka-magica/98176-puella-magi-madoka-magica-memorial-clear-card-collection-6-pack-box-movic--4550621691898.html"
+    },
+    {
+      "sample_id": 25,
+      "file": "25.raw",
+      "sha256": "526f5fb843818998cccfd2848c0219ccaae322fbc62e2ec92f73e0f4d8fc3c4a",
+      "encoding": "utf8",
+      "api_json": false,
+      "expected": "製品素材 本体:PVC",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\fast-material-colleize-agent-20261109\\responses\\tsurumai\\7330d29b4ca2eeb49ec38b3b9606b21340ae06e62b82e664f3be8cb10bedc155.txt",
+      "source_url": "https://tsurumai-hobby.jp/item/4570194458827"
+    },
+    {
+      "sample_id": 26,
+      "file": "26.raw",
+      "sha256": "dfd3022cd8d5e396824b914ff1cf51a280a45eb819257e813f182e85a8f55d9e",
+      "encoding": "utf8",
+      "api_json": false,
+      "expected": "本体:PVC・ABS/ステッカー:紙",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\fast-material-colleize-agent-20261109\\responses\\tsurumai\\f19e9f6c01f081240e992149a75488a4cc6213527d1ef476e758e5f631b43433.txt",
+      "source_url": "https://tsurumai-hobby.jp/item/4570194459930"
+    },
+    {
+      "sample_id": 27,
+      "file": "27.raw",
+      "sha256": "3591b2d97650aed49949eace15a3f4b0c021cdd1bb2c86887d494ea29a6ea24b",
+      "encoding": "utf8",
+      "api_json": false,
+      "expected": "ブリキ、PP",
+      "source_path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\reports\\fast-material-colleize-agent-20261109\\responses\\yahoo_honyaclub\\78881f1506618cef79db8b72d59193c7a4535d858d6c8e8be4a24abcecde16d9.txt",
+      "source_url": "https://store.shopping.yahoo.co.jp/honyaclub/4571696826039.html"
+    }
+  ],
+  "amnibus_chain": {
+    "row": {
+      "row": 576,
+      "jan": "4573643326883",
+      "name_ja": "描き下ろし ギャル制服ver. トレーディンググリッター缶バッジ(単位/BOX)",
+      "spec": "闪吧唧整盒19",
+      "yd": "YDZB2026061234",
+      "channel": "arma bianca",
+      "r_current": "",
+      "identity_chain": {
+        "jan": "4573643326883",
+        "title": "ノーゲーム・ノーライフ ゼロ_描き下ろし ギャル制服ver. トレーディンググリッター缶バッジ(単位/コンプリートBOX/8パック入り)",
+        "url": "https://colleize.com/lineup/277/395480",
+        "snapshot": "amnibus-jan-chain.raw",
+        "content_sha256": "3b13b05651284008a533363eed20840e06602cdfe4705fb2ff98187678e58838",
+        "cached_only_no_network": true,
+        "official_url": "https://amnibus.com/products/detail/118131"
+      }
+    },
+    "candidate": {
+      "jan": "4573643326883",
+      "jan_not_displayed": true,
+      "title": "描き下ろし ギャル制服ver. トレーディンググリッター缶バッジ",
+      "url": "https://amnibus.com/products/detail/118131"
+    }
+  },
+  "amnibus_evidence": {
+    "jan": "4573643326883",
+    "rows": [
+      {
+        "row": 576,
+        "jan": "4573643326883",
+        "name_ja": "描き下ろし ギャル制服ver. トレーディンググリッター缶バッジ(単位/BOX)",
+        "spec": "闪吧唧整盒19",
+        "yd": "YDZB2026061234",
+        "channel": "arma bianca",
+        "r_current": ""
+      }
+    ],
+    "title": "描き下ろし ギャル制服ver. トレーディンググリッター缶バッジ",
+    "site": "amnibus_official",
+    "url": "https://amnibus.com/products/detail/118131",
+    "material_original": "紙、ブリキ",
+    "material_zh": "纸、马口铁",
+    "row_identity": {
+      "576": {
+        "accepted": true,
+        "exact_name_without_unit_box_wrapper": true,
+        "cached_series": "ノーゲーム・ノーライフ ゼロ",
+        "official_context_contains_cached_series": true,
+        "source_box_scope_visible": true,
+        "official_identifier_matches": false
+      }
+    },
+    "official_page_jan_displayed": false,
+    "identity_chain": {
+      "jan": "4573643326883",
+      "title": "ノーゲーム・ノーライフ ゼロ_描き下ろし ギャル制服ver. トレーディンググリッター缶バッジ(単位/コンプリートBOX/8パック入り)",
+      "url": "https://colleize.com/lineup/277/395480",
+      "snapshot": "amnibus-jan-chain.raw",
+      "content_sha256": "3b13b05651284008a533363eed20840e06602cdfe4705fb2ff98187678e58838",
+      "cached_only_no_network": true
+    },
+    "status": "selected",
+    "queried_at": "2026-11-09T10:42:35.208897+08:00",
+    "snapshot": "amnibus-live-detail.raw",
+    "content_sha256": "67943a0df530349c366802c429edcd7f80c6ebd2cecb97e780a423a6ad567ef5",
+    "match_status": "official_exact_name_and_style_with_cached_exact_JAN_chain",
+    "manifest": "reports/channel-material-agent2-20261109/candidates.json",
+    "channel": "arma bianca",
+    "sample_id": 14,
+    "batch": "KMT20261101"
+  }
+}

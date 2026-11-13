@@ -1,0 +1,13 @@
+{
+  "schema": "a04-reused-dependencies/1",
+  "baseline": "b2e6cfe",
+  "files": {
+    "a03-confirmation/a_confirm/locking.py": "e38c57ebe780b1a5c362303e1c97317ab1401c8cbfc8f74d1f7be10ee84677e1",
+    "a03-confirmation/a_confirm/model.py": "2d7933bd01b95dfec459dcb1b4e6d9bc56decd83791b76e16994919ade4e8a77",
+    "a03-confirmation/a_confirm/service.py": "7ca8762f2de32223c45e4c65be58f9af53769ca56b6fbe795079597e8a802e80",
+    "a03-confirmation/a_confirm/support.py": "a74ac971e47d76b8f3fdec15580d25d4d741cab3fb8d5fde7b7c6e5eff92b92b",
+    "a03-confirmation/a_confirm/__init__.py": "7bea802b4dd329f1611d5711a2c7f6e9e5ff8a1f407f8952b55c01bb54b358a5",
+    "a03-confirmation/a_confirm/__main__.py": "e91753bb07ded30fe06082e720a3e8122f8829a4a09410dba77369723023a629",
+    "a03-confirmation/dependency-lock.json": "de8b00250ac59bc420890bc101ece808b838a4b95f463a3da7fb3bce427f65ed"
+  }
+}

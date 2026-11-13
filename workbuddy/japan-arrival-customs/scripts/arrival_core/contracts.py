@@ -13,6 +13,14 @@ def source(path, kind, sheet=None):
     return {"path": str(path), "sha256": p0.sha(path.read_bytes()), "kind": kind, "sheet": sheet}
 
 
+def product_library_source(path):
+    """Bind a batch to one immutable local-product-library snapshot."""
+    path = Path(path).resolve(strict=True)
+    if path.suffix.lower() not in (".sqlite", ".sqlite3", ".db"):
+        raise Rejected("商品资料库必须是独立SQLite文件")
+    return {"path": str(path), "sha256": p0.sha(path.read_bytes()), "kind": "local-product-library-v1"}
+
+
 def create_contract(invoice, authority, weights, weight_sheet, *, customs_reference=None, internal_reference=None):
     files = {"invoice": source(invoice, "kmt-invoice-v1"),
              "authority": source(authority, "kmt-stage3-v1"),
@@ -21,7 +29,7 @@ def create_contract(invoice, authority, weights, weight_sheet, *, customs_refere
                             ("internal_reference", internal_reference, "kmt-stage6-reference")):
         if path:
             files[key] = source(path, kind)
-    return {"schema": "japan-arrival/contract-1", "sources": files,
+    return {"schema": "japan-arrival/contract-1", "input_mode": "legacy_stage3_authority", "sources": files,
             "currency": "JPY", "currency_basis": "KMT表头UnitPrice(日本JPY)，本票签核仍待确认",
             "authority_quantity_unit": None, "row_quantity_units": {}, "invoice_quantity_unit": None,
             "weight_unit": "KG", "weight_unit_basis": "所选模板要求合計重量（KGS)",
@@ -30,22 +38,84 @@ def create_contract(invoice, authority, weights, weight_sheet, *, customs_refere
             "purpose": "controlled_test_draft"}
 
 
-def validate_contract(contract):
+def create_raw_contract(invoice, weight_sheet, *, customs_reference=None, internal_reference=None, product_library=None):
+    """Create an unsigned source contract for a genuine raw workbook.
+
+    The contract records files and observed headers only.  It is not a D07/D08
+    sign-off and does not turn Subtotal into an approved declaration amount.
+    """
+    files={"invoice":source(invoice,"kmt-raw-invoice-v1"),
+           "weights":source(invoice,"kmt-weights-v1",weight_sheet)}
+    for key,path,kind in (("customs_reference",customs_reference,"kmt-stage5-reference"),
+                          ("internal_reference",internal_reference,"kmt-stage6-reference")):
+        if path: files[key]=source(path,kind)
+    contract={"schema":"japan-arrival/contract-1","input_mode":"raw_invoice_preliminary","sources":files,
+            "currency":"JPY","currency_basis":"日方原表UnitPrice(日本JPY)表头观察；未构成最终金额批准",
+            "authority_quantity_unit":None,"row_quantity_units":{},"invoice_quantity_unit":None,
+            "quantity_semantics":"Qty为仓库实际点收的最大到货单位数量；具体单位须查询开定/采购资料",
+            "amount_basis":"日方原表Subtotal逐行及合计，仅为初步到货金额",
+            "weight_unit":"KG","weight_unit_basis":"同一原工作簿重さとサイズ页合計重量（KGS)",
+            "responsibilities":{role:None for role in ROLES},"approval":None,
+            "customs_whitelist_approval":None,"rounding_policy":None,"purpose":"controlled_test_draft"}
+    if product_library:
+        contract["product_library"] = product_library_source(product_library)
+    return contract
+
+
+def create_confirmed_contract(workbook):
+    """Bind one operator-confirmed workbook without creating a review/database dependency."""
+    from .confirmed_excel import import_confirmed_arrival
+    preview = import_confirmed_arrival(workbook)
+    item = source(workbook, "confirmed-arrival-v1", "已确认明细")
+    return {"schema": "japan-arrival/contract-1", "input_mode": "confirmed_arrival_v1", "sources": {"confirmed": item},
+            "currency": "JPY", "currency_basis": "confirmed-arrival-v1 批次确认页",
+            "authority_quantity_unit": None, "row_quantity_units": {}, "invoice_quantity_unit": None,
+            "weight_unit": "KG", "weight_unit_basis": "confirmed-arrival-v1 箱重页",
+            "responsibilities": {role: None for role in ROLES}, "approval": None,
+            "customs_whitelist_approval": None, "rounding_policy": None,
+            "confirmed_metadata": preview["confirmed_input"]["metadata"], "purpose": "controlled_test_draft"}
+
+
+def validate_contract(contract, *, verify_product_library=True):
+    if not isinstance(contract, dict) or not isinstance(contract.get('sources'), dict):
+        raise Rejected('缺少有效输入合同或来源清单；请通过init-contract/准备这批业务合同生成，不手工拼写JSON')
+    if not isinstance(contract.get('responsibilities'),dict) or not isinstance(contract.get('row_quantity_units',{}),dict):
+        raise Rejected('合同职责或逐行单位格式无效；请重新通过受控合同填写生成')
     if contract.get("schema") != "japan-arrival/contract-1" or contract.get("purpose") != "controlled_test_draft":
         raise Rejected("不支持的首票合同或输出用途")
     if contract.get("currency") != "JPY" or contract.get("weight_unit") != "KG":
         raise Rejected("本期KMT适配只支持源表明确的JPY及KG；其他合同需另行确认")
-    expected = {"invoice": "kmt-invoice-v1", "authority": "kmt-stage3-v1", "weights": "kmt-weights-v1",
+    mode=contract.get("input_mode","legacy_stage3_authority")
+    if mode not in ("legacy_stage3_authority","raw_invoice_preliminary", "confirmed_arrival_v1"):
+        raise Rejected("未知输入模式")
+    expected = {"invoice": "kmt-raw-invoice-v1" if mode=="raw_invoice_preliminary" else "kmt-invoice-v1",
+                "authority": "kmt-stage3-v1", "weights": "kmt-weights-v1",
                 "customs_reference": "kmt-stage5-reference", "internal_reference": "kmt-stage6-reference"}
-    if not {"invoice", "authority", "weights"} <= set(contract["sources"]) or set(contract["sources"]) - set(expected):
-        raise Rejected("源合同必须包含日方原表、第3步金额表和明确的箱重表")
+    if mode == "confirmed_arrival_v1":
+        expected = {"confirmed": "confirmed-arrival-v1"}
+        required = {"confirmed"}
+    else:
+        required={"invoice","weights"} if mode=="raw_invoice_preliminary" else {"invoice","authority","weights"}
+    if not required <= set(contract["sources"]) or set(contract["sources"]) - set(expected):
+        raise Rejected("原表模式须包含日方原工作簿和明确箱重页；兼容模式另需独立第3步表")
+    if mode=="raw_invoice_preliminary" and "authority" in contract["sources"]:
+        raise Rejected("原表初步模式不得把自动整理结果登记为人工第3步金额来源")
     for key, item in contract["sources"].items():
+        if not isinstance(item,dict) or not all(item.get(k) for k in ('path','sha256','kind')):
+            raise Rejected('合同源文件记录不完整：'+key+'；请重新准备原始Excel合同')
         if item.get("kind") != expected[key]:
             raise Rejected("模板类型不匹配: " + key)
         path = Path(item["path"]).resolve(strict=True)
         if p0.sha(path.read_bytes()) != item["sha256"]:
             raise Rejected("合同源文件哈希不匹配: " + key)
-    if not contract["sources"]["weights"].get("sheet"):
+    library = contract.get("product_library")
+    if library is not None:
+        if not isinstance(library, dict) or library.get("kind") != "local-product-library-v1" or not library.get("path") or not library.get("sha256"):
+            raise Rejected("商品资料库引用格式无效；请从受控本地库选择，不手工拼写")
+        library_path = Path(library["path"]).resolve(strict=True)
+        if verify_product_library and p0.sha(library_path.read_bytes()) != library["sha256"]:
+            raise Rejected("商品资料库在建批后已变化；请重新准备合同以保留可追溯快照")
+    if mode != "confirmed_arrival_v1" and not contract["sources"]["weights"].get("sheet"):
         raise Rejected("必须明确箱重工作表，不能猜选")
     if set(contract.get("responsibilities", {})) != set(ROLES):
         raise Rejected("审核职责合同不完整")
@@ -57,6 +127,11 @@ def validate_contract(contract):
                  *contract.get("row_quantity_units", {}).values()]:
         if unit is not None and (not isinstance(unit, str) or not unit.strip() or unit in ("未知", "待确认")):
             raise Rejected("未确定的数量单位必须为null，不能用占位词冒充确定单位")
+    if mode == "confirmed_arrival_v1":
+        metadata = contract.get("confirmed_metadata")
+        required_metadata = {"模板版本", "批次号", "币种", "重量单位", "确认依据编号", "数据版本"}
+        if not isinstance(metadata, dict) or set(metadata) != required_metadata or metadata.get("模板版本") != "confirmed-arrival-v1":
+            raise Rejected("已确认Excel合同缺少受控批次元数据")
     return contract
 
 
@@ -81,7 +156,8 @@ def contract_status(contract, rows=()):
     missing.extend("D08_responsibility:"+role for role in ROLES if not contract["responsibilities"].get(role))
     return {"approved_for_business_review": bool(signed and contract["responsibilities"].get("business")),
             "all_contract_items_complete": not missing, "missing": missing,
-            "contract_hash": digest(contract), "formal_output_authorized": False}
+            "contract_hash": digest(contract), "input_mode":contract.get("input_mode","legacy_stage3_authority"),
+            "formal_output_authorized": False}
 
 
 def effective_permissions(batch, permissions):

@@ -1,0 +1,8 @@
+__pycache__/
+node_modules/
+*.sqlite3*
+*.xlsx
+*.png
+*.log
+private-*.json
+runtime/

@@ -1,0 +1,18 @@
+{
+  "python": "3.12.14",
+  "python_packages": {
+    "openpyxl": "3.1.5",
+    "Pillow": "13.0.0",
+    "requests": "not_installed_in_this_offline_runtime",
+    "beautifulsoup4": "not_installed_in_this_offline_runtime",
+    "lxml": "6.1.1"
+  },
+  "offline_required": [
+    "openpyxl",
+    "Pillow"
+  ],
+  "website_optional": "Do not infer networking capability from offline tests",
+  "node_package": "@oai/artifact-tool",
+  "node_resolution": "Codex load_workspace_dependencies or equivalent installed package; never ship node_modules",
+  "external_business_files": "local read-only SHA-pinned; not included in GitHub"
+}

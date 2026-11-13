@@ -1,0 +1,42 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:japan-arrival:product-source-bundle:1",
+  "title":"商品资料来源证据包 manifest v1",
+  "type":"object","additionalProperties":false,
+  "required":["schema_version","adapter_id","adapter_version","mapping_version","source_id","source_version","authorization_reference","files","record_count","status"],
+  "properties":{
+    "schema_version":{"const":"product-source-bundle/1"},
+    "adapter_id":{"enum":["order","packaging","material"]},
+    "adapter_version":{"type":"string","minLength":1},
+    "mapping_version":{"type":"string","minLength":1},
+    "source_id":{"type":"string","minLength":1},"source_version":{"type":"string","minLength":1},
+    "authorization_reference":{"type":"string","minLength":1},
+    "files":{"type":"object","minProperties":2,"additionalProperties":{"type":"string","pattern":"^[a-f0-9]{64}$"}},
+    "record_count":{"type":"integer","minimum":0},"status":{"$ref":"#/$defs/status"}
+  },
+  "$defs":{
+    "nullableText":{"type":["string","null"]},
+    "status":{"enum":["succeeded","no_match","no_data","permission_denied","rate_limited","network_error","unsupported_mapping","partial_failure"]},
+    "evidence":{"type":"object","additionalProperties":false,"required":["file"],"properties":{
+      "file":{"type":"string","pattern":"^evidence/[^\\\\]+$"},"sheet":{"type":["string","null"]},
+      "row":{"type":["integer","null"],"minimum":1},"cell":{"type":["string","null"]},"quote":{"$ref":"#/$defs/nullableText"}}},
+    "field":{"type":"object","additionalProperties":false,"required":["value","raw_value","evidence","reference_type","translation_status"],"properties":{
+      "value":{"type":["string","array","null"],"items":{"type":"object","additionalProperties":false,"required":["parent_unit","child_unit","child_quantity"],"properties":{
+        "parent_unit":{"type":"string","minLength":1},"child_unit":{"type":"string","minLength":1},"child_quantity":{"type":"string","pattern":"^[0-9]+(\\.[0-9]+)?$"}}}},
+      "raw_value":{},"evidence":{"type":"array","minItems":1,"items":{"$ref":"#/$defs/evidence"}},
+      "reference_type":{"enum":["historical_reference","official_reference","purchase_reference"]},
+      "translation_status":{"enum":["not_applicable","pending","provided_unreviewed"]}}},
+    "record":{"type":"object","additionalProperties":false,"required":["source_record_id","identity","provenance","fields","status","review_status","approval"],"properties":{
+      "source_record_id":{"type":"string","minLength":1},
+      "identity":{"type":"object","additionalProperties":false,"required":["code_raw","code_type","japanese_name","version","specification"],"properties":{
+        "code_raw":{"$ref":"#/$defs/nullableText"},"code_type":{"$ref":"#/$defs/nullableText"},"japanese_name":{"$ref":"#/$defs/nullableText"},"version":{"$ref":"#/$defs/nullableText"},"specification":{"$ref":"#/$defs/nullableText"}}},
+      "provenance":{"type":"object","additionalProperties":false,"required":["source_id","source_version","file_sha256","file_name","sheet","row"],"properties":{
+        "source_id":{"type":"string","minLength":1},"source_version":{"type":"string","minLength":1},
+        "file_sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},"file_name":{"type":"string"},
+        "sheet":{"$ref":"#/$defs/nullableText"},"row":{"type":"integer","minimum":1},
+        "url":{"$ref":"#/$defs/nullableText"},"collected_at":{"$ref":"#/$defs/nullableText"},"content_sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"}}},
+      "fields":{"type":"object","propertyNames":{"enum":["code_raw","code_type","japanese_name","version","specification","internal_name","customs_name","brand","category","channel","yd","order_id","order_line_id","supplier","purchase_quantity","purchase_unit","unit_price","currency","packaging_original","packaging_label","packaging_relations","material_original","material_translation","complete_composition","material_url","material_site"]},"additionalProperties":{"$ref":"#/$defs/field"}},
+      "status":{"$ref":"#/$defs/status"},"review_status":{"const":"reference_only"},"approval":{"const":false}
+    }}
+  }
+}

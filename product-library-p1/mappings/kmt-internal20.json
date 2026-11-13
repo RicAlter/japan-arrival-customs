@@ -1,0 +1,1 @@
+{"id":"kmt-internal20-reference-v1","sheet":"Sheet1","header_row":1,"headers":{"A":"CartonNo.","C":"ProductCode(JANCode)","G":"DescriptionofGoods","H":"盒装数","I":"Qty","M":"材质","S":"YD编码"},"columns":{"code_raw":"C","internal_name":"E","packaging_label":"F","japanese_name":"G","category":"L","material_original":"M","yd":"S"},"item_column":"A"}

@@ -9,7 +9,7 @@ Python 3.12及以上，依赖requirements.txt中的openpyxl 3.1.5。WorkBuddy现
 ```text
 python scripts/run.py --output <独立输出根目录> import-stage3 --source <第3步Excel> --currency JPY --quantity-unit <单位或空字符串>
 python scripts/run.py --output <同一目录> review-package --batch <批次ID>
-python scripts/run.py --output <同一目录> apply --batch <批次ID> --request <请求JSON> --permissions <可信角色JSON>
+python scripts/run.py --output <同一目录> apply --batch <批次ID> --request <请求JSON> --session-token-env <宿主可信会话变量名>
 python scripts/run.py --output <同一目录> status --batch <批次ID>
 python scripts/run.py --output <同一目录> customs-preview --batch <批次ID>
 python scripts/run.py --output <同一目录> calculation-preview --batch <批次ID>
@@ -33,11 +33,11 @@ calculation-preview仅对显式确认的价格/盒规及税费参数演算，其
 6. 价格审核只确认绑定的第3步金额及单位，不能改价。专业域通过approve-domain单独提供完整参数/适用context及依据，角色不符拒绝。没有证据的材质/盒规/税率保持待确认。
 7. status始终显示P1-A正式输出禁用及集成门槛。所有行保留在批次中，不为满足放行条件静默排除争议商品。
 
-角色配置由业务负责人/管理员确认维护：`{"实际审核人": ["business", "identity", "amount", "material", "packaging"], "实际关务": ["customs"]}`。实际角色分配尚待D08确认，不附默认可用人名。该JSON是本机可信配置，actor为操作者声明；不是登录鉴权、签名或多人防篡改系统，不能把它当作身份验证证据。
+rc.3角色与身份只能来自宿主管理员保护的security/trusted_sessions.json、runtime.json及会话环境；参见[v070-operation.md](v070-operation.md)。不接受请求或Excel自报actor/roles/permissions，实际D08未配置就阻断相应提交。此本地适配不是WorkBuddy登录鉴权服务，宿主权限隔离及真实注入仍需验证。
 
 ## JSON请求
 
-共用字段：`state_hash`（最新全状态哈希）、`actor`、`evidence`。业务确认来源需可追溯到业务实际回复或签核资料，AI不能伪造。
+共用字段：`state_hash`（最新全状态哈希）、`evidence`。actor由可信会话注入，不能放入请求。业务确认来源需可追溯到业务实际回复或签核资料，AI不能伪造。业务建批必须先受控填写签核合同；import-stage3只作预导入。
 
 | action | 另需字段 |
 |---|---|

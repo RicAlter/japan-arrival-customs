@@ -1,0 +1,2109 @@
+{
+  "source_batch": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run",
+  "jump_raw_sha256": "09ac57a0f7bbcc6c6281c6a8504f9e1c9f721bf3ea0f0b79e91d105b1aefc554",
+  "jump_polluted_original": "アクリル\n作品\n忘却バッテリー\nお気に入り作品に登録する\nお気に入り作品を解除しますか?\nOK\nお気に入り作品一覧へ\nお気に入りの登録にはログインが必要です。ログインしますか?\nはい\n{\n\"@context\":\"http:\\/\\/schema.org\\/\",\n\"@type\":\"Product\",\n\"name\":\"JCS限定 『忘却バッテリー』アクリルGIGAフィギュア 要圭 (都立小手指高校制服Ver.) BF2\",\n\"image\":\"https:\\u002f\\u002fjumpcs.shueisha.co.jp\\u002fimg\\u002fgoods\\u002fS\\u002f4530430565337.jpg\",\n\"description\":\"\",\n\"mpn\":\"4530430565337\",\n\"offers\":{\n\"@type\":\"Offer\",\n\"price\":12100,\n\"priceCurrency\":\"JPY\",\n\"availability\":\"http:\\/\\/schema.org\\/InStock\"\n},\n\"isSimilarTo\":{\n\"url\":\"https:\\u002f\\u002fjumpcs.shueisha.co.jp\\u002fshop\\u002fg\\u002fg4530430565337\\u002f\"\n}\nご利用ガイド\nよくあるご質問\nお問い合わせ\n利用規約\n特定商取引法に基づく表示\n集英社プライバシーガイドライン\n集英社 キャラクターグッズの\nショッピングサイト\nジャンプキャラクターズストア",
+  "prices": {
+    "1636": {
+      "jan": "4570112179957",
+      "spec": "苍月卫人120pcs（10CTN）",
+      "records": [
+        {
+          "jan": "4570112179957",
+          "pcs": "",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "spec": "苍月卫人120pcs（10CTN）",
+          "channel": "Empty",
+          "material": "pvc",
+          "sku": "",
+          "source": {
+            "kind": "registry",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\c628ff9fab12-c628ff9fab12-25.6.1-至今报单汇总(1).xlsx",
+            "sha256": "c628ff9fab1295977b475f10aaa621c07f1fb7e40eb87749f0cf2e8da70ba401",
+            "sheet": "25.6.1-至今报单汇总",
+            "row": 4181,
+            "columns": {
+              "jan": 1,
+              "pcs": 8,
+              "name": 2,
+              "spec": 3,
+              "channel": 9,
+              "material": 13
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "order_total",
+          "priority": 100
+        },
+        {
+          "jan": "",
+          "sku": "4570112179957",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "yd": "YDFIG2026042413",
+          "spec": "订单B苍月卫人",
+          "image": "https://img.alicdn.com/bao/uploaded/i4/113115618/O1CN01qPhtjm1rN6EYSC86m_!!113115618.jpg",
+          "channel": "Empty",
+          "currency": "人民币",
+          "price": 250,
+          "actual_price": null,
+          "purchase_required": 116,
+          "purchase_bought": 120,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 66740,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "jan": "",
+          "sku": "4570112179957",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "yd": "YDFIG2026042413",
+          "spec": "订单B苍月卫人",
+          "image": "https://img.alicdn.com/bao/uploaded/i4/113115618/O1CN01qPhtjm1rN6EYSC86m_!!113115618.jpg",
+          "channel": "迷萌",
+          "currency": "人民币",
+          "price": 257.3,
+          "actual_price": null,
+          "purchase_required": 116,
+          "purchase_bought": 120,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 66741,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "jan": "4570112179957",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "category": [
+              "精细收藏模型"
+            ],
+            "channel": [
+              "Empty"
+            ],
+            "code_raw": [
+              "4570112179957"
+            ],
+            "internal_name": [
+              "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办"
+            ],
+            "material_original": [
+              "pvc"
+            ],
+            "packaging_label": [
+              "苍月卫人120pcs（10CTN）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "611b7b6fe6210431db4960b28ae21564091838e329010ec45d23f7fa00f12f19",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 4181,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "business-registration-20260601-20261105",
+                  "source_version": "sha256:c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1"
+                },
+                "raw_record_sha256": "8ff08600c26dfddddf7921b49cb6802d085aa35f21c6efefb55473c1a7fdb7ce"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "611b7b6fe6210431db4960b28ae21564091838e329010ec45d23f7fa00f12f19",
+              "field_name": "category",
+              "value_sha256": "2274acaecf750ed4df04fc0f40f7b41eea225ff25e34b7f225dad41f1b516c2c",
+              "value_json": "\"精细收藏模型\"",
+              "record_count": 1,
+              "sample_observation_sha256": "8ff08600c26dfddddf7921b49cb6802d085aa35f21c6efefb55473c1a7fdb7ce"
+            },
+            {
+              "entry_id": "611b7b6fe6210431db4960b28ae21564091838e329010ec45d23f7fa00f12f19",
+              "field_name": "channel",
+              "value_sha256": "65b1cbba3b92c5b2597926a0d5dcf1fe03cdb5fa8f518dbfc1c66a523473bc7a",
+              "value_json": "\"Empty\"",
+              "record_count": 1,
+              "sample_observation_sha256": "8ff08600c26dfddddf7921b49cb6802d085aa35f21c6efefb55473c1a7fdb7ce"
+            },
+            {
+              "entry_id": "611b7b6fe6210431db4960b28ae21564091838e329010ec45d23f7fa00f12f19",
+              "field_name": "code_raw",
+              "value_sha256": "8ab69d8465731f6e6d76f21b3f366ae664ebfa4cda59d55ec2966733fb6e5f76",
+              "value_json": "\"4570112179957\"",
+              "record_count": 1,
+              "sample_observation_sha256": "8ff08600c26dfddddf7921b49cb6802d085aa35f21c6efefb55473c1a7fdb7ce"
+            },
+            {
+              "entry_id": "611b7b6fe6210431db4960b28ae21564091838e329010ec45d23f7fa00f12f19",
+              "field_name": "internal_name",
+              "value_sha256": "b34393cc5a50072fd149b2848dbfa5f672e58c286078a77e752f30c29089558a",
+              "value_json": "\"Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办\"",
+              "record_count": 1,
+              "sample_observation_sha256": "8ff08600c26dfddddf7921b49cb6802d085aa35f21c6efefb55473c1a7fdb7ce"
+            },
+            {
+              "entry_id": "611b7b6fe6210431db4960b28ae21564091838e329010ec45d23f7fa00f12f19",
+              "field_name": "material_original",
+              "value_sha256": "2b3959f8877e98fd377f2aec327c6483490abc90dbfe26bd36f4897f74e22bd7",
+              "value_json": "\"pvc\"",
+              "record_count": 1,
+              "sample_observation_sha256": "8ff08600c26dfddddf7921b49cb6802d085aa35f21c6efefb55473c1a7fdb7ce"
+            },
+            {
+              "entry_id": "611b7b6fe6210431db4960b28ae21564091838e329010ec45d23f7fa00f12f19",
+              "field_name": "packaging_label",
+              "value_sha256": "d8794abbd74b26834df2d9d49733ae83db37edaf4bfa628d600c1686f9dd34af",
+              "value_json": "\"苍月卫人120pcs（10CTN）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "8ff08600c26dfddddf7921b49cb6802d085aa35f21c6efefb55473c1a7fdb7ce"
+            }
+          ],
+          "channel": "Empty",
+          "currency": null,
+          "price": null,
+          "material": "pvc",
+          "packaging": "苍月卫人120pcs（10CTN）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        },
+        {
+          "jan": "4570112179957",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "category": [
+              "精细收藏模型"
+            ],
+            "channel": [
+              "Empty"
+            ],
+            "code_raw": [
+              "4570112179957"
+            ],
+            "currency": [
+              "JPY"
+            ],
+            "internal_name": [
+              "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办"
+            ],
+            "material_original": [
+              "pvc"
+            ],
+            "packaging_label": [
+              "苍月卫人120pcs（10CTN）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 4181,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "category",
+              "value_sha256": "2274acaecf750ed4df04fc0f40f7b41eea225ff25e34b7f225dad41f1b516c2c",
+              "value_json": "\"精细收藏模型\"",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "channel",
+              "value_sha256": "65b1cbba3b92c5b2597926a0d5dcf1fe03cdb5fa8f518dbfc1c66a523473bc7a",
+              "value_json": "\"Empty\"",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "code_raw",
+              "value_sha256": "8ab69d8465731f6e6d76f21b3f366ae664ebfa4cda59d55ec2966733fb6e5f76",
+              "value_json": "\"4570112179957\"",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "currency",
+              "value_sha256": "35d583bf29da95f618d4ec82641ee09f7c0303e434ded1758cb4490119248e9c",
+              "value_json": "\"JPY\"",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "internal_name",
+              "value_sha256": "b34393cc5a50072fd149b2848dbfa5f672e58c286078a77e752f30c29089558a",
+              "value_json": "\"Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办\"",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "material_original",
+              "value_sha256": "2b3959f8877e98fd377f2aec327c6483490abc90dbfe26bd36f4897f74e22bd7",
+              "value_json": "\"pvc\"",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "packaging_label",
+              "value_sha256": "d8794abbd74b26834df2d9d49733ae83db37edaf4bfa628d600c1686f9dd34af",
+              "value_json": "\"苍月卫人120pcs（10CTN）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "purchase_quantity",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "specification",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            },
+            {
+              "entry_id": "c245e6cc415db14a6256f833578411abcaf01ff5760328fc6307d31f4c9b7810",
+              "field_name": "unit_price",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "295c971c5ea1f5fe673af9e2744e84e1228fc1fc8fb96c4ccd109f886bb1220f"
+            }
+          ],
+          "channel": "Empty",
+          "currency": "JPY",
+          "price": null,
+          "material": "pvc",
+          "packaging": "苍月卫人120pcs（10CTN）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        }
+      ]
+    },
+    "1637": {
+      "jan": "4570112179940",
+      "spec": "澄野拓海96pcs（8CTN）",
+      "records": [
+        {
+          "jan": "4570112179940",
+          "pcs": "",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "spec": "澄野拓海96pcs（8CTN）",
+          "channel": "Empty",
+          "material": "pvc",
+          "sku": "",
+          "source": {
+            "kind": "registry",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\c628ff9fab12-c628ff9fab12-25.6.1-至今报单汇总(1).xlsx",
+            "sha256": "c628ff9fab1295977b475f10aaa621c07f1fb7e40eb87749f0cf2e8da70ba401",
+            "sheet": "25.6.1-至今报单汇总",
+            "row": 4180,
+            "columns": {
+              "jan": 1,
+              "pcs": 8,
+              "name": 2,
+              "spec": 3,
+              "channel": 9,
+              "material": 13
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "order_total",
+          "priority": 100
+        },
+        {
+          "jan": "",
+          "sku": "4570112179940",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "yd": "YDFIG2026042413",
+          "spec": "订单A澄野拓海",
+          "image": "https://img.alicdn.com/bao/uploaded/i3/113115618/O1CN01m2DEsG1rN6EYXlPhk_!!113115618.jpg",
+          "channel": "Empty",
+          "currency": "人民币",
+          "price": 250,
+          "actual_price": null,
+          "purchase_required": 96,
+          "purchase_bought": 96,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 66738,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "jan": "",
+          "sku": "4570112179940",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "yd": "YDFIG2026042413",
+          "spec": "订单A澄野拓海",
+          "image": "https://img.alicdn.com/bao/uploaded/i3/113115618/O1CN01m2DEsG1rN6EYXlPhk_!!113115618.jpg",
+          "channel": "迷萌",
+          "currency": "人民币",
+          "price": 257.3,
+          "actual_price": null,
+          "purchase_required": 96,
+          "purchase_bought": 96,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 66739,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "jan": "4570112179940",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "category": [
+              "精细收藏模型"
+            ],
+            "channel": [
+              "Empty"
+            ],
+            "code_raw": [
+              "4570112179940"
+            ],
+            "internal_name": [
+              "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办"
+            ],
+            "material_original": [
+              "pvc"
+            ],
+            "packaging_label": [
+              "澄野拓海96pcs（8CTN）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "9d736e41c03f844a184cf32753a390bb1a48197f037fdd910f6a49c4600e0cd5",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 4180,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "business-registration-20260601-20261105",
+                  "source_version": "sha256:c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1"
+                },
+                "raw_record_sha256": "24b334e639a2c6de626e64e5541e7636e04c07b56519ab5e4128abfbaa024f3d"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "9d736e41c03f844a184cf32753a390bb1a48197f037fdd910f6a49c4600e0cd5",
+              "field_name": "category",
+              "value_sha256": "2274acaecf750ed4df04fc0f40f7b41eea225ff25e34b7f225dad41f1b516c2c",
+              "value_json": "\"精细收藏模型\"",
+              "record_count": 1,
+              "sample_observation_sha256": "24b334e639a2c6de626e64e5541e7636e04c07b56519ab5e4128abfbaa024f3d"
+            },
+            {
+              "entry_id": "9d736e41c03f844a184cf32753a390bb1a48197f037fdd910f6a49c4600e0cd5",
+              "field_name": "channel",
+              "value_sha256": "65b1cbba3b92c5b2597926a0d5dcf1fe03cdb5fa8f518dbfc1c66a523473bc7a",
+              "value_json": "\"Empty\"",
+              "record_count": 1,
+              "sample_observation_sha256": "24b334e639a2c6de626e64e5541e7636e04c07b56519ab5e4128abfbaa024f3d"
+            },
+            {
+              "entry_id": "9d736e41c03f844a184cf32753a390bb1a48197f037fdd910f6a49c4600e0cd5",
+              "field_name": "code_raw",
+              "value_sha256": "3c009503e62b4edda155b865915a082b10b37beca56705b3349227816bb1597d",
+              "value_json": "\"4570112179940\"",
+              "record_count": 1,
+              "sample_observation_sha256": "24b334e639a2c6de626e64e5541e7636e04c07b56519ab5e4128abfbaa024f3d"
+            },
+            {
+              "entry_id": "9d736e41c03f844a184cf32753a390bb1a48197f037fdd910f6a49c4600e0cd5",
+              "field_name": "internal_name",
+              "value_sha256": "b34393cc5a50072fd149b2848dbfa5f672e58c286078a77e752f30c29089558a",
+              "value_json": "\"Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办\"",
+              "record_count": 1,
+              "sample_observation_sha256": "24b334e639a2c6de626e64e5541e7636e04c07b56519ab5e4128abfbaa024f3d"
+            },
+            {
+              "entry_id": "9d736e41c03f844a184cf32753a390bb1a48197f037fdd910f6a49c4600e0cd5",
+              "field_name": "material_original",
+              "value_sha256": "2b3959f8877e98fd377f2aec327c6483490abc90dbfe26bd36f4897f74e22bd7",
+              "value_json": "\"pvc\"",
+              "record_count": 1,
+              "sample_observation_sha256": "24b334e639a2c6de626e64e5541e7636e04c07b56519ab5e4128abfbaa024f3d"
+            },
+            {
+              "entry_id": "9d736e41c03f844a184cf32753a390bb1a48197f037fdd910f6a49c4600e0cd5",
+              "field_name": "packaging_label",
+              "value_sha256": "9f1e36431181cba135a56b052001d53ab4fddd94e1c15dbdc3a07d5c9c92fee5",
+              "value_json": "\"澄野拓海96pcs（8CTN）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "24b334e639a2c6de626e64e5541e7636e04c07b56519ab5e4128abfbaa024f3d"
+            }
+          ],
+          "channel": "Empty",
+          "currency": null,
+          "price": null,
+          "material": "pvc",
+          "packaging": "澄野拓海96pcs（8CTN）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        },
+        {
+          "jan": "4570112179940",
+          "name": "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "category": [
+              "精细收藏模型"
+            ],
+            "channel": [
+              "Empty"
+            ],
+            "code_raw": [
+              "4570112179940"
+            ],
+            "currency": [
+              "JPY"
+            ],
+            "internal_name": [
+              "Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办"
+            ],
+            "material_original": [
+              "pvc"
+            ],
+            "packaging_label": [
+              "澄野拓海96pcs（8CTN）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 4180,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "category",
+              "value_sha256": "2274acaecf750ed4df04fc0f40f7b41eea225ff25e34b7f225dad41f1b516c2c",
+              "value_json": "\"精细收藏模型\"",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "channel",
+              "value_sha256": "65b1cbba3b92c5b2597926a0d5dcf1fe03cdb5fa8f518dbfc1c66a523473bc7a",
+              "value_json": "\"Empty\"",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "code_raw",
+              "value_sha256": "3c009503e62b4edda155b865915a082b10b37beca56705b3349227816bb1597d",
+              "value_json": "\"4570112179940\"",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "currency",
+              "value_sha256": "35d583bf29da95f618d4ec82641ee09f7c0303e434ded1758cb4490119248e9c",
+              "value_json": "\"JPY\"",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "internal_name",
+              "value_sha256": "b34393cc5a50072fd149b2848dbfa5f672e58c286078a77e752f30c29089558a",
+              "value_json": "\"Empty 百日战纪最终防卫学园 澄野拓海 苍月卫人 Q版手办\"",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "material_original",
+              "value_sha256": "2b3959f8877e98fd377f2aec327c6483490abc90dbfe26bd36f4897f74e22bd7",
+              "value_json": "\"pvc\"",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "packaging_label",
+              "value_sha256": "9f1e36431181cba135a56b052001d53ab4fddd94e1c15dbdc3a07d5c9c92fee5",
+              "value_json": "\"澄野拓海96pcs（8CTN）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "purchase_quantity",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "specification",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            },
+            {
+              "entry_id": "f7253608a62aa6b8084ce33e8a8d87c25707e72fa8e5b2b0efbd91357f8905a3",
+              "field_name": "unit_price",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "f1c0362f7d65aec47626c341357e2217ea657481c4d9e238757300e914c14750"
+            }
+          ],
+          "channel": "Empty",
+          "currency": "JPY",
+          "price": null,
+          "material": "pvc",
+          "packaging": "澄野拓海96pcs（8CTN）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        }
+      ]
+    },
+    "1873": {
+      "jan": "4580843674331",
+      "spec": "01A6（差2）",
+      "records": [
+        {
+          "jan": "4580843674331",
+          "pcs": "",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）",
+          "spec": "01A6（差2）",
+          "channel": "A3",
+          "material": null,
+          "sku": "",
+          "source": {
+            "kind": "registry",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\c628ff9fab12-c628ff9fab12-25.6.1-至今报单汇总(1).xlsx",
+            "sha256": "c628ff9fab1295977b475f10aaa621c07f1fb7e40eb87749f0cf2e8da70ba401",
+            "sheet": "25.6.1-至今报单汇总",
+            "row": 27043,
+            "columns": {
+              "jan": 1,
+              "pcs": 8,
+              "name": 2,
+              "spec": 3,
+              "channel": 9,
+              "material": 13
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "order_total",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674331",
+          "sku": "4580843674331",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "spec": "01A",
+          "image": "https://img.alicdn.com/bao/uploaded/i2/113115618/O1CN01T30jSR1rN6EBCDbgm_!!113115618.jpg",
+          "yd": "YDZB2026032455",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 168.0,
+          "purchase_bought": 168.0,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\6888df22bcf3-6888df22bcf3-采购清单 (5)__6888df22bcf3.xlsx",
+            "sha256": "6888df22bcf3e4fb8809ed8ca18b3e0fa5144b470686ad3a24b951d4ce180df6",
+            "sheet": "采购清单信息",
+            "row": 1883,
+            "columns": {
+              "jan": 5,
+              "sku": 4,
+              "name": 0,
+              "spec": 2,
+              "image": 3,
+              "yd": 1,
+              "channel": 11,
+              "currency": 14,
+              "price": 15,
+              "actual_price": 16,
+              "purchase_required": 7,
+              "purchase_bought": 9,
+              "purchase_current": 17
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674331",
+          "sku": "4580843674331",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "spec": "01A",
+          "image": "https://img.alicdn.com/bao/uploaded/i2/113115618/O1CN01T30jSR1rN6EBCDbgm_!!113115618.jpg",
+          "yd": "YDZB2026032455",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 168.0,
+          "purchase_bought": 168.0,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\6888df22bcf3-6888df22bcf3-采购清单 (5)__6888df22bcf3.xlsx",
+            "sha256": "6888df22bcf3e4fb8809ed8ca18b3e0fa5144b470686ad3a24b951d4ce180df6",
+            "sheet": "采购清单信息",
+            "row": 1883,
+            "columns": {
+              "jan": 5,
+              "sku": 4,
+              "name": 0,
+              "spec": 2,
+              "image": 3,
+              "yd": 1,
+              "channel": 11,
+              "currency": 14,
+              "price": 15,
+              "actual_price": 16,
+              "purchase_required": 7,
+              "purchase_bought": 9,
+              "purchase_current": 17
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674331",
+          "sku": "4580843674331",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边",
+          "yd": "YDZB2026032455",
+          "spec": "01A",
+          "image": "https://img.alicdn.com/bao/uploaded/i2/113115618/O1CN01T30jSR1rN6EBCDbgm_!!113115618.jpg",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 168,
+          "purchase_bought": 168,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 61120,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "jan": "4580843674331",
+          "sku": "4580843674331",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边",
+          "yd": "YDZB2026032455",
+          "spec": "01A",
+          "image": "https://img.alicdn.com/bao/uploaded/i2/113115618/O1CN01T30jSR1rN6EBCDbgm_!!113115618.jpg",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 168,
+          "purchase_bought": 168,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 61120,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "order_id": "HM2026040907",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "order_date": "2026-04-10T13:31:54",
+          "status": "已采购",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "yd": "YDZB2026032455",
+          "spec": "01A",
+          "jan": "4580843674331",
+          "price": 585.76,
+          "quantity": 168.0,
+          "cut_quantity": 0.0,
+          "has_cut": "否",
+          "pcs": "",
+          "sku": "",
+          "source": {
+            "kind": "effective_purchase_order",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\9303370d7c1b-9303370d7c1b-9303370d7c1b-订单明细 (4)__9303370d7c1b.xlsx",
+            "sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+            "sheet": "采购订单明细信息",
+            "row": 2916,
+            "columns": {
+              "order_id": 0,
+              "channel": 1,
+              "currency": 3,
+              "order_date": 7,
+              "status": 8,
+              "name": 9,
+              "yd": 10,
+              "spec": 15,
+              "jan": 16,
+              "price": 20,
+              "quantity": 21,
+              "cut_quantity": 27,
+              "has_cut": 26
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "order_id": "HM2026040907",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "order_date": "2026-04-09T23:59:02",
+          "status": "已撤销",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "yd": "YDZB2026032455",
+          "spec": "01A",
+          "jan": "4580843674331",
+          "price": 585.76,
+          "quantity": 168.0,
+          "cut_quantity": 0.0,
+          "has_cut": "否",
+          "pcs": "",
+          "sku": "",
+          "source": {
+            "kind": "effective_purchase_order",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\9303370d7c1b-9303370d7c1b-9303370d7c1b-订单明细 (4)__9303370d7c1b.xlsx",
+            "sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+            "sheet": "采购订单明细信息",
+            "row": 3093,
+            "columns": {
+              "order_id": 0,
+              "channel": 1,
+              "currency": 3,
+              "order_date": 7,
+              "status": 8,
+              "name": 9,
+              "yd": 10,
+              "spec": 15,
+              "jan": 16,
+              "price": 20,
+              "quantity": 21,
+              "cut_quantity": 27,
+              "has_cut": 26
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674331",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "channel": [
+              "A3"
+            ],
+            "code_raw": [
+              "4580843674331"
+            ],
+            "internal_name": [
+              "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）"
+            ],
+            "packaging_label": [
+              "01A6（差2）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "205eb9720bf25c43f0fc2fcf6b7d704a820f3d45c9636a0548421df39cec9025",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 27043,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "business-registration-20260601-20261105",
+                  "source_version": "sha256:c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1"
+                },
+                "raw_record_sha256": "15530fbeec0f7f4f35577ba17e1648ca8bac09cb947c0ac2764431349782e326"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "205eb9720bf25c43f0fc2fcf6b7d704a820f3d45c9636a0548421df39cec9025",
+              "field_name": "category",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "15530fbeec0f7f4f35577ba17e1648ca8bac09cb947c0ac2764431349782e326"
+            },
+            {
+              "entry_id": "205eb9720bf25c43f0fc2fcf6b7d704a820f3d45c9636a0548421df39cec9025",
+              "field_name": "channel",
+              "value_sha256": "973ce3432355cdc6c2318cd864fafc0bbf390c8a2e44c08f0421b01347e993be",
+              "value_json": "\"A3\"",
+              "record_count": 1,
+              "sample_observation_sha256": "15530fbeec0f7f4f35577ba17e1648ca8bac09cb947c0ac2764431349782e326"
+            },
+            {
+              "entry_id": "205eb9720bf25c43f0fc2fcf6b7d704a820f3d45c9636a0548421df39cec9025",
+              "field_name": "code_raw",
+              "value_sha256": "1e7ff7530fc1eed68d1d98680423889e9ce67d22c3261774ec67056fe956eeb6",
+              "value_json": "\"4580843674331\"",
+              "record_count": 1,
+              "sample_observation_sha256": "15530fbeec0f7f4f35577ba17e1648ca8bac09cb947c0ac2764431349782e326"
+            },
+            {
+              "entry_id": "205eb9720bf25c43f0fc2fcf6b7d704a820f3d45c9636a0548421df39cec9025",
+              "field_name": "internal_name",
+              "value_sha256": "35450085b279e8e3f5b9fb2f187b9035f947dff4eab812b6d72f179ba4f103be",
+              "value_json": "\"刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "15530fbeec0f7f4f35577ba17e1648ca8bac09cb947c0ac2764431349782e326"
+            },
+            {
+              "entry_id": "205eb9720bf25c43f0fc2fcf6b7d704a820f3d45c9636a0548421df39cec9025",
+              "field_name": "material_original",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "15530fbeec0f7f4f35577ba17e1648ca8bac09cb947c0ac2764431349782e326"
+            },
+            {
+              "entry_id": "205eb9720bf25c43f0fc2fcf6b7d704a820f3d45c9636a0548421df39cec9025",
+              "field_name": "packaging_label",
+              "value_sha256": "d43d1c77a17a0f2548a1e4d20387a9900bce9f1f9ea518cb1d53914c65e85247",
+              "value_json": "\"01A6（差2）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "15530fbeec0f7f4f35577ba17e1648ca8bac09cb947c0ac2764431349782e326"
+            }
+          ],
+          "channel": "A3",
+          "currency": null,
+          "price": null,
+          "material": null,
+          "packaging": "01A6（差2）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        },
+        {
+          "jan": "4580843674331",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "channel": [
+              "A3"
+            ],
+            "code_raw": [
+              "4580843674331"
+            ],
+            "currency": [
+              "JPY"
+            ],
+            "internal_name": [
+              "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）"
+            ],
+            "packaging_label": [
+              "01A6（差2）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 27043,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "category",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "channel",
+              "value_sha256": "973ce3432355cdc6c2318cd864fafc0bbf390c8a2e44c08f0421b01347e993be",
+              "value_json": "\"A3\"",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "code_raw",
+              "value_sha256": "1e7ff7530fc1eed68d1d98680423889e9ce67d22c3261774ec67056fe956eeb6",
+              "value_json": "\"4580843674331\"",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "currency",
+              "value_sha256": "35d583bf29da95f618d4ec82641ee09f7c0303e434ded1758cb4490119248e9c",
+              "value_json": "\"JPY\"",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "internal_name",
+              "value_sha256": "35450085b279e8e3f5b9fb2f187b9035f947dff4eab812b6d72f179ba4f103be",
+              "value_json": "\"刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "material_original",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "packaging_label",
+              "value_sha256": "d43d1c77a17a0f2548a1e4d20387a9900bce9f1f9ea518cb1d53914c65e85247",
+              "value_json": "\"01A6（差2）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "purchase_quantity",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "specification",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            },
+            {
+              "entry_id": "345d73801d4a47602e4875ee57977855ed8929aac830ac4fc999199b93359e7a",
+              "field_name": "unit_price",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "2e13e8de67d50ff6a6920011800117587f523243b2074c1838e5909e60d9a56f"
+            }
+          ],
+          "channel": "A3",
+          "currency": "JPY",
+          "price": null,
+          "material": null,
+          "packaging": "01A6（差2）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        },
+        {
+          "jan": "4580843674331",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "spec": "01A",
+          "name_ja": null,
+          "yd": "YDZB2026032455",
+          "versions": {
+            "channel": [
+              "noel A3 刀剑乱舞 3.25"
+            ],
+            "code_raw": [
+              "4580843674331"
+            ],
+            "currency": [
+              "JPY"
+            ],
+            "internal_name": [
+              "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金"
+            ],
+            "order_id": [
+              "HM2026040907"
+            ],
+            "purchase_quantity": [
+              "168.0"
+            ],
+            "specification": [
+              "01A"
+            ],
+            "unit_price": [
+              "585.76"
+            ],
+            "yd": [
+              "YDZB2026032455"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "订单明细 (4).xlsx",
+                  "file_sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+                  "row": 2916,
+                  "sheet": "采购订单明细信息",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+              },
+              {
+                "provenance": {
+                  "file_name": "订单明细 (4).xlsx",
+                  "file_sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+                  "row": 3093,
+                  "sheet": "采购订单明细信息",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "ce1f8e3e503718f09382ebf93f58731699b73ec2afc6cdbfe2510cddd4614dfa"
+              },
+              {
+                "provenance": {
+                  "file_name": "采购清单 (5).xlsx",
+                  "file_sha256": "6888df22bcf3e4fb8809ed8ca18b3e0fa5144b470686ad3a24b951d4ce180df6",
+                  "row": 1883,
+                  "sheet": "采购清单信息",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "414f55f293309b8362e712ddbe8dcd50e6db301b7d286faabb9be444fe467b1c"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "channel",
+              "value_sha256": "74ec20aa14b513ae5febf813214a10001171e78c0ed333b886fe3822b95eb6f1",
+              "value_json": "\"noel A3 刀剑乱舞 3.25\"",
+              "record_count": 3,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "code_raw",
+              "value_sha256": "1e7ff7530fc1eed68d1d98680423889e9ce67d22c3261774ec67056fe956eeb6",
+              "value_json": "\"4580843674331\"",
+              "record_count": 3,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "currency",
+              "value_sha256": "35d583bf29da95f618d4ec82641ee09f7c0303e434ded1758cb4490119248e9c",
+              "value_json": "\"JPY\"",
+              "record_count": 3,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "internal_name",
+              "value_sha256": "53c339c3a5d347de63d681cd0b46537c3455ab8b07ee71a0f025de6e0f5b2ad5",
+              "value_json": "\"模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金\"",
+              "record_count": 3,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "order_id",
+              "value_sha256": "450ccac6eca0619a5b9c8728a252d6b85e0480b4be6d4491b856377448e0ca06",
+              "value_json": "\"HM2026040907\"",
+              "record_count": 2,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "purchase_quantity",
+              "value_sha256": "a1d48804f7291a0876b5b8d177ac53fbc66588b88ae7b4b9a37b03a285135c1b",
+              "value_json": "\"168.0\"",
+              "record_count": 2,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "specification",
+              "value_sha256": "d0c6dc81654f322e592bdd8952e6b1e0a5ebf9a90c3e8a81e247cfcfe1a30744",
+              "value_json": "\"01A\"",
+              "record_count": 3,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "unit_price",
+              "value_sha256": "8725cbde57dc4edc8d957637e53ea8b7cdfb3e14e34a2a91c1dfb8d3b03acd8f",
+              "value_json": "\"585.76\"",
+              "record_count": 3,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "yd",
+              "value_sha256": "db8f969d4cd4415629d9191dfc0b70eed1b76dc22c5660ad2a7f6b5a13d81709",
+              "value_json": "\"YDZB2026032455\"",
+              "record_count": 3,
+              "sample_observation_sha256": "de151b7e8aa76781a78f4a9179c5cc1c8b5d446f9dc9434d655c417675b46a70"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "order_id",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "414f55f293309b8362e712ddbe8dcd50e6db301b7d286faabb9be444fe467b1c"
+            },
+            {
+              "entry_id": "6c806902199abeef117e0e1f140d638d5ed7bb7a3fcd4fa9c06ca024000bc992",
+              "field_name": "purchase_quantity",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "414f55f293309b8362e712ddbe8dcd50e6db301b7d286faabb9be444fe467b1c"
+            }
+          ],
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "JPY",
+          "price": "585.76",
+          "material": null,
+          "packaging": null,
+          "purchase_observations": {
+            "purchase_quantity": [
+              "168.0"
+            ],
+            "order_id": [
+              "HM2026040907"
+            ]
+          }
+        }
+      ]
+    },
+    "1874": {
+      "jan": "4580843674362",
+      "spec": "04D7（差6）",
+      "records": [
+        {
+          "jan": "4580843674362",
+          "pcs": "",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）",
+          "spec": "04D7（差6）",
+          "channel": "A3",
+          "material": null,
+          "sku": "",
+          "source": {
+            "kind": "registry",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\c628ff9fab12-c628ff9fab12-25.6.1-至今报单汇总(1).xlsx",
+            "sha256": "c628ff9fab1295977b475f10aaa621c07f1fb7e40eb87749f0cf2e8da70ba401",
+            "sheet": "25.6.1-至今报单汇总",
+            "row": 27044,
+            "columns": {
+              "jan": 1,
+              "pcs": 8,
+              "name": 2,
+              "spec": 3,
+              "channel": 9,
+              "material": 13
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "order_total",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674362",
+          "sku": "4580843674362",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "spec": "04D",
+          "image": "https://img.alicdn.com/bao/uploaded/i1/113115618/O1CN01neDHSS1rN6E9Se8T3_!!113115618.jpg",
+          "yd": "YDZB2026032455",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 146.0,
+          "purchase_bought": 146.0,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\6888df22bcf3-6888df22bcf3-采购清单 (5)__6888df22bcf3.xlsx",
+            "sha256": "6888df22bcf3e4fb8809ed8ca18b3e0fa5144b470686ad3a24b951d4ce180df6",
+            "sheet": "采购清单信息",
+            "row": 1886,
+            "columns": {
+              "jan": 5,
+              "sku": 4,
+              "name": 0,
+              "spec": 2,
+              "image": 3,
+              "yd": 1,
+              "channel": 11,
+              "currency": 14,
+              "price": 15,
+              "actual_price": 16,
+              "purchase_required": 7,
+              "purchase_bought": 9,
+              "purchase_current": 17
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674362",
+          "sku": "4580843674362",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "spec": "04D",
+          "image": "https://img.alicdn.com/bao/uploaded/i1/113115618/O1CN01neDHSS1rN6E9Se8T3_!!113115618.jpg",
+          "yd": "YDZB2026032455",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 146.0,
+          "purchase_bought": 146.0,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\6888df22bcf3-6888df22bcf3-采购清单 (5)__6888df22bcf3.xlsx",
+            "sha256": "6888df22bcf3e4fb8809ed8ca18b3e0fa5144b470686ad3a24b951d4ce180df6",
+            "sheet": "采购清单信息",
+            "row": 1886,
+            "columns": {
+              "jan": 5,
+              "sku": 4,
+              "name": 0,
+              "spec": 2,
+              "image": 3,
+              "yd": 1,
+              "channel": 11,
+              "currency": 14,
+              "price": 15,
+              "actual_price": 16,
+              "purchase_required": 7,
+              "purchase_bought": 9,
+              "purchase_current": 17
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674362",
+          "sku": "4580843674362",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边",
+          "yd": "YDZB2026032455",
+          "spec": "04D",
+          "image": "https://img.alicdn.com/bao/uploaded/i1/113115618/O1CN01neDHSS1rN6E9Se8T3_!!113115618.jpg",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 146,
+          "purchase_bought": 146,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 61123,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "jan": "4580843674362",
+          "sku": "4580843674362",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边",
+          "yd": "YDZB2026032455",
+          "spec": "04D",
+          "image": "https://img.alicdn.com/bao/uploaded/i1/113115618/O1CN01neDHSS1rN6E9Se8T3_!!113115618.jpg",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "price": 585.76,
+          "actual_price": null,
+          "purchase_required": 146,
+          "purchase_bought": 146,
+          "purchase_current": null,
+          "pcs": "",
+          "source": {
+            "kind": "procurement",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\fdf56a16f58a-fdf56a16f58a-采购清单25.4-26.10.9.xlsx",
+            "sha256": "fdf56a16f58a89efab86dfd95478595f7bb8e8222c323b4c5032dd30f536b1bf",
+            "sheet": "采购清单信息",
+            "row": 61123,
+            "columns": {
+              "jan": 8,
+              "sku": 7,
+              "name": 3,
+              "yd": 4,
+              "spec": 5,
+              "image": 6,
+              "channel": 14,
+              "currency": 17,
+              "price": 18,
+              "actual_price": 19,
+              "purchase_required": 10,
+              "purchase_bought": 12,
+              "purchase_current": 20
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 0
+        },
+        {
+          "order_id": "HM2026040907",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "order_date": "2026-04-10T13:31:54",
+          "status": "已采购",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "yd": "YDZB2026032455",
+          "spec": "04D",
+          "jan": "4580843674362",
+          "price": 585.76,
+          "quantity": 146.0,
+          "cut_quantity": 0.0,
+          "has_cut": "否",
+          "pcs": "",
+          "sku": "",
+          "source": {
+            "kind": "effective_purchase_order",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\9303370d7c1b-9303370d7c1b-9303370d7c1b-订单明细 (4)__9303370d7c1b.xlsx",
+            "sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+            "sheet": "采购订单明细信息",
+            "row": 2919,
+            "columns": {
+              "order_id": 0,
+              "channel": 1,
+              "currency": 3,
+              "order_date": 7,
+              "status": 8,
+              "name": 9,
+              "yd": 10,
+              "spec": 15,
+              "jan": 16,
+              "price": 20,
+              "quantity": 21,
+              "cut_quantity": 27,
+              "has_cut": 26
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "order_id": "HM2026040907",
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "日元",
+          "order_date": "2026-04-09T23:59:02",
+          "status": "已撤销",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "yd": "YDZB2026032455",
+          "spec": "04D",
+          "jan": "4580843674362",
+          "price": 585.76,
+          "quantity": 146.0,
+          "cut_quantity": 0.0,
+          "has_cut": "否",
+          "pcs": "",
+          "sku": "",
+          "source": {
+            "kind": "effective_purchase_order",
+            "path": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\9303370d7c1b-9303370d7c1b-9303370d7c1b-订单明细 (4)__9303370d7c1b.xlsx",
+            "sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+            "sheet": "采购订单明细信息",
+            "row": 3096,
+            "columns": {
+              "order_id": 0,
+              "channel": 1,
+              "currency": 3,
+              "order_date": 7,
+              "status": 8,
+              "name": 9,
+              "yd": 10,
+              "spec": 15,
+              "jan": 16,
+              "price": 20,
+              "quantity": 21,
+              "cut_quantity": 27,
+              "has_cut": 26
+            },
+            "column_index_base": 0
+          },
+          "price_scope": "source_sku",
+          "priority": 100
+        },
+        {
+          "jan": "4580843674362",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "channel": [
+              "A3"
+            ],
+            "code_raw": [
+              "4580843674362"
+            ],
+            "internal_name": [
+              "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）"
+            ],
+            "packaging_label": [
+              "04D7（差6）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "3223ee4fa667a76763beb9a3fd89018b86bd1d005f751b18229da5d378eef75e",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 27044,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "business-registration-20260601-20261105",
+                  "source_version": "sha256:c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1"
+                },
+                "raw_record_sha256": "ca61847ebf06d26634040e81e440a3ecd8086b73a0bd12f49637b15a4bb1c203"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "3223ee4fa667a76763beb9a3fd89018b86bd1d005f751b18229da5d378eef75e",
+              "field_name": "category",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "ca61847ebf06d26634040e81e440a3ecd8086b73a0bd12f49637b15a4bb1c203"
+            },
+            {
+              "entry_id": "3223ee4fa667a76763beb9a3fd89018b86bd1d005f751b18229da5d378eef75e",
+              "field_name": "channel",
+              "value_sha256": "973ce3432355cdc6c2318cd864fafc0bbf390c8a2e44c08f0421b01347e993be",
+              "value_json": "\"A3\"",
+              "record_count": 1,
+              "sample_observation_sha256": "ca61847ebf06d26634040e81e440a3ecd8086b73a0bd12f49637b15a4bb1c203"
+            },
+            {
+              "entry_id": "3223ee4fa667a76763beb9a3fd89018b86bd1d005f751b18229da5d378eef75e",
+              "field_name": "code_raw",
+              "value_sha256": "6afc858d5b245bad20ee10091b6561e3b91a0b1b33f94dca5c7b9785a0dc5f1c",
+              "value_json": "\"4580843674362\"",
+              "record_count": 1,
+              "sample_observation_sha256": "ca61847ebf06d26634040e81e440a3ecd8086b73a0bd12f49637b15a4bb1c203"
+            },
+            {
+              "entry_id": "3223ee4fa667a76763beb9a3fd89018b86bd1d005f751b18229da5d378eef75e",
+              "field_name": "internal_name",
+              "value_sha256": "35450085b279e8e3f5b9fb2f187b9035f947dff4eab812b6d72f179ba4f103be",
+              "value_json": "\"刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "ca61847ebf06d26634040e81e440a3ecd8086b73a0bd12f49637b15a4bb1c203"
+            },
+            {
+              "entry_id": "3223ee4fa667a76763beb9a3fd89018b86bd1d005f751b18229da5d378eef75e",
+              "field_name": "material_original",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "ca61847ebf06d26634040e81e440a3ecd8086b73a0bd12f49637b15a4bb1c203"
+            },
+            {
+              "entry_id": "3223ee4fa667a76763beb9a3fd89018b86bd1d005f751b18229da5d378eef75e",
+              "field_name": "packaging_label",
+              "value_sha256": "33e13e0c4974e3b8464deb217796734baeb378445e7a867e355014cdb13f42b0",
+              "value_json": "\"04D7（差6）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "ca61847ebf06d26634040e81e440a3ecd8086b73a0bd12f49637b15a4bb1c203"
+            }
+          ],
+          "channel": "A3",
+          "currency": null,
+          "price": null,
+          "material": null,
+          "packaging": "04D7（差6）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        },
+        {
+          "jan": "4580843674362",
+          "name": "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）",
+          "spec": null,
+          "name_ja": null,
+          "yd": null,
+          "versions": {
+            "channel": [
+              "A3"
+            ],
+            "code_raw": [
+              "4580843674362"
+            ],
+            "currency": [
+              "JPY"
+            ],
+            "internal_name": [
+              "刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）"
+            ],
+            "packaging_label": [
+              "04D7（差6）"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "25.6.1-至今报单汇总.xlsx",
+                  "file_sha256": "c6422e1b66371dc920ed5998002c1ac10e18d18893370e2ad47063e7f8d00bb1",
+                  "row": 27044,
+                  "sheet": "25.6.1-至今报单汇总",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "category",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "channel",
+              "value_sha256": "973ce3432355cdc6c2318cd864fafc0bbf390c8a2e44c08f0421b01347e993be",
+              "value_json": "\"A3\"",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "code_raw",
+              "value_sha256": "6afc858d5b245bad20ee10091b6561e3b91a0b1b33f94dca5c7b9785a0dc5f1c",
+              "value_json": "\"4580843674362\"",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "currency",
+              "value_sha256": "35d583bf29da95f618d4ec82641ee09f7c0303e434ded1758cb4490119248e9c",
+              "value_json": "\"JPY\"",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "internal_name",
+              "value_sha256": "35450085b279e8e3f5b9fb2f187b9035f947dff4eab812b6d72f179ba4f103be",
+              "value_json": "\"刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边（扫货）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "material_original",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "packaging_label",
+              "value_sha256": "33e13e0c4974e3b8464deb217796734baeb378445e7a867e355014cdb13f42b0",
+              "value_json": "\"04D7（差6）\"",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "purchase_quantity",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "specification",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            },
+            {
+              "entry_id": "3c57f68505a5722a2f44f6df832920ec53995c17bd43d2595c53fac4ecfa6f63",
+              "field_name": "unit_price",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "df65caaa65d5a689257ad012138e75eea5b01f0ddf276559cefc811a167d1f70"
+            }
+          ],
+          "channel": "A3",
+          "currency": "JPY",
+          "price": null,
+          "material": null,
+          "packaging": "04D7（差6）",
+          "purchase_observations": {
+            "purchase_quantity": [],
+            "order_id": []
+          }
+        },
+        {
+          "jan": "4580843674362",
+          "name": "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金",
+          "spec": "04D",
+          "name_ja": null,
+          "yd": "YDZB2026032455",
+          "versions": {
+            "channel": [
+              "noel A3 刀剑乱舞 3.25"
+            ],
+            "code_raw": [
+              "4580843674362"
+            ],
+            "currency": [
+              "JPY"
+            ],
+            "internal_name": [
+              "模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金"
+            ],
+            "order_id": [
+              "HM2026040907"
+            ],
+            "purchase_quantity": [
+              "146.0"
+            ],
+            "specification": [
+              "04D"
+            ],
+            "unit_price": [
+              "585.76"
+            ],
+            "yd": [
+              "YDZB2026032455"
+            ]
+          },
+          "source": {
+            "kind": "catalogue",
+            "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+            "database": "C:\\Users\\Administrator\\Documents\\ChatGPT\\海关报单表格创建\\outputs\\KMT20261003_055_603_无图重新准备_20261110\\run\\后台\\fixed-inputs\\product-library.sqlite3",
+            "records": [
+              {
+                "provenance": {
+                  "file_name": "订单明细 (4).xlsx",
+                  "file_sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+                  "row": 2919,
+                  "sheet": "采购订单明细信息",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+              },
+              {
+                "provenance": {
+                  "file_name": "订单明细 (4).xlsx",
+                  "file_sha256": "9303370d7c1b45c13171d0746b13cb90aaa529193afe561869b963b421cc4aee",
+                  "row": 3096,
+                  "sheet": "采购订单明细信息",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "6a9b3f046eccbe029d991fb260836886aad1ceaa88eb4100ed71cba562367e02"
+              },
+              {
+                "provenance": {
+                  "file_name": "采购清单 (5).xlsx",
+                  "file_sha256": "6888df22bcf3e4fb8809ed8ca18b3e0fa5144b470686ad3a24b951d4ce180df6",
+                  "row": 1886,
+                  "sheet": "采购清单信息",
+                  "source_id": "purchase-supplement-20261105-v4",
+                  "source_version": "sha256:03206860f9a229c0d97b4e28d34bc7aba77dc56d093dc834f5fe6129a00782f5"
+                },
+                "raw_record_sha256": "2202e4df2c54b1e55c8b00094f23d65f723c1fd78d7eceff5a2c01fb37228959"
+              }
+            ]
+          },
+          "variant_sources": [
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "channel",
+              "value_sha256": "74ec20aa14b513ae5febf813214a10001171e78c0ed333b886fe3822b95eb6f1",
+              "value_json": "\"noel A3 刀剑乱舞 3.25\"",
+              "record_count": 3,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "code_raw",
+              "value_sha256": "6afc858d5b245bad20ee10091b6561e3b91a0b1b33f94dca5c7b9785a0dc5f1c",
+              "value_json": "\"4580843674362\"",
+              "record_count": 3,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "currency",
+              "value_sha256": "35d583bf29da95f618d4ec82641ee09f7c0303e434ded1758cb4490119248e9c",
+              "value_json": "\"JPY\"",
+              "record_count": 3,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "internal_name",
+              "value_sha256": "53c339c3a5d347de63d681cd0b46537c3455ab8b07ee71a0f025de6e0f5b2ad5",
+              "value_json": "\"模玩熊 刀剑乱舞 A3 顽皮 三角旗形Q版贴纸套组 周边追定金\"",
+              "record_count": 3,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "order_id",
+              "value_sha256": "450ccac6eca0619a5b9c8728a252d6b85e0480b4be6d4491b856377448e0ca06",
+              "value_json": "\"HM2026040907\"",
+              "record_count": 2,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "purchase_quantity",
+              "value_sha256": "4abe346041863f1a8a49899741e57e6c28ccbeda0e6af9bef0446bbe30afc11b",
+              "value_json": "\"146.0\"",
+              "record_count": 2,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "specification",
+              "value_sha256": "534926efc5960a7e5950c966c3392323318d3ba3afe7ee43f7de6f0e2d44fc68",
+              "value_json": "\"04D\"",
+              "record_count": 3,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "unit_price",
+              "value_sha256": "8725cbde57dc4edc8d957637e53ea8b7cdfb3e14e34a2a91c1dfb8d3b03acd8f",
+              "value_json": "\"585.76\"",
+              "record_count": 3,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "yd",
+              "value_sha256": "db8f969d4cd4415629d9191dfc0b70eed1b76dc22c5660ad2a7f6b5a13d81709",
+              "value_json": "\"YDZB2026032455\"",
+              "record_count": 3,
+              "sample_observation_sha256": "72fde31a43ad88e055a2bd0da6cb1507bc60314c5e3a171f05927ec7a6087f1a"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "order_id",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "2202e4df2c54b1e55c8b00094f23d65f723c1fd78d7eceff5a2c01fb37228959"
+            },
+            {
+              "entry_id": "176f357866c058b0cca4b544cfc1e1dcddba722a9f446738cb38df92ae4fdbcc",
+              "field_name": "purchase_quantity",
+              "value_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+              "value_json": "null",
+              "record_count": 1,
+              "sample_observation_sha256": "2202e4df2c54b1e55c8b00094f23d65f723c1fd78d7eceff5a2c01fb37228959"
+            }
+          ],
+          "channel": "noel A3 刀剑乱舞 3.25",
+          "currency": "JPY",
+          "price": "585.76",
+          "material": null,
+          "packaging": null,
+          "purchase_observations": {
+            "purchase_quantity": [
+              "146.0"
+            ],
+            "order_id": [
+              "HM2026040907"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "empty_yd": {
+    "jan": "4573102721709",
+    "original_T": "1包2枚，1盒20包\nA整盒10枚入，B整盒11枚入\n亚克力挂件本体\n亚克力立牌本体\n吧唧34立牌24整盒7枚入，吧唧25立牌25整盒6枚入\n吧唧亚克力卡整盒7个入\n吧唧抖S贴纸整盒7枚入，犯人贴纸整盒6枚入\n吧唧挂件整盒6个入，透卡整盒12包，每包2枚入\n吧唧挂件整盒8个入\n吧唧整盒10个入\n吧唧整盒：7枚入、相卡、透明卡整盒：6/13枚入、亚克力块、杯垫：本体/6枚入\n吧唧整盒：8枚入、贴纸整盒：8枚入\n整套20枚入（附A5贴纸1枚）\n整盒10枚入（额外附特典1枚）\n整盒5枚入\n整盒6个入\n整盒9个入\n本体\n贴纸5枚套组\n透卡整盒10个入\n透卡整盒10枚入，贴纸正比1枚+Q版1枚\n随机一发"
+  }
+}

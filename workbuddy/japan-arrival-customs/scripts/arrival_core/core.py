@@ -56,7 +56,13 @@ def context(row):
     return {k: row["identity"][k] for k in ("code", "version", "specification")}
 
 
-def new_row(source, raw, *, currency, quantity_unit):
+def pricing_basis(row):
+    from .business_amount import effective_basis
+    return effective_basis(row)
+
+
+def new_row(source, raw, *, currency, quantity_unit, authority_stage=3,
+            authority_status=None, amount_basis=None):
     row_id = digest([source["sha256"], source["sheet"], source["row"]])[:24]
     unavailable = {"#N/A", "#VALUE!", "#REF!", "#DIV/0!", "#NUM!", "#NAME?", "#NULL!", "未找到", ""}
     def value(key):
@@ -72,9 +78,15 @@ def new_row(source, raw, *, currency, quantity_unit):
                     "yd": value("yd"), "yd_absence_reason": "",
                     "frontend_status": "unknown", "frontend_absence_reason": "",
                     "procurement": "unknown", "internal_note": ""},
-        "authority": {"stage": 3, "amount": str(raw.get("amount") or ""), "currency": currency,
+        "arrival": {"quantity_raw": str(raw.get("qty") or ""), "unit_raw": quantity_unit,
+                    "unit_status": "observed" if quantity_unit else "pending_product_or_purchase_lookup",
+                    "unit_price_jpy_raw": str(raw.get("price") or ""),
+                    "subtotal_jpy_raw": str(raw.get("amount") or ""), "source": source},
+        "authority": {"stage": authority_stage, "amount": str(raw.get("amount") or ""), "currency": currency,
                       "quantity": str(raw.get("qty") or ""), "quantity_unit": quantity_unit,
-                      "unit_price_observed": str(raw.get("price") or ""), "source": source},
+                      "unit_price_observed": str(raw.get("price") or ""), "source": source,
+                      "status": authority_status or ("business_confirmed_stage3" if authority_stage == 3 else "preliminary"),
+                      "amount_basis": amount_basis or ("stage3_business_source" if authority_stage == 3 else "raw_source")},
         "material": {"candidate": value("material"), "selected": None, "candidates": []},
         "packaging": None, "tax": None,
         "logistics": {"carton_raw": value("carton"), "origin": value("origin")},
@@ -97,17 +109,29 @@ def validate(batch):
     if len(ids) != len(set(ids)) or not ids:
         raise Rejected("明细必须存在且源行标识不得重复")
     for r in batch["rows"]:
-        if r["authority"]["stage"] != 3 or r["authority"]["source"] != r["source"]:
-            raise Rejected("金额权威必须绑定第3步源行")
+        if r.get('business_amount'):
+            from .business_amount import current
+            current(r)
+        authority = r["authority"]
+        stage = authority.get("stage")
+        if stage not in (1, 3) or authority["source"] != r["source"]:
+            raise Rejected("金额/数量观察值必须绑定原始源行")
+        if stage == 1 and (authority.get("status") != "preliminary_from_raw_invoice"
+                           or authority.get("amount_basis") != "raw_invoice_subtotal"):
+            raise Rejected("日方原表金额只能作为未确认的到货Subtotal观察值")
         if set(r["reviews"]) != set(DOMAINS):
             raise Rejected("审核域不完整")
         if (r["authority"]["amount"] != (r["raw"].get("amount") or "")
                 or r["authority"]["quantity"] != (r["raw"].get("qty") or "")):
-            raise Rejected("第3步金额/数量不能脱离原始值")
+            raise Rejected("金额/数量观察值不能脱离原始值")
         for key, field in (("amount", "amount"), ("quantity", "qty")):
             cell = r["source"].get("cells", {}).get(field)
             if cell and r["authority"][key] != cell["value"]:
                 raise Rejected("金额/数量与原始单元格证据不一致")
+        arrival = r.get("arrival")
+        if arrival is not None and (arrival.get("quantity_raw") != r["authority"]["quantity"]
+                                    or arrival.get("subtotal_jpy_raw") != r["authority"]["amount"]):
+            raise Rejected("原始到货Qty/Subtotal记录与源行观察值不一致")
     return batch
 
 
@@ -125,7 +149,16 @@ def product_errors(row, *, require_frontend=True):
 
 def product_errors_for_batch(batch, row):
     # New business profile follows the user's explicit B1 decision: frontend presence
-    # is optional, never inferred from YD. Legacy profile remains replayable.
+    # and YD are optional internal references, never inferred from one another.
+    # Legacy batches remain replayable under their original stricter checks.
+    if batch.get("product_data_policy") == "single-person-v1":
+        # Trusted local history is reusable basic-product information, not a
+        # customs/declaration approval.  Do not recreate a task merely because
+        # the historical archive lacks a customs name or optional front-end/YD.
+        return ["missing_" + key for key in ("internal_name", "category") if not row["product"].get(key, "").strip()]
+    if batch.get("product_data_policy") == "confirmed-excel-v1":
+        return ["missing_" + key for key in ("internal_name", "customs_name", "category")
+                if not row["product"].get(key, "").strip()]
     return product_errors(row, require_frontend=batch.get("product_review_profile") != "exception-first-v1")
 
 
@@ -138,11 +171,11 @@ def product_disputes(row):
 def review_package(batch):
     validate(batch)
     ordinary = [r["id"] for r in batch["rows"] if not product_disputes(r) and not product_errors_for_batch(batch,r)
-                and not r["reviews"]["product"]]
+                and not r["reviews"]["product"] and not r.get("product_lookup", {}).get("trusted_history_reused")]
     return {"schema": "japan-arrival/review-1", "batch_id": batch["id"],
             "revision": batch["revision"], "state_hash": digest(batch),
             "ordinary_ids": ordinary,
-            "individual_ids": [r["id"] for r in batch["rows"] if not r["reviews"]["product"]
+            "individual_ids": [r["id"] for r in batch["rows"] if not r["reviews"]["product"] and not r.get("product_lookup", {}).get("trusted_history_reused")
                                and (product_disputes(r) or product_errors_for_batch(batch,r))],
             "rows": [{"id": r["id"], "source": r["source"], "identity": r["identity"],
                       "product": r["product"], "disputes": r["disputes"],
@@ -275,11 +308,13 @@ def _apply_domain_row(row, domain, payload, *, actor, evidence, _declaration_com
         raise Rejected('已有申报决策，请通过B2版本化审核；身份变更需新的明确版本流程')
     if domain == "price":
         a = row["authority"]
+        if a.get("status") == "preliminary_from_raw_invoice":
+            raise Rejected("当前仅为日方原表Subtotal初步到货金额；最终申报金额确认节点尚未批准，不能完成价格域批准")
         if p != {k: a[k] for k in ("amount", "currency", "quantity", "quantity_unit")}:
-            raise Rejected("价格审核不能改写第3步金额/币种/数量单位")
+            raise Rejected("价格审核不能改写来源金额/币种/数量单位")
         decimal(a["amount"]); positive(a["quantity"])
         if not a["currency"] or not a["quantity_unit"]:
-            raise Rejected("第3步币种及计价单位待确认")
+            raise Rejected("来源币种及计价单位待确认")
     elif domain == "identity":
         if not all(isinstance(p.get(k), str) and p[k].strip() for k in ("version", "specification")):
             raise Rejected("身份需明确版本和规格（无版本亦需明示）")
@@ -303,8 +338,8 @@ def _apply_domain_row(row, domain, payload, *, actor, evidence, _declaration_com
         elif domain == "packaging":
             if not all(p.get(k) for k in ("source_unit", "declaration_unit", "internal_unit", "source")):
                 raise Rejected("盒规各层单位和来源必填")
-            if p["source_unit"] != row["authority"]["quantity_unit"]:
-                raise Rejected("盒规采购单位不匹配第3步计价单位")
+            if p["source_unit"] != pricing_basis(row)["quantity_unit"]:
+                raise Rejected("盒规采购单位不匹配当前已确认的原始到货单位")
             positive(p.get("declaration_factor")); positive(p.get("pieces_per_box"))
             positive(p.get("internal_quantity")); positive(p.get("internal_boxes"))
             if (Fraction(positive(p["internal_quantity"])) / Fraction(positive(p["internal_boxes"]))
@@ -348,8 +383,11 @@ def select_historical_material(row, candidates):
 def exact_price(row):
     if not row["reviews"]["price"] or not row["reviews"]["packaging"]:
         return {"status": "pending", "reason": "amount_or_packaging_unconfirmed"}
-    q = Fraction(positive(row["authority"]["quantity"])) * Fraction(positive(row["packaging"]["declaration_factor"]))
-    price = Fraction(decimal(row["authority"]["amount"])) / q
+    basis = pricing_basis(row)
+    if row.get('business_amount') and basis.get('status') != 'business_confirmed_in_batch':
+        return {"status":"pending","reason":"business_amount_fact_version_changed"}
+    q = Fraction(positive(basis["quantity"])) * Fraction(positive(row["packaging"]["declaration_factor"]))
+    price = Fraction(decimal(basis["amount"])) / q
     return {"status": "exact_ratio_only", "declaration_quantity": str(q),
             "unit_price_numerator": str(price.numerator), "unit_price_denominator": str(price.denominator),
             "automatic_rounding": False, "formal_price": None}
@@ -370,7 +408,7 @@ def box_tax(row):
         raise Rejected("内部数量/盒数与已确认每盒件数不一致")
     total = (vat + duty) * ratio
     return {"status": "approved_parameters_exact_arithmetic", "duty": str(duty),
-            "vat": str(vat), "box_tax": str(total), "currency": row["authority"]["currency"],
+            "vat": str(vat), "box_tax": str(total), "currency": pricing_basis(row)["currency"],
             "formula_version": t["formula_version"], "rounding": "not_applied"}
 
 
@@ -378,13 +416,14 @@ def reconcile_amounts(rows, proposed):
     """No cross-row or cross-product cancellation. Proposed map must cover every row."""
     if set(proposed) != {r["id"] for r in rows}:
         raise Rejected("金额核验必须覆盖完整明细，不得漏行/多行")
-    if len({r["authority"]["currency"] for r in rows}) != 1:
+    if len({pricing_basis(r)["currency"] for r in rows}) != 1:
         raise Rejected("不同币种不能直接合计或抵消；本期不做汇率换算")
     lines, groups = [], {}
     for r in rows:
-        delta = Fraction(decimal(proposed[r["id"]])) - Fraction(decimal(r["authority"]["amount"]))
-        key = digest({"identity": context(r), "currency": r["authority"]["currency"],
-                      "unit": r["authority"]["quantity_unit"],
+        basis = pricing_basis(r)
+        delta = Fraction(decimal(proposed[r["id"]])) - Fraction(decimal(basis["amount"]))
+        key = digest({"identity": context(r), "currency": basis["currency"],
+                      "unit": basis["quantity_unit"],
                       "unidentified_row": r["id"] if not r["identity"]["code"] else None})
         groups[key] = groups.get(key, Fraction(0)) + delta
         lines.append({"id": r["id"], "code": r["identity"]["code"], "delta": str(delta)})

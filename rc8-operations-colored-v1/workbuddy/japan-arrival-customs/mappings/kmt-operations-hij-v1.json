@@ -1,0 +1,10 @@
+{
+  "id": "kmt-operations-hij-v1", "version": 1, "role": "business", "sheet": "Sheet1", "start_row": 2,
+  "headers": {"箱号": "CartonNo.", "原产国": "Origin", "商品编码": "ProductCode(JANCode)", "日文品名": "DescriptionofGoods", "业务确认数量": "Qty", "业务单价": "UnitPrice(日本JPY)", "业务确认金额JPY": "Subtotal", "最终申报材质": "材质", "YD": "YD编码", "内部备注": "备注"},
+  "columns": {"箱号": "A", "原产国": "B", "商品编码": "C", "内部中文名": "E", "品类": "K", "日文品名": "G", "业务确认数量": "H", "业务单价": "I", "业务确认金额JPY": "J", "最终申报材质": "L", "YD": "R", "内部备注": "S"},
+  "anchored_blank_headers": ["内部中文名", "品类"], "optional": ["YD", "内部备注"],
+  "formula_products": {"业务确认金额JPY": ["业务确认数量", "业务单价"]},
+  "trailing_total_field": "业务确认金额JPY", "inherit_carton": true,
+  "preserve_columns": {"specification": "F", "yd": "R", "remarks": "S"},
+  "source_quantity_scope": "Qty（原表计价口径）"
+}

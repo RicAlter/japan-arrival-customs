@@ -1,0 +1,3 @@
+# The P0 parser is byte-compared with its audited source as part of the legacy
+# regression.  Keep it LF on Windows checkouts as well as in Git objects.
+workbuddy/japan-arrival-customs/scripts/arrival_core/_p0_frozen.py text eol=lf

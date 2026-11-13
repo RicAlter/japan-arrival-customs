@@ -1,0 +1,1278 @@
+{
+  "passed": 287,
+  "failed": 0,
+  "not_executed": 0,
+  "suites": [
+    {
+      "suite": "units",
+      "passed": 231,
+      "failed": 0,
+      "not_executed": 0,
+      "raw_result_sha256": "045b8e6ae4960d7b28fe96269ff4ca0afa3cf06856a3f2c5f358675f9eed082e"
+    },
+    {
+      "suite": "loop",
+      "passed": 21,
+      "failed": 0,
+      "not_executed": 0,
+      "raw_result_sha256": "ae7057812abe6c7e45b1f52bec0f0656d1eaffffe804c1eede711087d5a94897"
+    },
+    {
+      "suite": "pack",
+      "passed": 16,
+      "failed": 0,
+      "not_executed": 0,
+      "raw_result_sha256": "5317e2e4690886ae056645ea3a933e3b9206adf7594c1d7502e90384f0c23d40"
+    },
+    {
+      "suite": "real-price-input",
+      "passed": 19,
+      "failed": 0,
+      "not_executed": 0,
+      "log_sha256": "ffc831265620a2152d3851a6fb54943593f58e39b8ad05c20d8f31e4aef2a5b1"
+    }
+  ],
+  "records": [
+    {
+      "test": "test_attention_display.AttentionTests.test_only_real_issues_colored_and_every_value_formula_manual_cell_preserved",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_actual_picture_is_counted_from_anchor_and_media",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_claimed_download_without_actual_picture_blocks",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_disabled_queries_are_incomplete_and_current_audit_is_idempotent",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_existing_R_conflict_is_preserved",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_missing_lookup_record_blocks",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_missing_picture_reason_blocks",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_native_shared_formulas_and_repacked_weight_xml_keep_real_checks",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_raw_quantity_and_formula_cache_changes_block",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_sop_drift_blocks",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_tampered_website_snapshot_blocks_even_if_report_says_found",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_verified_website_result_reaches_R_and_cache_can_be_rechecked",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.DeliveryReviewTests.test_weight_numeric_change_still_blocks_after_semantic_repacking",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.WebsiteExecutionTests.test_disabled_and_exhausted_are_not_network_failures",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.WebsiteExecutionTests.test_real_access_failure_is_distinct_from_queried_without_material",
+      "status": "passed"
+    },
+    {
+      "test": "test_delivery_review.WebsiteExecutionTests.test_short_internal_codes_remain_in_full_row_coverage",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_bonus_requires_manual_context",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_cancelled_observation_blocks_old_quote",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_conflicting_orders_not_filtered_to_convenient_match",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_different_product_same_numeric_suffix_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_different_variant_or_version_not_linked",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_existing_and_source_manual_values_preserved",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_missing_independent_product_context",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_multiple_currencies_not_converted_or_merged",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_no_global_prefix_stripping_or_index_merge",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_opening_price_not_purchase_quote",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_real_case_checked_and_actual_order_is_cny",
+      "status": "passed"
+    },
+    {
+      "test": "test_dg_enrichment.DgEnrichmentTests.test_same_product_reorders_not_conflict",
+      "status": "passed"
+    },
+    {
+      "test": "test_freeze_candidate.FreezeBytesTests.test_copy_an_existing_dirty_dependency_only_if_its_guard_hash_matches",
+      "status": "passed"
+    },
+    {
+      "test": "test_freeze_candidate.FreezeBytesTests.test_preserve_guarded_CRLF_bytes_but_exclude_unrelated_changes",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_empty_yd_never_matches_collection",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_empty_yd_retains_independent_code_packaging",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_generic_pollution_fails_closed",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_polluted_old_cache_is_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_producer_current_and_return_share_overlay_contract",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_real_jump_material_is_bounded",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_real_two_auxiliary_price_conflicts",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_real_two_order_status_conflicts",
+      "status": "passed"
+    },
+    {
+      "test": "test_kmt_accuracy.AccuracyTests.test_true_missing_is_still_missing",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_changed_image_or_anchor_refused_before_save",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_comparison_view_keeps_every_nonimage_byte_including_formula_cache_manual",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_duplicate_parts_and_traversal_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_external_image_and_incomplete_anchor_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_macros_external_connections_and_entities_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_marker_peek_does_not_load_media_or_rewrite_upload",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_parser_wrapper_is_context_scoped_and_preserves_external_link_checks",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_renamed_lossless_deduplicated_media_matches_original_anchors",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_resource_bounds_are_checked_before_inflation",
+      "status": "passed"
+    },
+    {
+      "test": "test_large_return.LargeReturnTests.test_unregistered_layout_cannot_enable_large_media_channel",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_bonus_repeated_code_not_merged",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_cancelled_or_other_variant_not_used",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_cancelled_snapshot_blocks_older_effective_quote",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_currency_and_units_separate",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_different_real_order_quotes_not_guessed",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_known_same_unit_precision_is_not_conflict",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_light_spec_prefixes_and_source_counts",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_multiple_YD_ordinary_is_normal",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_numerically_close_orders_are_not_automatically_allocation_precision",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_observed_aliases_and_purchase_count_notes",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_order_quote_beats_history_precision",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_partial_cut_flag_is_not_order_cancellation",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_substantive_count_version_not_normalized_away",
+      "status": "passed"
+    },
+    {
+      "test": "test_matching_repair.RepairTests.test_unknown_units_do_not_justify_precision_merge",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_provider_release.MaterialProviderReleaseTests.test_429_stops_only_its_own_site",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_provider_release.MaterialProviderReleaseTests.test_v2_sop_and_multi_site_provider_are_packaged",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_different_product_even_same_jan_and_spec_is_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_different_spec_or_version_not_adopted",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_existing_reference_or_manual_value_is_never_overwritten",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_full_labelled_yd_collection_preferred_without_assigning_components",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_incompatible_material_sources_stay_pending",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_no_prefix_stripping_without_verified_alias",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_overlay_is_reversible_for_a03_but_does_not_swallow_manual_S_change",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_prepare_resolver_revisits_material_after_DG_yd_enrichment",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_special_code_requires_context",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_verified_dg_original_mixture_is_kept_whole",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_verified_pcs_source_requires_same_product_and_spec",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_reference.MaterialReferenceTests.test_yd_product_name_is_verified_not_only_yd",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_all_rows_both_sources_and_duplicate_identity",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_bad_snapshot_cannot_be_used",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_conflicting_website_values_retained",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_jan_only_evidence_is_not_verified_for_SKU_publication",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_online_requires_access_scope_and_budget",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_resume_and_changed_input_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_s_overlay_only_fills_blank_reference_and_never_writes_manual_o",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_s_reference_distinguishes_exact_sku_and_yd_collection",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_review.DualSourceReviewTests.test_session_reuses_captured_evidence_defaults",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_403_429_stop_only_that_client_and_preserve_response_evidence",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_cached_official_evidence_also_validates_the_secondary_jan_snapshot",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_chain_title_must_be_in_the_actual_structured_source",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_components_and_percentage_survive",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_jan_mismatch_is_not_silently_merged",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_local_permission_failure_is_not_a_website_failure",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_matching_page_failure_is_not_reported_as_no_search_result",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_nine_real_responses_preserve_only_complete_material_fields",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_no_material_and_parse_failure_are_different",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_noise_in_cached_material_is_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_unit_wrapper_is_not_a_new_product_but_requires_identity_chain",
+      "status": "passed"
+    },
+    {
+      "test": "test_material_v2_sample30.Sample30Tests.test_wrong_chain_hash_or_jan_cannot_confirm_name_fallback",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_I_only_and_other_zip_parts_exact",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_basic_edit_requires_existing_basics_sync",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_different_session_root_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_existing_output_not_overwritten",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_issued_sha_is_required",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_no_binding_no_historical_batch_guess",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_only_verified_formula_allowed",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_original_price_is_read_only",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_original_qty_is_read_only",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_original_source_not_overwritten",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_source_sha_checked",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_total_is_operator_edit",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_unknown_formula_not_executed",
+      "status": "passed"
+    },
+    {
+      "test": "test_original_view.OriginalLayout.test_zero_changes",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_changed_identity_keeps_history_without_adoption",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_conflicting_originals_are_both_quoted",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_missing_original_is_blank",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_missing_price_confirmation_still_blocks",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_no_spec_or_old_reference_becomes_a_count",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_original_sentence_is_not_parsed_or_translated",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_original_tail_quantity_is_retained",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_price_ratio_never_produces_count_even_when_integer",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_reference_never_proves_units_or_approval",
+      "status": "passed"
+    },
+    {
+      "test": "test_pack_reference.SpecificationReference.test_sources_remain_separate_even_when_text_is_repeated",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_bonus_requires_context_even_with_pcs_relationship",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_cancelled_order_cannot_supply_linked_price",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_cny_box_reference_is_labelled_and_never_converted",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_different_applicable_box_quotes_stay_pending",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_explicit_box_reference_keeps_price_and_unit_without_division",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_explicit_piece_unit_not_overridden_by_box_word",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_incompatible_variant_and_multiple_yd_pictures_not_selected",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_multiple_boxes_not_merged",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_related_yd_and_specific_box_picture_are_carried_through",
+      "status": "passed"
+    },
+    {
+      "test": "test_pcs_enrichment.PcsEnrichmentTests.test_unknown_linked_unit_does_not_supply_piece_price",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_acrylic_clip_uses_user_display_type",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_badge_with_plush_art_is_badge",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_cardcase_function_beats_keyholder_word",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_coaster_function_uses_user_distinctions",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_material_original_is_not_normalized_or_rewritten",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_plush_age_and_chain_are_never_guessed",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_plush_illustration_does_not_change_phone_stand_function",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.BusinessTypeReference.test_reference_never_approves_business_type",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_absolute_and_mixed_refs_remain_absolute_and_mixed",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_all_sheet_and_workbook_protection_removed",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_amount_references_follow_inserted_column",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_named_range_and_filter_expand",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_other_sheet_reference_to_arrival_is_shifted",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_package_manifest_uses_excel_compatible_default_namespace",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_quoted_address_is_not_rewritten",
+      "status": "passed"
+    },
+    {
+      "test": "test_photo_layout.InsertingPhotoColumn.test_unrelated_sheet_formulas_keep_own_columns",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_complete_japanese_title_resolves_procurement_suffix_only",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_composite_kept_without_rule",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_direct_cny_label_and_no_qty_inference",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_explicit_material_and_user_rule",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_multiple_boxes_do_not_choose_one",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_pack_preserves_each_pack_clause",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_pcs_fallback_keeps_box_price_out_of_piece",
+      "status": "passed"
+    },
+    {
+      "test": "test_preparation.PreparationTests.test_reverse_link_does_not_copy_piece_price",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_box_and_piece_arrivals_do_not_spend_one_order_twice",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_cancelled_snapshot_prevents_using_old_effective_version",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_changed_order_snapshot_retains_conflict",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_confirmed_comparison_unit_converts_mixed_arrival_units",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_confirmed_pcs_conversion_is_exact",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_current_batch_excluded_from_history",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_cut_quantity_not_silently_deducted",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_duplicate_export_not_added_twice",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_empty_partial_history_is_not_zero",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_explicit_line_ids_allow_distinct_lines",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_history_duplicate_observation_counted_once",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_identical_lines_without_line_ids_are_ambiguous",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_multiple_box_codes_not_arbitrarily_selected",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_no_reliable_comparisons_does_not_report_zero_differences",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_nonstandard_current_code_not_treated_as_verified_JAN",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_orders_after_replay_cutoff_do_not_inflate_purchase",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_original_inputs_unchanged",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_over_received_and_fully_received",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_pcs_relation_alone_never_implies_a_factor",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_purchase_never_falls_back_to_arrival",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_revoked_order_excluded",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_same_physical_source_alias_not_added_twice",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_sum_independent_valid_order_lines",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_sum_same_jan_arrivals_and_partial_not_error",
+      "status": "passed"
+    },
+    {
+      "test": "test_quantity_review.QuantityReviewTests.test_unit_unknown_keeps_raw_observation_only",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.OriginalQuantityContract.test_real_native_qty_and_invoice_quantity_schemas_preserve_originals_without_filling_actual_price",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_actual_entry_binds_submission_service",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_calculation_partial_submission_saved_and_exceptions_retained",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_calculation_passing_submission_continues_controlled_drafts",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_duplicate_readonly_identity_does_not_auto_confirm_spec",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_identical_return_is_idempotent",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_invalid_cell_is_exception_not_blanket_rejection",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_missing_purchase_evidence_does_not_confirm_price",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_missing_submit_reference_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_new_price_evidence_not_hidden_by_identical_workbook",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_passing_returned_explicit_basis_needs_no_extra_global_click",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_valid_changed_price_with_explicit_source_unit_can_be_accepted",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_valid_changed_spec_is_not_blocked_by_old_price_context_flag",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_valid_return_auto_saves_without_second_user_confirmation",
+      "status": "passed"
+    },
+    {
+      "test": "test_stage_submission.SubmissionPolicy.test_validation_failure_does_not_save_or_add_receipt",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_different_price_roles_or_currency_not_comparable",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_exact_subcent_ratio_survives_legacy_display_unavailable",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_existing_round0_preserved",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_manual_basis_does_not_force_noninteger_candidate_to_integer",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_missing_actual_price_is_row_error_not_exception",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_nonbox_maximum_unit_needs_independent_box_count",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_nonbox_price_factor_and_physical_box_size_are_separate",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_nonexact_legacy_internal_ratio_is_manual",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_noninteger_is_never_rounded_into_box_size",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_official_or_observed_price_not_actual",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_roles_are_maximum_divided_by_minimum",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_same_physical_unit_cannot_mean_six_of_itself",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_source_precision_not_two_decimal_display",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_unconfirmed_purchase_not_used",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_unknown_minimum_unit_not_used",
+      "status": "passed"
+    },
+    {
+      "test": "unified_FullReplay.Prices.test_zero_negative_and_missing_prices",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_box_seven_packs_two_sheets",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_conflicting_box_count",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_conflicting_layers_are_retained",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_do_not_copy_other_type_under_same_yd",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_fractional_layer_is_not_rounded",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_internal_sheet_unit_stays_per_sheet",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_missing_layer_not_inferred_from_single_s_value",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_missing_scope_never_auto_adopts_reference",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_no_forced_whole_box_for_loose_packets",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_noninteger_price_ratio_remains_manual",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_packet_quantity_ten_is_not_ten_boxes",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_price_ratio_and_geometry_must_agree",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_readonly_catalogue_keeps_conflicts_and_exact_spec_scope",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_round0_uses_sheet_quantity",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_seven_by_two_parse",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_sheet_procurement_and_pack_internal_can_coexist",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_terminating_partial_box_retained",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_variety_or_set_not_pack_layer",
+      "status": "passed"
+    },
+    {
+      "test": "unified_Full.UnitLayers.test_wrong_cost_divisor_detected",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_b00_a04_and_legacy_transaction_code_are_reused",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_client_formula_cache_is_not_used",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_confirmation_retry_does_not_duplicate_amount_versions",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_confirmed_fields_unchanged_after_update",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_controlled_pair_is_verified_and_round0_difference_not_hidden",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_duplicate_full_identity_stays_manual",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_editing_the_same_business_filename_is_supported",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_full_identity_reordering_preserves_correct_relationship",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_integer_ratio_does_not_itself_confirm_price_comparability",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_missing_unit_blocks_both_drafts_instead_of_partial_delivery",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_no_implicit_update_confirmation_or_old_hash",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_observation_role_is_not_upgraded",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_old_calculation_selection_cannot_be_delivered",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_one_price_change_limits_delta_but_keeps_basic_confirmations",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_readonly_jan_source_price_and_formula_edits_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_review_snapshot_and_formula_recalculation",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_same_actual_values_create_no_spurious_changed_ranges",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_same_jan_alone_does_not_inherit_changed_identity",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_stale_update_and_old_review_cannot_overwrite_a_new_version",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_synthetic_file_and_state_cannot_enter_business",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_loop.FullReplay.test_update_receipt_is_idempotent_and_not_real_business_approval",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_19_baseline_full_content_preservation",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_M_N_actual_work_values_retained_and_editable",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_S_H_Q_R_and_original_amount_protected",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_actual_sources_668_and_885_have_separate_layers",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_b00_transaction_and_engine_code_unchanged",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_basic_inheritance_and_pack_review_ready",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_confirm_retries_are_idempotent",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_history_layers_rechecked_from_original_workbooks",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_internal_pricing_and_declaration_quantities_are_distinct",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_missing_pack_scope_blocks_and_no_partial_pair",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_new_packaging_formula_and_readonly_targets_protected",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_no_real_confirmation_or_actual_update",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_old18_and_unregistered19_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_repeated_prepare_has_stable_columns_and_fixed_snapshot",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_scoped_A03_save_CAS_and_idempotency_in_temporary_clone",
+      "status": "passed"
+    },
+    {
+      "test": "fixed_pack.Full.test_verification_privacy_and_round0_difference_retained",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_11_column_legacy_rows_and_totals_unchanged.test_11_column_legacy_rows_and_totals_unchanged",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_11_full_identity_keeps_Ref_and_HS_fields.test_11_full_identity_keeps_Ref_and_HS_fields",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_16_identity_uses_only_existing_identity_columns.test_16_identity_uses_only_existing_identity_columns",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_16_rows_keep_original_coordinates_and_cached_values.test_16_rows_keep_original_coordinates_and_cached_values",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_20_column_business_output_is_not_an_invoice.test_20_column_business_output_is_not_an_invoice",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_6_real_pcs_links_have_locatable_identity_proof.test_6_real_pcs_links_have_locatable_identity_proof",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_ambiguous_weight_pages_do_not_guess.test_ambiguous_weight_pages_do_not_guess",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_both_validated_weight_sheet_names_retained.test_both_validated_weight_sheet_names_retained",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_each_price_has_original_version_and_source.test_each_price_has_original_version_and_source",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_link_schema_does_not_accept_extra_approval_flags.test_link_schema_does_not_accept_extra_approval_flags",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_no_source_unit_or_packaging_inference.test_no_source_unit_or_packaging_inference",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_pcs_link_never_changes_carton_or_Japanese_identity.test_pcs_link_never_changes_carton_or_Japanese_identity",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_pcs_source_does_not_cover_different_product_or_spec.test_pcs_source_does_not_cover_different_product_or_spec",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_pcs_source_hash_tampering_rejected.test_pcs_source_hash_tampering_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_plain_reference_cannot_authorize_a_changed_JAN.test_plain_reference_cannot_authorize_a_changed_JAN",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_profile_specific_original_row_mapping.test_profile_specific_original_row_mapping",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_raw11_link_schema_stays_unchanged.test_raw11_link_schema_stays_unchanged",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_real_490_direct_identity_relationships.test_real_490_direct_identity_relationships",
+      "status": "passed"
+    },
+    {
+      "test": "test_price_input.PriceInput.test_source_bytes_unchanged.test_source_bytes_unchanged",
+      "status": "passed"
+    }
+  ],
+  "runtime_files_bound_to_tested_freeze": {
+    "business-interaction/interaction/attention_display.py": "c633ab2c7b0e4acb988dd38ab030d15199b0f629f593c294c9f1a1111f93aaaa",
+    "business-interaction/interaction/calculation_context.py": "4a54b8f5772a9816c4cf18a567aca5528a03777441f028c6e398c68ac02b9463",
+    "business-interaction/interaction/category_reference.py": "9a196818ef1e8053c1e188f44f7e8fed96613fd69cb8710bfcb3850cbf59606b",
+    "business-interaction/interaction/delivery_review.py": "24eed4d4ca69fba68c9046cc4d54cd597fa285521bf7bbcb6b5cb3fead3b76e0",
+    "business-interaction/interaction/dg_enrichment.py": "e6c122186a784956acb71fb6cc0109b7f68eccf83ae1b3d936bd8ad13bdd9853",
+    "business-interaction/interaction/large_return.py": "1cb8eb302eea6b6c90d6481dbf74e9902f4c78fe829ca367261130e8807e799d",
+    "business-interaction/interaction/manual_category.py": "84b6affb815138ee1403fe017f84714353e49e574aefb0dd23f1256715fbd9c2",
+    "business-interaction/interaction/manual_pack.py": "eacb2e54a4cd4bbc8f9c31e5b91536ebfbeec88c6c8c7068baed3f42cff0656b",
+    "business-interaction/interaction/matching_repair.py": "1333ed37d17adc2671a20fae9b6fa2211c17621539bc6ad56bcbd44a09db6f1c",
+    "business-interaction/interaction/material_reference.py": "d2b6dd7a2e74cdd1a7f7ff664dd1d34d42d12555a7daddd0a8e0b570a5be7b63",
+    "business-interaction/interaction/material_review.py": "576cd7d5f66a3ca59853a74e2c765ed9fa02e2f9a36cb903a413225f6c458964",
+    "business-interaction/interaction/original_view.py": "db2b5ebda55a41aaf2665461ce0ec9b5b62b65ff8e4e0434936f42b303fb32de",
+    "business-interaction/interaction/pack_reference.py": "14bcb3b57fa659632703589e613e0dc86786f983d09c86b37b0385737065cbaa",
+    "business-interaction/interaction/pcs_enrichment.py": "68a1bfff23f56aa586b4bf0495f1bbd1a03449ac0989dfe9eac669a9f92c9711",
+    "business-interaction/interaction/photo_layout.py": "51fc7efbf66f576ebccf2f7ce006edeb726c57894d74a8f4a49645d281e863bb",
+    "business-interaction/interaction/preparation.py": "3213b3900489d6f73fda5cad23735576caa61e50bebb7c0272faf352351ab965",
+    "business-interaction/interaction/preparation_images.py": "a67e26ffa95e9ede16b46aacfadf1b6286491d823df620e6b24dcdb1f3319f35",
+    "business-interaction/interaction/preparation_registration.py": "fe9ccffb910ee74ec2e974bbad1fdc4e13d1eb9e37a4acb2cc1b16efa9b66b13",
+    "business-interaction/interaction/preparation_rules.py": "5ba61b33b8b08792959c2b491b4599dd5b75c4d0f7ff960afd9503aa877c8e8d",
+    "business-interaction/interaction/preparation_sources.py": "172e2dca3408e5db6874dc36de13415c826a058a892efdd33748dedfe2ed5ece",
+    "business-interaction/interaction/preparation_workbook.py": "a682ce75c97f881f2091b66f62183757963c7c5772e54f85aa2270abf4dac717",
+    "business-interaction/interaction/quantity_review.py": "862fbd290faf26bf1a0d78c077ebacc1da9ee7c971b21904e84a355fea2bf6b8",
+    "business-interaction/interaction/service.py": "ad0caadb7131cd9f3aac42b3e30e68815294d140cd886301692dac5b0135a3cf",
+    "business-interaction/interaction/seven_column_adapter.py": "38fdddc867e5826ecd6fd9a0c2ceba259c826d2ebe923eb9b0f9802739517926",
+    "business-interaction/interaction/submission.py": "94157162a00605994c680759192d03062c082e74f725ab06871a294d56d7e995",
+    "business-interaction/interaction/website_query.py": "d7e26d66fd421238947d20998933180347782739e8a05372d56655be95c7bc69",
+    "business-interaction/interaction/workbook.py": "d6cb44fb6b30f5423dba9f9f047cc30bdb4b6ae06936af7028fa6585d31ec82e",
+    "business-interaction/interaction/__init__.py": "20996f19521859bd78f7c9ab975ad200079b683c16243cdc9d6e107a12f42a96",
+    "business-loop/loop/calc_model.py": "f40e4f3e6c919bb4c8e5efa31b134736410aa44810a239216c706300cf35037e",
+    "business-loop/loop/cli.py": "9f47b58e87a20d43bcffc4cc3a65c8a243ea1b18c841858a8305f6a00a500f62",
+    "business-loop/loop/compute.py": "fb4003d0157f7bc4dbf33485122df62f05c4a060d9eef57c8ee5dcfb86aec88f",
+    "business-loop/loop/delivery.py": "29af8cbfe57aae311c884a04d438106c3452db7fa32c88afb39ab08f67c336ec",
+    "business-loop/loop/prices.py": "58fd430c7ee788919660d92e98afcf9cbb3630f5c601257ff3161dcae222ba5b",
+    "business-loop/loop/review.py": "73807a0625e88084eb8e81dc3abf5f83264314c5cec4e79d637fc7a5f6687f1d",
+    "business-loop/loop/review_book.py": "ffaacd4a77684fe66d6215ec8c02d39d2fd3b587e0473f38defbd9133cdcfca2",
+    "business-loop/loop/support.py": "9e4c4246e0da01e2c4684bec425f21981818bf7f9cf3afb0a0e996a02fdc14c9",
+    "business-loop/loop/updates.py": "1835d428e4e5bc05601db679f388d5826032b1c594b4f2266402813813376b59",
+    "business-loop/loop/__init__.py": "87679b87042f6da364f7d94bfa429c470c373bf846af422e09295415c6903cf7",
+    "business-loop/loop/__main__.py": "cf28522dffddc4a4e055feb03944883507ab918f4dc6a89b057e80a265d2c657",
+    "catalogue-pack-loop/packloop/catalogue.py": "68bcd55db0c03940e4c8bb93969461e9a896bea2f8bf0fad0c4db259896c4aa8",
+    "catalogue-pack-loop/packloop/kinds.py": "4e69d72016b290c8398d9305703faf875bb3d058795aed6427b9a15213cfb73d",
+    "catalogue-pack-loop/packloop/price_input.py": "0ad8f5b75eb9ba8349b6da7cc577b1db0838c9ca5e3f51f7dbf7b28fc922fa4c",
+    "catalogue-pack-loop/packloop/register.py": "f18a4cd75d41c71f3ce62538912cb7665df47512a1953c29a3c3b1582039941d",
+    "catalogue-pack-loop/packloop/review.py": "2a1667c766815dfe70da3677cb782adaa8d5cc6d49ff38935908eb0e1849f9b3",
+    "catalogue-pack-loop/packloop/review_book.py": "b8084bbdfc879e11342326d3a9aa5e23d2bd8c6d8546d61e643a9b05204aa96b",
+    "catalogue-pack-loop/packloop/runtime.py": "b053cb8dd5059fc503b56d03a6835a8712bd4efd15edab2a11df14a543e1e320",
+    "catalogue-pack-loop/packloop/support.py": "79e7cb4024690574966cc3b884206b38be0cf3223889db5d02f971e36cff7767",
+    "catalogue-pack-loop/packloop/__init__.py": "49ec17b3396b6f7417290fbdeefd7e0c83742f03303a002d2e142865914b5161",
+    "catalogue-pack-loop/packloop/__main__.py": "902cb9a5beb76ca625908fa166426a45338a20cb11ccbb9041a0e8eb885109ac"
+  },
+  "original_view_real_replay": {
+    "passed": 7,
+    "failed": 0,
+    "not_executed": 0,
+    "rows": 1967,
+    "columns": 21,
+    "reproduced_sha256": "6987fac61752a48f24295079de937c82a321edb1eb4b44d882f982153867b2e4",
+    "zero_change_preview": true,
+    "auto_save_readback_idempotency": true,
+    "original_session_unchanged": true,
+    "technical_only_not_operator_approval": true,
+    "formal_output": false
+  },
+  "actual_entry_checks": {
+    "passed": 2,
+    "failed": 0,
+    "not_executed": 0,
+    "checks": [
+      {
+        "action": "native-preview",
+        "passed": true
+      },
+      {
+        "action": "current",
+        "passed": true
+      }
+    ],
+    "formal_output": false
+  },
+  "protected_files_unchanged": 294,
+  "guarded_dependencies_unchanged": 367,
+  "business_approval": false,
+  "full_real_business_closure": false,
+  "formal_output": false,
+  "remaining": [
+    "WEB-MATERIAL-100",
+    "REAL-CLOSURE",
+    "actual operator calculation return",
+    "52 unit-ratio rows and packaging/tax gates"
+  ],
+  "tested_code_commit": "efd2265ff61f6ea468937465bfebddb187212c33",
+  "commit_scope": "This report binds the runtime file hashes; a subsequent documentation/evidence commit retains identical executable code."
+}
