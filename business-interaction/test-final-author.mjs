@@ -28,6 +28,7 @@ for(const kind of ['internal','customs']){
  widths.forEach((width,i)=>s.getRange(`${column(i+1)}1:${column(i+1)}${last}`).format.columnWidth=width);
  for(let i=0;i<view.rows.length;i++){
   const n=i+4,r=view.rows[i];let lines=1;
+  for(const c of(kind==='internal'?[2,3]:[1]))if(typeof r[c]==='string'&&/^\d+$/.test(r[c]))s.getRange(`${column(c+1)}${n}`).setNumberFormat('0'.repeat(r[c].length));
   r.forEach((v,c)=>{if(typeof v==='string'){const units=[...v].reduce((a,ch)=>a+(ch.charCodeAt(0)>255?2:1),0);lines=Math.max(lines,Math.ceil(units/Math.max(8,widths[c]-2)));}});
   if(lines>2)s.getRange(`A${n}:${right}${n}`).format.rowHeight=lines*14+8;
   if(kind==='customs')s.getRange(`P${n}`).formulas=[[`=F${n}*G${n}`]];
