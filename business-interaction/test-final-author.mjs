@@ -19,6 +19,10 @@ for(const kind of ['internal','customs']){
  s.getRange(`A3:${right}3`).values=[view.headers];
  s.getRange(`A3:${right}3`).format={fill:'#344B63',font:{name:'Arial',size:10,bold:true,color:'#FFFFFF'},wrapText:true,rowHeight:38,horizontalAlignment:'center'};
  s.getRange(`A4:${right}${end}`).values=view.rows.map(r=>r.map(literal));
+ for(const col of(kind==='internal'?['A','B','C','D','S']:['A','B'])){
+  s.getRange(`${col}4:${col}${end}`).setNumberFormat('@');
+  s.getRange(`${col}4:${col}${end}`).format.horizontalAlignment='left';
+ }
  s.getRange(`A4:${right}${end}`).format.wrapText=true;s.getRange(`A4:${right}${end}`).format.rowHeight=42;
  const widths=kind==='internal'?[18,9,20,20,52,28,58,13,13,18,19,15,18,17,15,20,20,20,24,22,20]:[18,20,58,14,13,15,20,15,18,18,13,13,18,18,20,20,15,18,20];
  widths.forEach((width,i)=>s.getRange(`${column(i+1)}1:${column(i+1)}${last}`).format.columnWidth=width);
