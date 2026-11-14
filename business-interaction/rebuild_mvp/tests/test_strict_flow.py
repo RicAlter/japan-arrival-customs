@@ -29,6 +29,10 @@ def run(records, source=None, policy=None):
 
 
 class StrictFlow(unittest.TestCase):
+    def test_unknown_department_cannot_supply_automatic_YD(self):
+        result=run([record('purchase_list',code='4573643350147',name='未知部门候选',yd='YDFIG123')])
+        self.assertNotIn('yd',result['values'])
+        self.assertTrue(result['unadopted_candidates'])
     def test_existing_main_category_is_retained_alongside_four_fields(self):
         source=batch()
         main=record('business_summary',code=source['rows'][0]['raw']['code'],name='业务名称',category='业务已填品类')

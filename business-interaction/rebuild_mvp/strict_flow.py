@@ -211,9 +211,9 @@ def run_strict(batch, collected, policy):
         procurement = _latest_same_record(_linked(row, procurement_index, related_codes))
         procurement, headers = _order_scope(procurement, by_role['purchase_order'])
         active = [record for record in procurement if _is_active(record)]
-        # YD is auxiliary and cannot change the selected four-field main tuple.
-        _choose(row, 'yd', active, prefer_source_priority=False)
+        # Auxiliary YD cannot bypass the user's identity/department chain.
         if main:
+            _choose(row, 'yd', active, prefer_source_priority=False)
             _choose(row,'category',main,prefer_source_priority=False)
             for field in ('name', 'specification', 'channel'):
                 _common_main_field(row, field, main)
@@ -236,6 +236,7 @@ def run_strict(batch, collected, policy):
         else:
             eligible = _department_candidates(active, policy)
             if eligible:
+                _choose(row,'yd',eligible,prefer_source_priority=False)
                 _procurement_fields(row, eligible, headers)
                 path = 'department_procurement'
             elif any(ref.get('role') == 'reviewed_basics' for ref in row['evidence'].get('name', [])):
