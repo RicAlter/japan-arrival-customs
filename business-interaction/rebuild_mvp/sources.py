@@ -226,7 +226,8 @@ def _iter_records(config, meta, audit):
                 values = [(c, str(row['values'].get(c, '')).strip()) for c in candidates]
                 values = [(c, v) for c, v in values if known(v) or
                           ((role=='business_summary' and field=='price' or role=='reviewed_basics' and field=='reviewed_price')
-                           and v in {'0','0.0','0.00'})]
+                           and v in {'0','0.0','0.00'}) or
+                          (field in {'origin','qty','carton'} and v and not v.startswith('#'))]
                 if not values:
                     continue
                 distinct = {}

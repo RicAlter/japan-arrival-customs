@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from rebuild_mvp.sources import _mapping,_link_departments
+from rebuild_mvp.sources import _mapping,_link_departments,_iter_records
 from rebuild_mvp.reviewed import enrich_reviewed
 from test_reviewed import row,item
 
@@ -11,6 +11,15 @@ def detail(role,fields,number=1):
 
 
 class BusinessSemantics(unittest.TestCase):
+    def test_literal_unknown_origin_and_zero_quantity_preserved_for_row_identity(self):
+        data=[{'row':1,'values':{'B':'Origin','C':'ProductCode(JANCode)','K':'Qty','H':'采购单价（原计价单位）'}},
+              {'row':2,'values':{'B':'无','C':'00123','K':'0','H':'0'}}]
+        with patch('rebuild_mvp.sources._sheet_names',return_value=['invoice']),patch('rebuild_mvp.sources._iter_sheet_rows',return_value=iter(data)):
+            records=list(_iter_records({'role':'reviewed_basics','path':'fixture.xlsx'},
+                         {'source_id':'checked','sha256':'checked'}, {'skipped_sheets':[],'field_maps':[]}))
+        self.assertEqual(records[0]['fields']['origin'],'无')
+        self.assertEqual(records[0]['fields']['qty'],'0')
+        self.assertEqual(records[0]['fields']['reviewed_price'],'0')
     def test_missing_strict_flow_cannot_fall_back_to_old_rules(self):
         from rebuild_mvp.matching import match_batch
         from rebuild_mvp.sources import SourceError
