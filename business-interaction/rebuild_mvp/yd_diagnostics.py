@@ -4,8 +4,13 @@ from collections import Counter
 
 def explain_yd(rows,header_row=1):
     cases=[]
+    exempt=[]
     for row in rows:
         if row['values'].get('yd'):continue
+        if row.get('yd_requirement',{}).get('status')=='not_required':
+            exempt.append({'row_id':row['row_id'],'source_row':row['source_row'],'output_row':row['source_row']-header_row+1,
+                           'code':row['raw']['code'],'name':row['values'].get('name',''),'requirement':row['yd_requirement']})
+            continue
         conflicts=[i for i in row.get('issues',[]) if i.get('field')=='yd' and 'CONFLICT' in i.get('code','')]
         name=row['values'].get('name','')
         if conflicts:
@@ -23,5 +28,5 @@ def explain_yd(rows,header_row=1):
                       'chinese_name':name,'reason_code':reason,'reason':text,
                       'name_sources':row['evidence'].get('name',[]),'matching_basis':row.get('matching',{}),
                       'YD_conflicts':conflicts})
-    return {'total_missing':len(cases),'with_chinese_name':sum(bool(c['chinese_name']) for c in cases),
+    return {'total_missing':len(cases),'total_exempt':len(exempt),'exempt_rows':exempt,'with_chinese_name':sum(bool(c['chinese_name']) for c in cases),
             'reason_counts':dict(Counter(c['reason_code'] for c in cases)), 'rows':cases}

@@ -13,6 +13,7 @@ from .matching import (_IdentityIndex, _summary_matches, _linked, _choose, _pric
                        _ref, _issue, _record_order, _latest_same_record,
                        _order_scope, _is_active, _prior_material, _sku_specification)
 from .reviewed import enrich_reviewed, reviewed_index, _same_row
+from .yd_selection import choose_yd, exempt_missing_benefit_yd
 
 MAIN_FIELDS = {'name': 'name', 'specification': 'specification',
                'purchase_price': 'price', 'channel': 'channel'}
@@ -213,7 +214,7 @@ def run_strict(batch, collected, policy):
         active = [record for record in procurement if _is_active(record)]
         # Auxiliary YD cannot bypass the user's identity/department chain.
         if main:
-            _choose(row, 'yd', active, prefer_source_priority=False)
+            choose_yd(row, active, policy)
             _choose(row,'category',main,prefer_source_priority=False)
             for field in ('name', 'specification', 'channel'):
                 _common_main_field(row, field, main)
@@ -236,7 +237,7 @@ def run_strict(batch, collected, policy):
         else:
             eligible = _department_candidates(active, policy)
             if eligible:
-                _choose(row,'yd',eligible,prefer_source_priority=False)
+                choose_yd(row, eligible, policy)
                 _procurement_fields(row, eligible, headers)
                 path = 'department_procurement'
             elif any(ref.get('role') == 'reviewed_basics' for ref in row['evidence'].get('name', [])):
@@ -266,7 +267,10 @@ def run_strict(batch, collected, policy):
             if _choose(row, 'material_reference', cards, 'material', prefer_source_priority=False):
                 for ref in row['evidence']['material_reference']:
                     ref['scope']['adoption_scope'] = 'yd_collection_reference'
+        exempt_yd = exempt_missing_benefit_yd(row, policy)
         for target, label in (('name', '商品名称'), ('specification', '规格'), ('purchase_price', '采购价'), ('channel', '渠道'), ('yd', 'YD')):
+            if target == 'yd' and exempt_yd:
+                continue
             if not row['values'].get(target) and not any(issue.get('field') == target for issue in row['issues']):
                 _issue(row, 'FIELD_MISSING', target, label + '缺失或待用户判断；其他可靠字段继续处理')
         matching_field = 'pcs' if path == 'business_pcs' else 'code'

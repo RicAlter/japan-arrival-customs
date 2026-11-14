@@ -1,6 +1,6 @@
 {
   "schema": "arrival-matching-policy/1",
-  "version": "2026-11-14-user-flow-v4",
+  "version": "2026-11-14-user-flow-v5",
   "flow": "user_strict_v1",
   "department_aliases": {
     "手办部": "手办部",
@@ -81,5 +81,24 @@
     "None",
     "null"
   ],
-  "confirmed_values": "preserve all applicable operator-confirmed fields before automatic lookup; record conflicting new master candidates"
+  "confirmed_values": "preserve all applicable operator-confirmed fields before automatic lookup; record conflicting new master candidates",
+  "yd_selection": {
+    "reissue_rule": "latest_valid_embedded_date_same_product_pack",
+    "date_format": "YYYYMMDD after YD letters; trailing digits are not date tie-breakers",
+    "reissue_markers": [
+      "再版",
+      "再贩",
+      "再販",
+      "再受注",
+      "再生産",
+      "再生产",
+      "reissue",
+      "rerelease"
+    ],
+    "optional_benefit_markers": [
+      "特典"
+    ],
+    "confirmed_YD": "preserve",
+    "same_date_multiple_YD": "remain_conflict"
+  }
 }
