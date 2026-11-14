@@ -84,6 +84,8 @@ def validated_config(request):
         raise MvpError('INPUT_INVALID', '需要有效批次编号')
     if not config.get('sources') or not isinstance(config['sources'], list):
         raise MvpError('CONFIG_INVALID', '需要已审计来源配置列表')
+    if sum(source.get('role') == 'business_summary' for source in config['sources']) > 1:
+        raise MvpError('CONFIG_INVALID', '至今报单汇总只能绑定已确认的最新版，不能混用历史版本')
     from .sources import validate_source
     # Validate all restrictions before reading any source content or creating a database.
     for source in config['sources']:
