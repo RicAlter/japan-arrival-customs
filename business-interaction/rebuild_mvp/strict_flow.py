@@ -214,6 +214,7 @@ def run_strict(batch, collected, policy):
         # YD is auxiliary and cannot change the selected four-field main tuple.
         _choose(row, 'yd', active, prefer_source_priority=False)
         if main:
+            _choose(row,'category',main,prefer_source_priority=False)
             for field in ('name', 'specification', 'channel'):
                 _common_main_field(row, field, main)
             if path == 'business_japanese_name':

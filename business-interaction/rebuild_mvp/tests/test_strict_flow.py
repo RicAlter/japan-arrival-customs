@@ -29,6 +29,11 @@ def run(records, source=None, policy=None):
 
 
 class StrictFlow(unittest.TestCase):
+    def test_existing_main_category_is_retained_alongside_four_fields(self):
+        source=batch()
+        main=record('business_summary',code=source['rows'][0]['raw']['code'],name='业务名称',category='业务已填品类')
+        result=run_strict(source,{'records':[main]},POLICY)[0]
+        self.assertEqual(result['values']['category'],'业务已填品类')
     def test_real_main_record_price_channel_specification_win(self):
         row = run([record('business_summary', code='4573643350147', name='业务商品名', specification='拍立得整盒89', price='2629.1265', currency='JPY', unit='主表SKU原计价单位', channel='arma bianca'),
                    record('purchase_list', code='4573643350147', name='采购名字', specification='其他规格', price='2629.13', currency='JPY', unit='SKU', channel='千秋', yd='YD1')])
