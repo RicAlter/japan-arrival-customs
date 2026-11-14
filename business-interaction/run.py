@@ -1,10 +1,19 @@
 """WorkBuddy host adapter. Business users never prepare JSON/commands themselves."""
 import argparse,json,sys
-from interaction.submission import Service
-from interaction.seven_column_adapter import install
-install()
+from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--config');p.add_argument('--request',required=True);p.add_argument('--result-file');a=p.parse_args()
 try:
+    # Independent new-batch flow: do not load the old database/runtime chain.
+    incoming=json.loads(Path(a.request).read_text(encoding='utf-8-sig'))
+    if incoming.get('workflow')=='rebuild_mvp_v1':
+        from rebuild_mvp.service import handle,save_json
+        result=handle(incoming)
+        if a.result_file:save_json(a.result_file,result)
+        print(json.dumps(result,ensure_ascii=False,default=str))
+        sys.exit(1 if result['status']=='failed' else 0)
+    from interaction.submission import Service
+    from interaction.seven_column_adapter import install
+    install()
     from interaction import load,save
     request=load(a.request);action=request.pop('action')
     if action=='prepare':

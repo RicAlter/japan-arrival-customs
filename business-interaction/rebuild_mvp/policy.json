@@ -1,0 +1,13 @@
+{
+  "schema": "arrival-matching-policy/1",
+  "version": "2026-11-14-matching-v1",
+  "opening_sources": "excluded_including_known_derivatives",
+  "matching_order": ["business_code", "business_pcs", "business_japanese_name", "procurement_identity"],
+  "procurement_channel_roles": ["purchase_list", "order_detail", "purchase_order"],
+  "prior_material_fields": ["material", "website_material", "material_reference"],
+  "forbid_fuzzy_adoption": true,
+  "forbid_amount_quantity_price_derivation": true,
+  "forbid_model_business_inference": true,
+  "product_material_destination": "material_reference",
+  "unknown_values": ["", "0", "无", "未知", "待补", "待核", "未查到", "未找到", "nan", "None", "null"]
+}

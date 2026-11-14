@@ -1,0 +1,23 @@
+# 基础资料匹配MVP
+
+本模块对应长期R0/F01–F04、R1/F05的本批最小实现，不是第二套长期系统。当前只做来源受控的资料匹配、最小SQLite候选和固定24列/两页无图片Excel；回传保存、计算、税金、盒规推断和正式安装未实现。
+
+## 调用
+
+经现有 `business-interaction/run.py --request <JSON> --result-file <JSON>`，请求指定 `workflow: rebuild_mvp_v1`。
+
+- prepare：batch_id、input_file、sources、layout_contract、output；来源由开发部署配置固定，不让日常模型临时决定。
+- current/resume：task_root。current只查看，resume校验代码、输入、来源和规则版本后从已完成步骤继续。
+- 简短模型入口 `operate.py --runtime <已绑定配置> --action prepare|current|resume`；业务不填写JSON。
+
+协议、类型、字段及模块边界见CONTRACT.md；来源/匹配规则见policy.json。成功、带缺项交付和运行失败分别为completed、partial、failed；错误有固定code/message/retryable。模型不猜资料、不改程序配置、不写数据库。
+
+商品基础资料主来源是业务整理的至今报单汇总；采购渠道只取实际采购资料；开订与明确仅其派生的数据排除。前次本批文件仅承接可靠对应的O/R/S材质。来源记录与商品、采购记录分开保存，原始批次行不可改写，采用字段逐项有证据。
+
+## 校验
+
+新模块回归：`python -X utf8 -B -m unittest discover -s rebuild_mvp/tests -v`（工作目录business-interaction）。
+
+真实整批只读核验：`python -X utf8 -B tools/verify_matching_mvp.py --task <本批运行目录> --report <新报告>`。原文件及业务报告均留本地，不提交Git。
+
+冻结使用既有tools/freeze_unified.py从干净提交生成新运行副本并还原旧依赖锁定字节，不改工作树冻结依赖。日常模型运行目录只放本Skill及绑定入口；不要求读完整开发SOP。强模型和Terra必须用同一冻结版本、来源和规则，比较逐行业务内容与证据；技术自测不等同运营认可或正式安装。

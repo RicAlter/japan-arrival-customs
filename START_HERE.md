@@ -1,5 +1,7 @@
 # 当前开发入口（2026-11-13）
 
+2026-11-14用户批准的当前优先任务是两日内基础资料匹配MVP。新流程经run.py的workflow=rebuild_mvp_v1接入，使用prepare/current/resume，说明见business-interaction/rebuild_mvp/README.md和本机治理根MVP_SPRINT.md。仅本批最小库、匹配与固定24列两页无图片核对表；回传保存、计算、最终双表和正式安装延期。以下旧批次入口保持原适用范围。日常模型只读简短Skill，开发会话仍遵循本文件与治理要求。
+
 唯一集成开发分支：`codex/unified-repro-20261111`。本次只整理开发基线，正式Skill、main、数据库和既有session不变。先读 AGENTS.md → 本文件 → CURRENT_STATUS.md → repro/version-registry.json → BUSINESS_RULES.md → SOP_INDEX.md → TEST_INDEX.md，再读 repro/BASELINE.md。
 
 运行 `python -X utf8 -B tools/check_candidate.py`。隔离任务分支需显式增加 `--governance-root <已有项目治理根> --task-id <已登记任务ID>`，由现有 startup 校验归属，不自动采纳版本。本机存在治理根时同时执行其 governance/check.py startup；不初始化新的治理系统。

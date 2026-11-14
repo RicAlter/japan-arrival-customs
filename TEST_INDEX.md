@@ -1,5 +1,7 @@
 # 当前测试索引（2026-11-13）
 
+2026-11-14匹配MVP：business-interaction/rebuild_mvp/tests覆盖来源排除、PCS/日文名、采购币种/范围、材质承接、原始数据、事务和恢复；tools/verify_matching_mvp.py核验真实整批字段、来源、箱重及SQLite；实际执行结果以本机治理报告为准，不能把测试定义当已通过。新增run.py流程与旧批次回归分别验证；Terra实际运行、运营认可和正式安装分开记录。
+
 旧repro/verification.json为ed0134d的287项历史证据，保持原版本，不替代当前提交验证。完整SHA、执行数、失败/未执行、来源和实际日志见本机新治理报告。
 
 当前重跑范围：tools/regression_existing.py的units231、loop21、pack16，以及catalogue-pack-loop/tests/test_price_input.py的19项原价输入；business-interaction/tests中test_stage2_calculation44、test_confirmation_view12、test_yellow_review13、test_final_flow14；新增test_presentation7和tools/tests/test_baseline8。每项只计一次，跳过不算通过。治理50项单列。
