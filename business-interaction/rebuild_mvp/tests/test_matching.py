@@ -9,6 +9,8 @@ from rebuild_mvp.sources import validate_source, SourceError, _mapping, ALLOWED,
 
 
 def record(role, row=1, **fields):
+    if role in {'purchase_list','order_detail'}:
+        fields.setdefault('department','手办部')  # explicit fixture evidence, never a runtime default
     return {'source_id': role + str(row), 'source_sha256': role * 3, 'role': role, 'sheet': 's', 'row': row,
             'fields': fields, 'columns': {f: 'A' for f in fields}, 'scope': {'priority': 0}}
 
@@ -24,12 +26,12 @@ def run(records, source=None):
 
 
 class MatchingContracts(unittest.TestCase):
-    def test_product_summary_primary_but_channel_only_procurement(self):
-        row = run([record('business_summary', code='1234567890123', name='业务名称', channel='非法渠道'),
+    def test_product_summary_channel_is_authorized_primary_source(self):
+        row = run([record('business_summary', code='1234567890123', name='业务名称', channel='业务渠道'),
                    record('purchase_list', code='1234567890123', name='采购名称', channel='实际渠道', yd='YD1')])
         self.assertEqual(row['values']['name'], '业务名称')
-        self.assertEqual(row['values']['channel'], '实际渠道')
-        self.assertEqual(row['evidence']['channel'][0]['role'], 'purchase_list')
+        self.assertEqual(row['values']['channel'], '业务渠道')
+        self.assertEqual(row['evidence']['channel'][0]['role'], 'business_summary')
 
     def test_pcs_identity_carries_name_without_box_inference(self):
         row = run([record('business_summary', code='9876543210123', pcs='1234567890123', name='盒装名')])
@@ -156,16 +158,17 @@ class MatchingContracts(unittest.TestCase):
         with self.assertRaises(SourceError):
             match_batch(batch(), {'records': []}, policy={'fuzzy': True})
 
-    def test_field_permission_excludes_summary_channel_and_card_price(self):
-        self.assertNotIn('channel', ALLOWED['business_summary'])
+    def test_summary_business_semantics_authorized_but_card_price_still_excluded(self):
+        self.assertIn('channel', ALLOWED['business_summary'])
         self.assertNotIn('channel', ALLOWED['product_card'])
         self.assertNotIn('price', ALLOWED['product_card'])
-        self.assertEqual(_mapping({'C': '金额（日元', 'D': '数量', 'E': '产品'}, 'business_summary'), {'name': ['E']})
+        self.assertEqual(_mapping({'C': '金额（日元', 'D': '数量', 'E': '产品'}, 'business_summary'), {'name': ['E'],'specification':['D'],'price':['C']})
+        self.assertNotIn('specification',_mapping({'D':'数量'},'purchase_list'))
 
-    def test_explicit_sku_catalog_complete_spec_kept(self):
+    def test_catalogue_spec_not_substituted_for_missing_department_procurement_spec(self):
         row = run([record('purchase_list', code='1234567890123', sku='SKU1', yd='YD1'),
                    record('product_catalog', code='SKU1', sku='SKU1', specification='整盒10包，每包3枚入，全35种')])
-        self.assertEqual(row['values']['specification'], '整盒10包，每包3枚入，全35种')
+        self.assertNotIn('specification',row['values'])
         self.assertNotIn('total_pieces', row['values'])
 
     def test_identity_index_preserves_linear_candidate_semantics(self):
@@ -185,7 +188,7 @@ class MatchingContracts(unittest.TestCase):
             row = run([record('purchase_list', code='1234567890123', sku='SKU1', sku_name=specification)])
             self.assertEqual(row['values']['specification'], specification)
             self.assertEqual(row['evidence']['specification'][0]['source_field'], 'sku_name')
-            self.assertEqual(row['evidence']['specification'][0]['scope']['adoption_kind'], 'procurement_sku_name_original_specification')
+            self.assertEqual(row['evidence']['specification'][0]['scope']['adoption_kind'], 'department_procurement_sku_name_original_specification')
             self.assertNotIn('box_size', row['values']); self.assertNotIn('total_pieces', row['values'])
 
     def test_sku_order_placeholder_is_not_specification(self):
@@ -200,11 +203,11 @@ class MatchingContracts(unittest.TestCase):
         self.assertEqual(row['values']['name'], '商品')
         self.assertTrue(any(i['field'] == 'specification' and i['code'] == 'FIELD_CONFLICT' for i in row['issues']))
 
-    def test_explicit_catalog_spec_precedes_sku_name(self):
+    def test_department_procurement_spec_precedes_unapproved_catalogue_route(self):
         row = run([record('purchase_list', code='1234567890123', sku='SKU1', sku_name='吧唧'),
                    record('product_catalog', code='SKU1', sku='SKU1', specification='吧唧5枚套组')])
-        self.assertEqual(row['values']['specification'], '吧唧5枚套组')
-        self.assertEqual(row['evidence']['specification'][0]['role'], 'product_catalog')
+        self.assertEqual(row['values']['specification'], '吧唧')
+        self.assertEqual(row['evidence']['specification'][0]['role'], 'purchase_list')
 
 
 if __name__ == '__main__':

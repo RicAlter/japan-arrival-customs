@@ -26,6 +26,7 @@ def _same_row(row,record):
 
 
 def _eligible(field,value):
+    if field=='purchase_price' and str(value).strip() in {'0','0.0','0.00'}:return True
     if not known(value):return False
     if field=='yd':return bool(re.fullmatch(r'YD[A-Za-z0-9_-]+',str(value),re.I))
     if field in ROW_FIELDS|{'box_size'}:
@@ -35,7 +36,7 @@ def _eligible(field,value):
     return True
 
 
-def enrich_reviewed(row, records):
+def enrich_reviewed(row, records, preserve_confirmed=False):
     """Same code+JP SKU scope; counts and YD additionally require same shipment row.
 
     Previously reviewed category/O/box/blind wins over automatic candidates.
@@ -43,11 +44,14 @@ def enrich_reviewed(row, records):
     from the operator. No price, channel, Qty, calculation or formula changes.
     """
     row.setdefault('resolved_issues',[])
-    for field in sorted(SKU_FIELDS|SHIPMENT_SCOPE):
-        if field in FILL_ONLY and row['values'].get(field):continue
-        candidates=[r for r in records if _eligible(field,r['fields'].get(field,''))
-                    and (field not in SHIPMENT_SCOPE or _same_row(row,r))
-                    and (field not in FILL_ONLY|{'yd'} or r['role']=='reviewed_basics')]
+    protected=SKU_FIELDS|SHIPMENT_SCOPE|({'purchase_price','channel'} if preserve_confirmed else set())
+    for field in sorted(protected):
+        source_field='reviewed_price' if field=='purchase_price' else field
+        if field in FILL_ONLY and row['values'].get(field) and not preserve_confirmed:continue
+        row_scoped=SHIPMENT_SCOPE|({'purchase_price','channel'} if preserve_confirmed else set())
+        candidates=[r for r in records if _eligible(field,r['fields'].get(source_field,''))
+                    and (field not in row_scoped or _same_row(row,r))
+                    and (field not in FILL_ONLY|{'yd','purchase_price','channel'} or r['role']=='reviewed_basics')]
         if not candidates:continue
         def rank(record):
             if field in {'website_material','material_reference'}:
@@ -55,16 +59,16 @@ def enrich_reviewed(row, records):
             return (0 if record['role']=='reviewed_basics' else 1,int(record.get('scope',{}).get('priority',100)))
         best=min(rank(r) for r in candidates);candidates=[r for r in candidates if rank(r)==best]
         groups=defaultdict(list)
-        for record in candidates:groups[norm(record['fields'][field])].append(record)
+        for record in candidates:groups[norm(record['fields'][source_field])].append(record)
         if len(groups)>1:
             row['issues'].append({'code':'REVIEWED_FIELD_CONFLICT','field':field,
                                   'message':'已有业务表同商品存在不同已填值，保留当前结果并待核',
                                   'candidates':[{'value':v,'source_rows':[r['row'] for r in rs]} for v,rs in sorted(groups.items())]})
             continue
-        chosen=next(iter(groups.values()));value=chosen[0]['fields'][field]
+        chosen=next(iter(groups.values()));value=chosen[0]['fields'][source_field]
         # An already adopted YD differs from reviewed one: expose both, not overwrite.
         current=row['values'].get(field)
-        if field=='yd' and current and current!=value:
+        if field=='yd' and current and current!=value and not preserve_confirmed:
             row['issues'].append({'code':'REVIEWED_FIELD_CONFLICT','field':'yd',
                                   'message':'当前采购YD与运营已填YD不同，保留两方依据待核',
                                   'candidates':[{'value':current},{'value':value,'source_rows':[r['row'] for r in chosen]}]})
@@ -72,11 +76,11 @@ def enrich_reviewed(row, records):
         refs=[]
         for record in chosen:
             refs.append({k:record[k] for k in ['source_id','source_sha256','role','sheet','row']})
-            refs[-1].update(column=record['columns'][field],value=record['fields'][field],source_field=field,
+            refs[-1].update(column=record['columns'][source_field],value=record['fields'][source_field],source_field=source_field,
                             scope={**deepcopy(record.get('scope',{})),
                                    'adoption_kind':'inherited_user_reviewed_field' if record['role']=='reviewed_basics' else 'user_supplied_completed_reference',
                                    'authority':'2026-11-14 user: reuse existing reviewed fields; completed workbook for material/reference',
-                                   'identity_scope':'same_shipment_row' if field in SHIPMENT_SCOPE else 'same_code_and_japanese_name',
+                                   'identity_scope':'same_shipment_row' if field in row_scoped else 'same_code_and_japanese_name',
                                    'new_calculation':False})
         if current not in ('',None) and current!=value:
             row.setdefault('superseded_automatic_values',{})[field]={'value':current,'evidence':deepcopy(row['evidence'].get(field,[]))}

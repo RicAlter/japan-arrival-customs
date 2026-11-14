@@ -1,12 +1,66 @@
 {
   "schema": "arrival-matching-policy/1",
-  "version": "2026-11-14-matching-v3-reviewed",
+  "version": "2026-11-14-user-flow-v4",
+  "flow": "user_strict_v1",
+  "department_aliases": {
+    "手办部": "手办部",
+    "模型部": "万代部",
+    "万代部": "万代部"
+  },
+  "department_mapping_authority": "user confirmed: 万代就是模型部",
   "opening_sources": "excluded_including_known_derivatives",
-  "matching_order": ["business_code", "business_pcs", "business_japanese_name", "procurement_identity"],
-  "procurement_channel_roles": ["purchase_list", "order_detail", "purchase_order"],
-  "prior_material_fields": ["material", "website_material", "material_reference"],
-  "reviewed_basics_fields": ["category", "material", "website_material", "material_reference", "pack_reference", "box_size", "blind", "yd", "name_fill_blank_only", "specification_fill_blank_only"],
-  "completed_reference_fields": ["category", "material", "website_material", "material_reference", "pack_reference", "box_size", "blind", "box_count", "total_pieces"],
+  "matching_order": [
+    "business_code",
+    "business_pcs",
+    "business_japanese_name",
+    "hand_or_bandai_procurement",
+    "user_judgment"
+  ],
+  "procurement_channel_roles": [
+    "business_summary",
+    "reviewed_basics",
+    "purchase_list",
+    "order_detail",
+    "purchase_order"
+  ],
+  "business_summary_semantics": {
+    "name": "产品/商品名称",
+    "specification": "规格/数量原文字段",
+    "price": "日元采购价/金额（日元）原值",
+    "channel": "渠道"
+  },
+  "master_code_pcs_price": "same master record JPY only; no procurement override",
+  "master_japanese_name_price": "CNY from actual purchase_list only",
+  "prior_material_fields": [
+    "material",
+    "website_material",
+    "material_reference"
+  ],
+  "reviewed_basics_fields": [
+    "name",
+    "specification",
+    "reviewed_price",
+    "channel",
+    "category",
+    "material",
+    "website_material",
+    "material_reference",
+    "pack_reference",
+    "box_size",
+    "blind",
+    "yd"
+  ],
+  "completed_reference_fields": [
+    "category",
+    "material",
+    "website_material",
+    "material_reference",
+    "pack_reference",
+    "box_size",
+    "blind",
+    "box_count",
+    "total_pieces"
+  ],
   "reviewed_YD_and_counts_scope": "same_code_japanese_name_carton_origin_and_original_quantity",
   "completed_reference_price_channel_YD": "not_adopted",
   "forbid_fuzzy_adoption": true,
@@ -14,5 +68,18 @@
   "forbid_model_business_inference": true,
   "product_material_destination": "material_reference",
   "specification_fallback": "explicitly_linked_procurement_sku_name_original_text_excluding_placeholders",
-  "unknown_values": ["", "0", "无", "未知", "待补", "待核", "未查到", "未找到", "nan", "None", "null"]
+  "unknown_values": [
+    "",
+    "0",
+    "无",
+    "未知",
+    "待补",
+    "待核",
+    "未查到",
+    "未找到",
+    "nan",
+    "None",
+    "null"
+  ],
+  "confirmed_values": "preserve all applicable operator-confirmed fields before automatic lookup; record conflicting new master candidates"
 }

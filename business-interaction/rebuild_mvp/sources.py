@@ -86,6 +86,7 @@ ALIASES = {
     'accessories': ['产品配件', '配件', '配件数量'],
     'size': ['产品尺寸'],
     'material_scope': ['适用范围', '范围'],
+    'reviewed_price': ['采购单价（原计价单位）'],
     'pack_reference': ['盒规原文参考（人工判断）', '盒规原文参考'],
     'box_count': ['盒装数'],
     'box_size': ['盒规'],
@@ -94,7 +95,7 @@ ALIASES = {
 }
 
 ALLOWED = {
-    'business_summary': {'code', 'pcs', 'name', 'ja', 'specification', 'yd', 'category', 'material'},
+    'business_summary': {'code', 'pcs', 'name', 'ja', 'specification', 'yd', 'category', 'material', 'price', 'currency', 'unit', 'channel'},
     'purchase_list': {'code', 'pcs', 'name', 'ja', 'specification', 'yd', 'sku', 'sku_name', 'channel', 'price', 'actual_price', 'currency', 'unit', 'order_id', 'quote_id', 'date', 'status', 'department', 'purchase_qty'},
     'order_detail': {'code', 'pcs', 'name', 'ja', 'specification', 'yd', 'sku', 'sku_name', 'channel', 'price', 'currency', 'unit', 'order_id', 'date', 'status', 'department', 'cancelled', 'cancelled_qty', 'purchase_qty'},
     'purchase_order': {'channel', 'currency', 'order_id', 'date', 'status', 'cancelled'},
@@ -103,7 +104,7 @@ ALLOWED = {
     'product_card': {'name', 'yd', 'material', 'material_scope', 'size', 'accessories'},
     'prior_material': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty'},
     # Explicit user-reviewed business source. Never inherit old price/channel.
-    'reviewed_basics': {'code', 'ja', 'name', 'specification', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_size', 'blind', 'yd'},
+    'reviewed_basics': {'code', 'ja', 'name', 'specification', 'reviewed_price', 'channel', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_size', 'blind', 'yd'},
     # User supplied completed material/reference workbook; its computed prices,
     # group-derived YD and channels do not become procurement facts.
     'completed_reference': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_count', 'box_size', 'blind', 'total_pieces'},
@@ -133,6 +134,10 @@ def _mapping(header, role, configured=None):
     result = {}
     for field in ALLOWED[role]:
         aliases = {header_key(v) for v in ALIASES.get(field, [])}
+        if role == 'business_summary' and field == 'specification':
+            aliases.add(header_key('数量'))
+        if role == 'business_summary' and field == 'price':
+            aliases.update(header_key(v) for v in ['金额（日元','金额（日元）','金额(日元)','日元采购价'])
         columns = [c for c, value in header.items() if header_key(value) in aliases]
         if configured and field in configured:
             wanted = configured[field]
@@ -219,7 +224,9 @@ def _iter_records(config, meta, audit):
             fields, columns, conflicts = {}, {}, {}
             for field, candidates in mapping.items():
                 values = [(c, str(row['values'].get(c, '')).strip()) for c in candidates]
-                values = [(c, v) for c, v in values if known(v)]
+                values = [(c, v) for c, v in values if known(v) or
+                          ((role=='business_summary' and field=='price' or role=='reviewed_basics' and field=='reviewed_price')
+                           and v in {'0','0.0','0.00'})]
                 if not values:
                     continue
                 distinct = {}
@@ -246,10 +253,14 @@ def _iter_records(config, meta, audit):
             if role == 'business_summary' and fields.get('code') and re.search('[ぁ-ヿ一-龯]', fields['code']):
                 fields['lookup_text'] = fields['code']
                 columns['lookup_text'] = columns['code']
+            if role == 'business_summary' and 'price' in fields:
+                fields['currency']='JPY';fields['unit']='业务下单汇总SKU原计价单位'
+                columns['currency']=columns['price'];columns['unit']=columns['price']
             yield {'source_id': meta['source_id'], 'source_sha256': meta['sha256'], 'role': role,
                    'sheet': sheet, 'row': row['row'], 'fields': fields, 'columns': columns,
                    'scope': {'source_version': meta.get('version'), 'priority': config.get('priority', 100),
                              'family': config.get('family', role), 'duplicate_field_conflicts': conflicts,
+                             'business_semantics_authority': 'user: main order summary name/specification/JPY purchase price/channel; misleading header is not field meaning' if role=='business_summary' else None,
                              'pcs_source_cells': [{'column': c, 'value': str(row['values'].get(c, '')).strip()} for c in mapping.get('pcs', []) if known(row['values'].get(c))],
                              'unit_kind': 'source_sku_quote' if fields.get('unit') == '采购SKU原计价单位' else ('explicit' if fields.get('unit') else 'unknown'),
                              'packaging_unit': None,
@@ -281,7 +292,7 @@ def collect_sources(config, batch, progress=None):
     for item in config:
         validate_source(item)
     audit = {'skipped_sheets': [], 'field_maps': [], 'source_counts': [], 'duplicates': [],
-             'excluded_fields': {'business_summary': ['channel', 'amount', 'qty'], 'product_card': ['channel', 'official_price']}}
+             'excluded_fields': {'business_summary': ['shipment_qty_inference', 'amount_quantity_price_derivation'], 'product_card': ['channel', 'official_price']}}
     sources, by_role, seen = [], defaultdict(list), set()
     for item in config:
         path = Path(item['path'])
@@ -308,10 +319,13 @@ def collect_sources(config, batch, progress=None):
 
     def scan(item, meta, include_related):
         scanned = kept = 0
+        department_counts=defaultdict(int)
         for record in _iter_records(item, meta, audit):
             scanned += 1
             fields = record['fields']; codes, names = _identity_keys(fields)
-            relevant = bool(codes & connected_codes or names & seed_names)
+            if fields.get('department'):department_counts[fields['department']]+=1
+            relevant = bool(codes & connected_codes or names & seed_names or
+                            (record['role']=='business_summary' and norm(fields.get('code')) in seed_names))
             if include_related:
                 relevant = relevant or bool(fields.get('yd') in yds or fields.get('order_id') in orders)
             if not relevant:
@@ -328,6 +342,9 @@ def collect_sources(config, batch, progress=None):
                 if fields.get('order_id'):
                     orders.add(fields['order_id'])
         audit['source_counts'].append({'source_id': meta['source_id'], 'scanned': scanned, 'new_kept': kept, 'pass': 2 if include_related else 1})
+        if meta['role']=='order_detail':
+            audit.setdefault('department_scan',[]).append({'source_id':meta['source_id'],'pass':2 if include_related else 1,
+                                                         'raw_department_counts':dict(department_counts)})
         if progress:
             progress({'source_id': meta['source_id'], 'role': meta['role'], 'scanned': scanned, 'kept': kept})
 
@@ -343,8 +360,45 @@ def collect_sources(config, batch, progress=None):
             scan(item, meta, True)
     audit['field_maps'] = list({json.dumps(v, sort_keys=True): v for v in audit['field_maps']}.values())
     audit['connected'] = {'codes': len(connected_codes), 'yds': len(yds), 'orders': len(orders)}
+    _link_departments(records)
     departments = sorted({r['fields']['department'] for r in records if r['role'] in PROCUREMENT and r['fields'].get('department')})
+    aliases=json.loads(Path(__file__).with_name('policy.json').read_text(encoding='utf-8')).get('department_aliases',{})
+    canonical=sorted({aliases.get(d,d) for d in departments})
+    all_labels=sorted({d for scan in audit.get('department_scan',[]) for d in scan['raw_department_counts']})
+    all_canonical=sorted({aliases.get(d,d) for d in all_labels})
     audit['department_coverage'] = {'observed_labels': departments, 'requested_labels': ['手办部', '万代部'],
-                                    'labels_not_observed_not_proof_of_no_product': [d for d in ('手办部', '万代部') if d not in departments],
-                                    'model_department_is_not_bandai_department': True}
+                                    'canonical_departments':canonical,'department_aliases':aliases,
+                                    'all_scanned_raw_labels':all_labels,'all_scanned_canonical_departments':all_canonical,
+                                    'labels_not_observed_not_proof_of_no_product': [d for d in ('手办部', '万代部') if d not in all_canonical],
+                                    'mapping_authority':'user: 万代就是模型部'}
     return {'sources': sources, 'records': records, 'audit': audit}
+
+
+def _link_departments(records):
+    """Only actual same SKU+YD or order+SKU line evidence, never brand/prefix."""
+    aliases=json.loads(Path(__file__).with_name('policy.json').read_text(encoding='utf-8')).get('department_aliases',{})
+    sku_yd=defaultdict(list);order_sku=defaultdict(list)
+    for record in records:
+        f=record['fields']
+        if record['role']=='order_detail' and f.get('department') and f.get('sku'):
+            if f.get('yd'):sku_yd[(code(f['sku']),f['yd'])].append(record)
+            if f.get('order_id'):order_sku[(f['order_id'],code(f['sku']))].append(record)
+    for record in records:
+        if record['role'] not in PROCUREMENT:continue
+        f=record['fields'];scope=record.setdefault('scope',{})
+        if f.get('department'):
+            scope['canonical_department']=aliases.get(f['department'],f['department'])
+            scope['department_mapping_authority']='user: 万代就是模型部' if f['department']=='模型部' else 'original department field'
+            continue
+        if record['role']!='purchase_list' or not f.get('sku'):continue
+        matches=sku_yd.get((code(f['sku']),f.get('yd')),[])+order_sku.get((f.get('order_id'),code(f['sku'])),[])
+        matches=list({(r['source_id'],r['sheet'],r['row']):r for r in matches}.values())
+        departments={aliases.get(r['fields']['department'],r['fields']['department']) for r in matches}
+        if len(departments)==1:
+            f['department']=sorted({r['fields']['department'] for r in matches})[0]
+            scope['canonical_department']=next(iter(departments))
+            scope['department_evidence']=[{k:r[k] for k in ['source_id','source_sha256','role','sheet','row']}|
+                                         {'column':r['columns']['department'],'value':r['fields']['department'],
+                                          'relation':'same SKU+YD or same order+SKU'} for r in matches]
+        elif len(departments)>1:
+            scope['department_conflict']=sorted(departments)

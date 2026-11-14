@@ -1,5 +1,9 @@
 # Matching MVP interface v1 (2026-11-14)
 
+## Current user correction: strict flow and department identity
+
+BUSINESS_FLOW.md + policy.json user_strict_v1 supersede conflicting early restrictions below. Main summary is an actual business-maintained purchase source: its product/specification/JPY quote/channel must be read by confirmed business meaning even with legacy headers 数量/金额. Primary code→PCS→Japanese-name→hand/Bandai department procurement→user judgment; user confirmed 模型部=万代部. No automatic catalogue/other-department bypass. Operator-reviewed applicable values are protected before automatic matching, including reference price/channel; uncertain currency stays explicit, never guessed. Public matching entry rejects any other flow instead of silently falling back.
+
 ## Latest user-approved enrichment (2026-11-14)
 
 `reviewed_basics` is the supplied operator-reviewed partial workbook: category, O/R/S material, packaging reference, box size and blind flag may be inherited by exact code+Japanese-name SKU scope. Its valid YD may fill an empty/conflicting automatic YD only at the same carton/origin/original quantity. A different nonempty current YD is exposed as conflict, never overwritten. Excel errors such as #N/A are not IDs or material.

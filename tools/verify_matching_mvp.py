@@ -89,7 +89,7 @@ def main():
             if value not in ('',None):refs.append((row['row_id'],field,row['evidence'].get(field,[])))
     check('all adopted fields have location and source hash',all(ev and all(x.get('source_sha256') and x.get('sheet') and x.get('row') and x.get('column') for x in ev) for _,_,ev in refs))
     channels=[ev for _,field,ev in refs if field=='channel']
-    check('channel sources actual procurement only',all(x['role'] in {'purchase_list','order_detail','purchase_order'} for ev in channels for x in ev))
+    check('channel sources authorized main/reviewed/purchase only',all(x['role'] in {'business_summary','reviewed_basics','purchase_list','order_detail','purchase_order'} for ev in channels for x in ev))
     inherited=[(field,ev) for _,field,ev in refs if any(x['role']=='prior_material' for x in ev)]
     check('prior file material-only',all(field in {'material','website_material','material_reference'} for field,_ in inherited))
     check('prior material exact code and Japanese name',all(any(x.get('scope',{}).get('adoption_kind')=='inherited_user_authorized_material' for x in ev) for _,ev in inherited))

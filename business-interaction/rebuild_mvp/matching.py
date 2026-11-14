@@ -294,104 +294,11 @@ def _sku_specification(record):
 
 
 def match_batch(batch, collected, policy=None):
-    """Return copies in original order, with no model or side effects."""
+    """Only the versioned user-prescribed flow is a valid current entry."""
     default_policy = json.loads(Path(__file__).with_name('policy.json').read_text(encoding='utf-8'))
     if policy is not None and policy != default_policy:
-        raise SourceError('CONFIG_INVALID', '本MVP只接受已版本化的固定匹配规则，不接受调用方临时覆盖')
-    records = sorted(collected['records'], key=_record_order)
-    forbidden = [r for r in records if r['role'] not in {'business_summary', 'purchase_list', 'order_detail', 'purchase_order', 'product_catalog', 'daily_material', 'product_card', 'prior_material','reviewed_basics','completed_reference'}]
-    if forbidden:
-        raise SourceError('SOURCE_FORBIDDEN', '匹配候选含未许可来源')
-    by_role = defaultdict(list)
-    for record in records:
-        by_role[record['role']].append(record)
-    summary_index = _IdentityIndex(by_role['business_summary'])
-    procurement_index = _IdentityIndex(sorted(by_role['purchase_list'] + by_role['order_detail'], key=_record_order))
-    catalogue_index = _IdentityIndex(by_role['product_catalog'])
-    daily_index = _IdentityIndex(by_role['daily_material'])
-    prior_index = _IdentityIndex(by_role['prior_material'])
-    card_index = _IdentityIndex(by_role['product_card'])
-    reviewed = reviewed_index(by_role['reviewed_basics']+by_role['completed_reference'])
-    result = []
-    for source_row in batch['rows']:
-        row = deepcopy(source_row)
-        # Always rematch nonmaterial fields. Do not accidentally preserve stale
-        # automatic outputs if a caller passes already matched rows to resume.
-        extraction_issues = [deepcopy(issue) for issue in source_row.get('issues', [])
-                             if issue.get('code') in {'CARTON_MISSING', 'QUANTITY_MISSING'}]
-        row['values'], row['evidence'], row['issues'] = {}, {}, extraction_issues
-        incoming = code(row['raw'].get('code'))
-        if incoming and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.\-/]*', incoming):
-            row['values']['jc'] = incoming
-            raw_source = batch.get('source', {})
-            row['evidence']['jc'] = [{'source_id': raw_source.get('source_id', 'batch'), 'source_sha256': raw_source.get('sha256'), 'role': 'japanese_batch', 'sheet': row.get('sheet', batch.get('sheet')), 'row': row['source_row'], 'column': row.get('raw_cells', {}).get('code', {}).get('column', ''), 'value': incoming}]
-        summary, path = _summary_matches(row, summary_index)
-        # Latest maintained summary may fill an older missing field. Priority
-        # is explicitly configured, never inferred from filesystem timestamps.
-        if summary:
-            for target in ('name', 'specification', 'category', 'yd'):
-                _choose(row, target, summary)
-        related_codes = set()
-        for record in summary:
-            related_codes.update(_identity_keys(record['fields'])[0])
-        procurement = _linked(row, procurement_index, related_codes)
-        # A direct barcode purchase-list establishes an explicit SKU link to
-        # order details; do not bootstrap arbitrary sibling SKU from YD alone.
-        for record in procurement:
-            related_codes.update(_identity_keys(record['fields'])[0])
-        procurement = _latest_same_record(_linked(row, procurement_index, related_codes))
-        procurement, order_headers = _order_scope(procurement, by_role['purchase_order'])
-        active = [r for r in procurement if _is_active(r)]
-        if not path and active:
-            path = 'procurement_identity'
-        if active:
-            if not row['values'].get('name') and not any(i['field'] == 'name' for i in row['issues']):
-                _choose(row, 'name', active, prefer_source_priority=False)
-            _choose(row, 'yd', active, prefer_source_priority=False)
-            active_orders = {r['fields'].get('order_id') for r in active if r['fields'].get('order_id')}
-            matching_headers = [r for r in order_headers if r['fields'].get('order_id') in active_orders and _is_active(r)]
-            _choose(row, 'channel', active + matching_headers, prefer_source_priority=False)
-            _price(row, active, path == 'business_japanese_name')
-            if any(r.get('scope', {}).get('order_header_conflict') for r in active):
-                _issue(row, 'ORDER_STATUS_CONFLICT', 'purchase_price', '同一订单存在状态冲突，相关报价未自动采用')
-        # Catalogues supply SKU specification only via exact aliases, never
-        # every variant belonging to a product-group YD.
-        catalogues = _linked(row, catalogue_index, related_codes)
-        if not row['values'].get('name') and not any(i['field'] == 'name' for i in row['issues']):
-            _choose(row, 'name', catalogues)
-        if not row['values'].get('specification') and not any(i['field'] == 'specification' for i in row['issues']):
-            if not _choose(row, 'specification', catalogues):
-                explicit = [r for r in active if known(r['fields'].get('specification'))]
-                if not _choose(row, 'specification', explicit, prefer_source_priority=False) and not any(i['field'] == 'specification' for i in row['issues']):
-                    descriptors = [r for r in active if _sku_specification(r)]
-                    if _choose(row, 'specification', descriptors, 'sku_name', prefer_source_priority=False, label='采购单品规格原文'):
-                        for ref in row['evidence']['specification']:
-                            ref['scope']['adoption_kind'] = 'procurement_sku_name_original_specification'
-                            ref['scope']['quantity_conversion_performed'] = False
-        _prior_material(row, prior_index)
-        if not row['values'].get('material_reference') and not any(i['field'] == 'material_reference' for i in row['issues']):
-            if not _choose(row, 'material_reference', summary, 'material'):
-                daily = _linked(row, daily_index, related_codes)
-                _choose(row, 'material_reference', daily, 'material', prefer_source_priority=False)
-        yd = row['values'].get('yd')
-        cards = card_index.select(card_index.yd.get(yd, ())) if yd else []
-        if not row['values'].get('material_reference') and not any(i['field'] == 'material_reference' for i in row['issues']):
-            # Group-level product-card material is reference only, full text;
-            # no split/classification into the declaration material column O.
-            if _choose(row, 'material_reference', cards, 'material', prefer_source_priority=False):
-                for ref in row['evidence']['material_reference']:
-                    ref['scope']['adoption_scope'] = 'yd_collection_reference'
-        enrich_reviewed(row,reviewed.get((code(row['raw'].get('code')),norm(row['raw'].get('ja'))),[]))
-        if not path and row['values'].get('name') and any(r['role']=='reviewed_basics' for r in row['evidence'].get('name',[])):
-            path='reviewed_identity'
-        if not path:
-            _issue(row, 'PRODUCT_UNMATCHED', 'identity', '主编码、PCS及日文名未取得可靠商品对应；保留人工判断')
-        for field, message in (('name', '商品名称'), ('specification', '完整规格'), ('yd', 'YD'), ('channel', '实际采购渠道')):
-            if not row['values'].get(field) and not any(i['field'] == field for i in row['issues']):
-                _issue(row, 'FIELD_MISSING', field, message + '未取得可靠来源，其他字段继续处理')
-        matching_field = 'pcs' if path == 'business_pcs' else ('lookup_text' if path == 'business_japanese_name' else 'code')
-        row['matching'] = {'path': path or 'unresolved', 'model_inference': False, 'policy_version': default_policy['version'],
-                           'basis': [_ref(r, matching_field) for r in summary]}
-        if path=='reviewed_identity':row['matching']['basis']=deepcopy(row['evidence']['name'])
-        result.append(row)
-    return result
+        raise SourceError('CONFIG_INVALID', '不接受调用方临时覆盖业务匹配规则')
+    if default_policy.get('flow') != 'user_strict_v1':
+        raise SourceError('CONFIG_INVALID', '未绑定用户确认的严格流程；禁止自动退回旧匹配逻辑')
+    from .strict_flow import run_strict
+    return run_strict(batch, collected, default_policy)
