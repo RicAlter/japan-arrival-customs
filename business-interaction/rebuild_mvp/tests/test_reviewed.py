@@ -62,5 +62,18 @@ class ReviewedTests(unittest.TestCase):
         self.assertFalse(known('#N/A'));self.assertFalse(known('#VALUE!'))
         r=row();enrich_reviewed(r,[item(yd='#N/A',material='#VALUE!')]);self.assertFalse(r['values'])
 
+    def test_reviewed_name_spec_fill_blank_only_same_shipment(self):
+        r=row();r['values']['specification']='本次重新匹配规格'
+        enrich_reviewed(r,[item(name='运营已核中文名称',specification='旧规格6个入')])
+        self.assertEqual(r['values']['name'],'运营已核中文名称')
+        self.assertEqual(r['values']['specification'],'本次重新匹配规格')
+        other=row();enrich_reviewed(other,[item(name='其他箱名称',carton='B2')])
+        self.assertNotIn('name',other['values'])
+
+    def test_YD_reason_output_row_follows_dynamic_header(self):
+        from rebuild_mvp.yd_diagnostics import explain_yd
+        r=row();r['source_row']=8
+        self.assertEqual(explain_yd([r],header_row=3)['rows'][0]['output_row'],6)
+
 
 if __name__=='__main__':unittest.main()

@@ -245,7 +245,7 @@ def execute(request):
             save_json(root / 'job.json', job)
             save_json(root / 'field-evidence.json', {'schema': SCHEMA, 'rows': rows})
             from .yd_diagnostics import explain_yd
-            save_json(root / 'YD-reasons.json',explain_yd(rows))
+            save_json(root / 'YD-reasons.json',explain_yd(rows,batch.get('metadata',{}).get('header_row',1)))
             save_json(root / 'source-audit.json', {'sources': collected['sources'], 'audit': collected.get('audit', {})})
             # Inputs might have been changed during a long import; never export a mixed snapshot.
             verify_versions(job)

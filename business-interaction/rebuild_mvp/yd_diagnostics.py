@@ -2,7 +2,7 @@
 from collections import Counter
 
 
-def explain_yd(rows):
+def explain_yd(rows,header_row=1):
     cases=[]
     for row in rows:
         if row['values'].get('yd'):continue
@@ -18,7 +18,7 @@ def explain_yd(rows):
             reason='IDENTITY_AND_YD_UNRESOLVED'
             text='商品对应仍不明确，尚未取得可靠中文名称及YD。'
         cases.append({'row_id':row['row_id'],'source_row':row['source_row'],
-                      'output_row':row['source_row']-16, 'carton':row['raw']['carton'],
+                      'output_row':row['source_row']-header_row+1, 'carton':row['raw']['carton'],
                       'code':row['raw']['code'],'japanese_name':row['raw']['ja'],
                       'chinese_name':name,'reason_code':reason,'reason':text,
                       'name_sources':row['evidence'].get('name',[]),'matching_basis':row.get('matching',{}),

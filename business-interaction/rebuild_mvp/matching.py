@@ -382,6 +382,8 @@ def match_batch(batch, collected, policy=None):
                 for ref in row['evidence']['material_reference']:
                     ref['scope']['adoption_scope'] = 'yd_collection_reference'
         enrich_reviewed(row,reviewed.get((code(row['raw'].get('code')),norm(row['raw'].get('ja'))),[]))
+        if not path and row['values'].get('name') and any(r['role']=='reviewed_basics' for r in row['evidence'].get('name',[])):
+            path='reviewed_identity'
         if not path:
             _issue(row, 'PRODUCT_UNMATCHED', 'identity', '主编码、PCS及日文名未取得可靠商品对应；保留人工判断')
         for field, message in (('name', '商品名称'), ('specification', '完整规格'), ('yd', 'YD'), ('channel', '实际采购渠道')):
@@ -390,5 +392,6 @@ def match_batch(batch, collected, policy=None):
         matching_field = 'pcs' if path == 'business_pcs' else ('lookup_text' if path == 'business_japanese_name' else 'code')
         row['matching'] = {'path': path or 'unresolved', 'model_inference': False, 'policy_version': default_policy['version'],
                            'basis': [_ref(r, matching_field) for r in summary]}
+        if path=='reviewed_identity':row['matching']['basis']=deepcopy(row['evidence']['name'])
         result.append(row)
     return result

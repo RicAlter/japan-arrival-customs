@@ -103,7 +103,7 @@ ALLOWED = {
     'product_card': {'name', 'yd', 'material', 'material_scope', 'size', 'accessories'},
     'prior_material': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty'},
     # Explicit user-reviewed business source. Never inherit old price/channel.
-    'reviewed_basics': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_size', 'blind', 'yd'},
+    'reviewed_basics': {'code', 'ja', 'name', 'specification', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_size', 'blind', 'yd'},
     # User supplied completed material/reference workbook; its computed prices,
     # group-derived YD and channels do not become procurement facts.
     'completed_reference': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_count', 'box_size', 'blind', 'total_pieces'},

@@ -9,6 +9,8 @@ from .sources import code, norm, known
 MATERIAL = {'material', 'website_material', 'material_reference'}
 SKU_FIELDS = {'category', 'material', 'website_material', 'material_reference', 'pack_reference', 'box_size', 'blind'}
 ROW_FIELDS = {'box_count', 'total_pieces'}
+FILL_ONLY = {'name','specification'}
+SHIPMENT_SCOPE = ROW_FIELDS|FILL_ONLY|{'yd'}
 
 
 def _same_number(a,b):
@@ -41,10 +43,11 @@ def enrich_reviewed(row, records):
     from the operator. No price, channel, Qty, calculation or formula changes.
     """
     row.setdefault('resolved_issues',[])
-    for field in sorted(SKU_FIELDS|ROW_FIELDS|{'yd'}):
+    for field in sorted(SKU_FIELDS|SHIPMENT_SCOPE):
+        if field in FILL_ONLY and row['values'].get(field):continue
         candidates=[r for r in records if _eligible(field,r['fields'].get(field,''))
-                    and (field not in ROW_FIELDS|{'yd'} or _same_row(row,r))
-                    and (field!='yd' or r['role']=='reviewed_basics')]
+                    and (field not in SHIPMENT_SCOPE or _same_row(row,r))
+                    and (field not in FILL_ONLY|{'yd'} or r['role']=='reviewed_basics')]
         if not candidates:continue
         def rank(record):
             if field in {'website_material','material_reference'}:
@@ -73,7 +76,7 @@ def enrich_reviewed(row, records):
                             scope={**deepcopy(record.get('scope',{})),
                                    'adoption_kind':'inherited_user_reviewed_field' if record['role']=='reviewed_basics' else 'user_supplied_completed_reference',
                                    'authority':'2026-11-14 user: reuse existing reviewed fields; completed workbook for material/reference',
-                                   'identity_scope':'same_shipment_row' if field in ROW_FIELDS|{'yd'} else 'same_code_and_japanese_name',
+                                   'identity_scope':'same_shipment_row' if field in SHIPMENT_SCOPE else 'same_code_and_japanese_name',
                                    'new_calculation':False})
         if current not in ('',None) and current!=value:
             row.setdefault('superseded_automatic_values',{})[field]={'value':current,'evidence':deepcopy(row['evidence'].get(field,[]))}

@@ -5,7 +5,7 @@
   "matching_order": ["business_code", "business_pcs", "business_japanese_name", "procurement_identity"],
   "procurement_channel_roles": ["purchase_list", "order_detail", "purchase_order"],
   "prior_material_fields": ["material", "website_material", "material_reference"],
-  "reviewed_basics_fields": ["category", "material", "website_material", "material_reference", "pack_reference", "box_size", "blind", "yd"],
+  "reviewed_basics_fields": ["category", "material", "website_material", "material_reference", "pack_reference", "box_size", "blind", "yd", "name_fill_blank_only", "specification_fill_blank_only"],
   "completed_reference_fields": ["category", "material", "website_material", "material_reference", "pack_reference", "box_size", "blind", "box_count", "total_pieces"],
   "reviewed_YD_and_counts_scope": "same_code_japanese_name_carton_origin_and_original_quantity",
   "completed_reference_price_channel_YD": "not_adopted",

@@ -6,6 +6,8 @@
 
 `completed_reference` is the user-specified completed workbook. Its R/S material/reference is preferred as requested; category/packaging/blind values supplement known blanks. Existing U/X counts may carry only for the same exact shipment row, explicitly as existing reference (no new calculation). Its calculated I/L/M, procurement price/channel and aggregated YD are not adopted. Operator O retains priority. Both original files and v4 MVP artifacts remain unchanged. This extends the earlier material-only scope on explicit user authorization; the old scope remains documented below for prior runs.
 
+Operator-reviewed name/specification may also fill current blanks only at the same shipment row; existing rematched values are preserved. YD diagnostic row positions use the detected header, not a fixed source-row offset.
+
 Single maintained module, called through `business-interaction/run.py`, request `workflow=rebuild_mvp_v1`. Actions prepare/current/resume only; no return, images or calculations.
 
 ## Data contract
