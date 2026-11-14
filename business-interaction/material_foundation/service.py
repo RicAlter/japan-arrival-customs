@@ -116,7 +116,7 @@ def submit(job,root,req):
     if site=='hobbysearch':allowed|={'1999.co.jp','www.1999.co.jp'}
     if urlparse(final).hostname not in allowed:raise ValueError('INPUT_INVALID: 返回网址超出站点')
     evidence=root/'evidence';evidence.mkdir(exist_ok=True);snapshot=evidence/(rid+'.txt');snapshot.write_text(body,encoding='utf-8')
-    attempt={'request':request,'http_status':status,'snapshot':str(snapshot),'sha256':sha(snapshot),'final_url':final,'queried_at':datetime.now(timezone.utc).isoformat()}
+    attempt={'request':request,'http_status':status,'snapshot':str(snapshot),'sha256':sha(snapshot),'final_url':final,'transport_error':req.get('transport_error'),'queried_at':datetime.now(timezone.utc).isoformat()}
     if req.get('transport_error') or status in (0,403,429) or status>=500 or not body.strip() and status==200:
         attempt['status']='error';item['status']='retry';job['host_ready'][site]=clock()+job['policy']['retry_seconds'];item['attempts'].append(attempt);job['request']=None;job['receipts'][rid]=digest;return {'status':'retry','error':{'code':'ACCESS_BLOCKED' if status in (403,429) else 'NETWORK_ERROR','retryable':True},'retry_after_seconds':job['policy']['retry_seconds'],'jan':item['jan'],'site':site}
     job['host_ready'][site]=clock()+job['policy']['interval_seconds'][site]
