@@ -538,12 +538,18 @@ def write_book(raw_source, output, rows, layout_contract, manifest):
                 for c in er:
                     address = c.get('r')
                     col = re.match('[A-Z]+', address)[0]
-                    if nr != 1 and col not in {'F', 'G', 'J', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'}:
+                    if nr != 1 and col not in {'D', 'F', 'G', 'J', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'}:
                         continue
                     old = int(c.get('s', '0'))
-                    key = (old, nr == 1)
+                    key = (old, nr == 1, col == 'D' and nr > 1)
                     if key not in display_styles:
                         clone = copy.deepcopy(xfs[old])
+                        if col == 'D' and nr > 1:
+                            # Text identity stays inlineStr. Explicit whole
+                            # identifier format also prevents renderers from
+                            # displaying numeric-looking text as E+12.
+                            clone.set('numFmtId', '1')
+                            clone.set('applyNumberFormat', '1')
                         alignment = clone.find(Q + 'alignment')
                         if alignment is None:
                             alignment = ET.SubElement(clone, Q + 'alignment')
