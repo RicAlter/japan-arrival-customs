@@ -1,5 +1,7 @@
 # 当前SOP索引（2026-11-13）
 
+- [FOUNDATION_REVIEW.md](FOUNDATION_REVIEW.md)：本次实跑复盘、最新业务规则、确认表候选与短备注、已验证基座和下一轮收口范围。候选已填版优先按此口径，旧严格留空要求只保留历史范围。
+
 2026-11-14本批匹配MVP使用business-interaction/rebuild_mvp/README.md、CONTRACT.md、policy.json及简短SKILL.md；按本机重建总览和已批准48小时范围执行。排除开订、无图片、固定24列两页；旧默认20列、全量网站和图片步骤不套用本次MVP。回传保存及计算不在本轮，旧session协议保留原范围。
 
 已保存批次先读 START_HERE.md 和 CURRENT_STATUS.md，承接原第一阶段，不重新prepare。新阶段以回传即提交规则为准，不重复要求常规确认。旧SOP只在旧session适用。

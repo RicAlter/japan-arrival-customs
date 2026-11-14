@@ -1,5 +1,9 @@
 # Matching MVP interface v1 (2026-11-14)
 
+## Final review-draft contract from real batch
+
+See ../../FOUNDATION_REVIEW.md. The user explicitly permits full-name matches, translations and multiple provisional choices inside the review workbook, with short notes. This supersedes historical instructions below that kept all uncertain candidates out of the workbook. Existing adopted values and raw shipment facts stay protected. Review candidates retain separate per-option evidence and confirmed=false, and never become confirmed SQLite facts automatically. The final candidate-export module exists; preparing its name-search/translation inputs and integrating it into the daily prepare/current/resume workflow remains unfinished.
+
 ## Current user correction: department-independent procurement and Japanese search
 
 Latest user instruction supersedes all department gates below: actual matched procurement can supply missing product fields regardless of department or department absence. Department is provenance only. Unresolved products are searched by their Japanese titles across the audited main summaries, confirmed by user as the same 至今报单汇总. Full exact title matches are the Japanese-name branch; partial text hits are recorded as unadopted candidates with original cells, never guessed identities. Operator-confirmed values, latest-dated same-product reissue YD and benefit-without-YD exemption remain in force. Earlier department restrictions below describe historical runs only.

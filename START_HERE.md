@@ -1,5 +1,7 @@
 # 当前开发入口（2026-11-13）
 
+2026-11-14真实批次处理已按用户要求结束于候选确认表。后续开发先读[FOUNDATION_REVIEW.md](FOUNDATION_REVIEW.md)：固定最新主表优先、采购不限部门、名称/译名候选直接填表和短备注规则。基础匹配和候选导出已验证，统一日常入口及运营回传尚未收口；不把历史严格留空规则继续用于确认表。
+
 2026-11-14用户批准的当前优先任务是两日内基础资料匹配MVP。新流程经run.py的workflow=rebuild_mvp_v1接入，使用prepare/current/resume，说明见business-interaction/rebuild_mvp/README.md和本机治理根MVP_SPRINT.md。仅本批最小库、匹配与固定24列两页无图片核对表；回传保存、计算、最终双表和正式安装延期。以下旧批次入口保持原适用范围。日常模型只读简短Skill，开发会话仍遵循本文件与治理要求。
 
 唯一集成开发分支：`codex/unified-repro-20261111`。本次只整理开发基线，正式Skill、main、数据库和既有session不变。先读 AGENTS.md → 本文件 → CURRENT_STATUS.md → repro/version-registry.json → BUSINESS_RULES.md → SOP_INDEX.md → TEST_INDEX.md，再读 repro/BASELINE.md。
