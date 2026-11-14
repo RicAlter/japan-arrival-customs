@@ -95,7 +95,7 @@ class StrictFlow(unittest.TestCase):
         self.assertNotIn('name', row['values'])
         self.assertNotIn('channel', row['values'])
         self.assertNotIn('purchase_price', row['values'])
-        self.assertEqual(row['values']['yd'], 'YDFIG1')
+        self.assertNotIn('yd',row['values'])
         self.assertEqual(row['matching']['path'], 'unresolved')
 
     def test_hand_figure_and_authorized_model_department_allowed(self):
