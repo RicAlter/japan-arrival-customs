@@ -1,5 +1,7 @@
 # 当前测试索引（2026-11-13）
 
+2026-11-14新增material_foundation/tests：手册规则、精确编码、完整成分和比例、六站顺序、403/429不误记查无、续查/回传幂等、磁盘人工值及原文件保护。当前运行报告在本机reports/material-foundation-20261114，合成/历史页与实时联网验证分别记录。
+
 2026-11-14匹配MVP：business-interaction/rebuild_mvp/tests覆盖来源排除、PCS/日文名、采购币种/范围、材质承接、原始数据、事务和恢复；tools/verify_matching_mvp.py核验真实整批字段、来源、箱重及SQLite；实际执行结果以本机治理报告为准，不能把测试定义当已通过。新增run.py流程与旧批次回归分别验证；Terra实际运行、运营认可和正式安装分开记录。
 
 旧repro/verification.json为ed0134d的287项历史证据，保持原版本，不替代当前提交验证。完整SHA、执行数、失败/未执行、来源和实际日志见本机新治理报告。

@@ -1,0 +1,13 @@
+{
+  "version": "material-sop-20261106-v1-implementation-20261114",
+  "manual_sha256": "a5a790dd7eb34aba5d5ae35f4e1af5c0d72518eecade8f185e3bda8371e34848",
+  "sites": ["anime_store", "colleize", "amiami", "hobbysearch", "jumpcs", "surugaya"],
+  "interval_seconds": {"anime_store": 3, "colleize": 3, "amiami": 3, "hobbysearch": 3, "jumpcs": 3, "surugaya": 3},
+  "retry_seconds": 65,
+  "external_sites": ["hobbysearch", "surugaya"],
+  "disabled_sites": ["animate"],
+  "jumpcs_prefix": "4530430",
+  "material_labels": ["素材", "材質", "仕様", "スペック"],
+  "prefix_grouping": false,
+  "max_response_bytes": 8000000
+}

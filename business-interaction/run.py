@@ -5,6 +5,13 @@ p=argparse.ArgumentParser();p.add_argument('--config');p.add_argument('--request
 try:
     # Independent new-batch flow: do not load the old database/runtime chain.
     incoming=json.loads(Path(a.request).read_text(encoding='utf-8-sig'))
+    if incoming.get('workflow')=='material_query_v1':
+        from material_foundation.service import handle
+        from rebuild_mvp.service import save_json
+        result=handle(incoming)
+        if a.result_file:save_json(a.result_file,result)
+        print(json.dumps(result,ensure_ascii=False,default=str))
+        sys.exit(1 if result['status']=='failed' else 0)
     if incoming.get('workflow')=='rebuild_mvp_v1':
         from rebuild_mvp.service import handle,save_json
         result=handle(incoming)
