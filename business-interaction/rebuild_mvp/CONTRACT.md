@@ -1,5 +1,11 @@
 # Matching MVP interface v1 (2026-11-14)
 
+## Latest user-approved enrichment (2026-11-14)
+
+`reviewed_basics` is the supplied operator-reviewed partial workbook: category, O/R/S material, packaging reference, box size and blind flag may be inherited by exact code+Japanese-name SKU scope. Its valid YD may fill an empty/conflicting automatic YD only at the same carton/origin/original quantity. A different nonempty current YD is exposed as conflict, never overwritten. Excel errors such as #N/A are not IDs or material.
+
+`completed_reference` is the user-specified completed workbook. Its R/S material/reference is preferred as requested; category/packaging/blind values supplement known blanks. Existing U/X counts may carry only for the same exact shipment row, explicitly as existing reference (no new calculation). Its calculated I/L/M, procurement price/channel and aggregated YD are not adopted. Operator O retains priority. Both original files and v4 MVP artifacts remain unchanged. This extends the earlier material-only scope on explicit user authorization; the old scope remains documented below for prior runs.
+
 Single maintained module, called through `business-interaction/run.py`, request `workflow=rebuild_mvp_v1`. Actions prepare/current/resume only; no return, images or calculations.
 
 ## Data contract

@@ -14,7 +14,8 @@ import re
 import unicodedata
 
 ROLES = {'business_summary', 'purchase_list', 'order_detail', 'purchase_order',
-         'product_catalog', 'daily_material', 'product_card', 'prior_material'}
+         'product_catalog', 'daily_material', 'product_card', 'prior_material',
+         'reviewed_basics', 'completed_reference'}
 PROCUREMENT = {'purchase_list', 'order_detail', 'purchase_order'}
 EMPTY = {'', '0', '无', '未知', '待补', '待核', '未查到', '未找到', 'nan', 'none', 'null'}
 FORBIDDEN_SOURCE_HASHES = frozenset({
@@ -44,7 +45,8 @@ def code(value):
 
 
 def known(value):
-    return norm(value).lower() not in EMPTY
+    return norm(value).lower() not in EMPTY and norm(value).upper() not in {
+        '#N/A', '#VALUE!', '#REF!', '#DIV/0!', '#NAME?', '#NUM!', '#NULL!', '#SPILL!', '#CALC!'}
 
 
 def header_key(value):
@@ -84,6 +86,11 @@ ALIASES = {
     'accessories': ['产品配件', '配件', '配件数量'],
     'size': ['产品尺寸'],
     'material_scope': ['适用范围', '范围'],
+    'pack_reference': ['盒规原文参考（人工判断）', '盒规原文参考'],
+    'box_count': ['盒装数'],
+    'box_size': ['盒规'],
+    'blind': ['是否盲盒', '是否盲抽'],
+    'total_pieces': ['总单个数（数量依据）'],
 }
 
 ALLOWED = {
@@ -95,6 +102,11 @@ ALLOWED = {
     'daily_material': {'code', 'material'},
     'product_card': {'name', 'yd', 'material', 'material_scope', 'size', 'accessories'},
     'prior_material': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty'},
+    # Explicit user-reviewed business source. Never inherit old price/channel.
+    'reviewed_basics': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_size', 'blind', 'yd'},
+    # User supplied completed material/reference workbook; its computed prices,
+    # group-derived YD and channels do not become procurement facts.
+    'completed_reference': {'code', 'ja', 'material', 'website_material', 'material_reference', 'carton', 'origin', 'qty', 'category', 'pack_reference', 'box_count', 'box_size', 'blind', 'total_pieces'},
 }
 
 
@@ -320,7 +332,7 @@ def collect_sources(config, batch, progress=None):
             progress({'source_id': meta['source_id'], 'role': meta['role'], 'scanned': scanned, 'kept': kept})
 
     # Purchase rows establish exact SKU links before large catalogue scans.
-    order = ['business_summary', 'purchase_list', 'order_detail', 'product_catalog', 'daily_material', 'prior_material', 'product_card', 'purchase_order']
+    order = ['business_summary', 'purchase_list', 'order_detail', 'product_catalog', 'daily_material', 'prior_material', 'reviewed_basics', 'completed_reference', 'product_card', 'purchase_order']
     for role in order:
         for item, meta in by_role[role]:
             scan(item, meta, role in {'product_catalog', 'product_card', 'purchase_order'})

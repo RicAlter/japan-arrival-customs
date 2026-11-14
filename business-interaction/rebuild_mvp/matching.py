@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 
 from .sources import norm, code, known, _identity_keys, PROCUREMENT, SourceError
+from .reviewed import enrich_reviewed, reviewed_index
 
 
 def _ref(record, field):
@@ -298,7 +299,7 @@ def match_batch(batch, collected, policy=None):
     if policy is not None and policy != default_policy:
         raise SourceError('CONFIG_INVALID', '本MVP只接受已版本化的固定匹配规则，不接受调用方临时覆盖')
     records = sorted(collected['records'], key=_record_order)
-    forbidden = [r for r in records if r['role'] not in {'business_summary', 'purchase_list', 'order_detail', 'purchase_order', 'product_catalog', 'daily_material', 'product_card', 'prior_material'}]
+    forbidden = [r for r in records if r['role'] not in {'business_summary', 'purchase_list', 'order_detail', 'purchase_order', 'product_catalog', 'daily_material', 'product_card', 'prior_material','reviewed_basics','completed_reference'}]
     if forbidden:
         raise SourceError('SOURCE_FORBIDDEN', '匹配候选含未许可来源')
     by_role = defaultdict(list)
@@ -310,6 +311,7 @@ def match_batch(batch, collected, policy=None):
     daily_index = _IdentityIndex(by_role['daily_material'])
     prior_index = _IdentityIndex(by_role['prior_material'])
     card_index = _IdentityIndex(by_role['product_card'])
+    reviewed = reviewed_index(by_role['reviewed_basics']+by_role['completed_reference'])
     result = []
     for source_row in batch['rows']:
         row = deepcopy(source_row)
@@ -379,6 +381,7 @@ def match_batch(batch, collected, policy=None):
             if _choose(row, 'material_reference', cards, 'material', prefer_source_priority=False):
                 for ref in row['evidence']['material_reference']:
                     ref['scope']['adoption_scope'] = 'yd_collection_reference'
+        enrich_reviewed(row,reviewed.get((code(row['raw'].get('code')),norm(row['raw'].get('ja'))),[]))
         if not path:
             _issue(row, 'PRODUCT_UNMATCHED', 'identity', '主编码、PCS及日文名未取得可靠商品对应；保留人工判断')
         for field, message in (('name', '商品名称'), ('specification', '完整规格'), ('yd', 'YD'), ('channel', '实际采购渠道')):
