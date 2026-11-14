@@ -464,6 +464,12 @@ def write_book(raw_source, output, rows, layout_contract, manifest):
                     if formula is not None:
                         formula = remap_formula(formula, colmap, offset, batch['sheet'], batch['weight_sheet'])
                     _patch_cell(_cell(er, col + str(nr)), value, typ, formula)
+                # Identifiers are text. Artifact import/export may otherwise
+                # coerce an all-digit JC into a number/scientific notation.
+                for field, col in [('jc', 'D'), ('yd', 'Q')]:
+                    value = r.get('values', {}).get(field)
+                    if value not in ('', None):
+                        _patch_cell(_cell(er, col + str(nr)), str(value), 's')
             # Preserve source non-product rows (notably quantity/amount totals),
             # but never map source auxiliary carton-count/weight columns into a
             # different business meaning. Their original cells are in manifest.

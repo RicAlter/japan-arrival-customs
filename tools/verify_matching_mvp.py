@@ -65,6 +65,14 @@ def main():
                 formula_diffs.append({'row':n,'field':field,'expected':translated(original['formula']),'actual':out['formulas'].get(col)})
     check('all protected numeric/code cell types',not type_diffs,type_diffs[:10])
     check('all protected source formulas relocated',not formula_diffs,formula_diffs[:10])
+    identifier_diffs=[]
+    for row in rows:
+        out=bynum[row['source_row']+offset]
+        for field,col in [('jc','D'),('yd','Q')]:
+            value=row.get('values',{}).get(field)
+            if value not in ('',None) and (str(out['values'].get(col,''))!=str(value) or out['types'].get(col) not in {'s','inlineStr','str'}):
+                identifier_diffs.append({'source_row':row['source_row'],'field':field})
+    check('JC and YD retain full text identifiers',not identifier_diffs,identifier_diffs[:10])
     check('no missing carton',all(r['raw'].get('carton') for r in rows))
     check('fixed 24 headers',len(bynum[1]['values'])==24)
     check('two sheet names', [s['name'] for s in result['sheets']]==['invoice (計算)','重さとサイズ'])
