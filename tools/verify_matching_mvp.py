@@ -56,7 +56,10 @@ def main():
         n=row['source_row']+offset;out=bynum[n]
         for field in ['code','qty','jpy_price','amount']:
             original=row['raw_cells'][field];col=rawfields[field]
-            if original.get('type','n')!=out['types'].get(col,'n'):
+            # Shared-string and inline-string are alternative encodings of the
+            # same text cell. Identifier text must stay text, numbers numeric.
+            semantic_type=lambda t:'text' if t in {'s','inlineStr','str'} else t
+            if semantic_type(original.get('type','n'))!=semantic_type(out['types'].get(col,'n')):
                 type_diffs.append({'row':n,'field':field})
             if original.get('formula') and translated(original['formula'])!=out['formulas'].get(col):
                 formula_diffs.append({'row':n,'field':field,'expected':translated(original['formula']),'actual':out['formulas'].get(col)})
