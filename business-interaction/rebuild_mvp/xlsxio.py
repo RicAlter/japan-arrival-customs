@@ -538,7 +538,7 @@ def write_book(raw_source, output, rows, layout_contract, manifest):
                 for c in er:
                     address = c.get('r')
                     col = re.match('[A-Z]+', address)[0]
-                    if nr != 1 and col not in {'D', 'F', 'G', 'J', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'}:
+                    if nr != 1 and col not in {'D', 'F', 'G', 'H', 'J', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'}:
                         continue
                     old = int(c.get('s', '0'))
                     key = (old, nr == 1, col == 'D' and nr > 1)
