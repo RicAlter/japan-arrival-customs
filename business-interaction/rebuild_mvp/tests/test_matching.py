@@ -180,6 +180,32 @@ class MatchingContracts(unittest.TestCase):
             for related in (set(), {'OTHER'}, {'SKU1', 'SECOND'}):
                 self.assertEqual(_linked(row, index, related), _linked(row, records, related))
 
+    def test_sku_name_specification_preserves_full_count_text(self):
+        for specification in ('吧唧5枚套组', '吧唧3枚套组', '订单B预定整套6个入', '整盒10包，每包3枚入，全35种', '利威尔'):
+            row = run([record('purchase_list', code='1234567890123', sku='SKU1', sku_name=specification)])
+            self.assertEqual(row['values']['specification'], specification)
+            self.assertEqual(row['evidence']['specification'][0]['source_field'], 'sku_name')
+            self.assertEqual(row['evidence']['specification'][0]['scope']['adoption_kind'], 'procurement_sku_name_original_specification')
+            self.assertNotIn('box_size', row['values']); self.assertNotIn('total_pieces', row['values'])
+
+    def test_sku_order_placeholder_is_not_specification(self):
+        for placeholder in ('订单A', '订单B', '订单A预定', 'A', '3', '默认', '默认规格', '待定', '见备注', '如图'):
+            row = run([record('purchase_list', code='1234567890123', sku='SKU1', sku_name=placeholder)])
+            self.assertNotIn('specification', row['values'], placeholder)
+
+    def test_sku_name_specification_conflicts_remain_local(self):
+        row = run([record('purchase_list', code='1234567890123', sku='SKU1', sku_name='吧唧5枚套组', name='商品'),
+                   record('purchase_list', 2, code='1234567890123', sku='SKU2', sku_name='吧唧3枚套组', name='商品')])
+        self.assertNotIn('specification', row['values'])
+        self.assertEqual(row['values']['name'], '商品')
+        self.assertTrue(any(i['field'] == 'specification' and i['code'] == 'FIELD_CONFLICT' for i in row['issues']))
+
+    def test_explicit_catalog_spec_precedes_sku_name(self):
+        row = run([record('purchase_list', code='1234567890123', sku='SKU1', sku_name='吧唧'),
+                   record('product_catalog', code='SKU1', sku='SKU1', specification='吧唧5枚套组')])
+        self.assertEqual(row['values']['specification'], '吧唧5枚套组')
+        self.assertEqual(row['evidence']['specification'][0]['role'], 'product_catalog')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ from collections import Counter
 from decimal import Decimal
 import hashlib
 import json
+import re
 import sqlite3
 import sys
 import zipfile
@@ -40,6 +41,27 @@ def main():
             if str(out.get(column,''))!=str(row['raw'].get(field,'')):
                 diffs.append({'row':n,'field':field,'expected':row['raw'].get(field),'actual':out.get(column)})
     check('all exported original values and carton locations',not diffs,diffs[:10])
+    formula_diffs=[];type_diffs=[]
+    mapping=batch['metadata']['mapping']
+    protected={mapping[k]:v for k,v in rawfields.items()}
+    offset=1-header
+    pattern=re.compile(r'(\$?)([A-Z]{1,3})(\$?)(\d+)')
+    def translated(formula):
+        def replace(match):
+            col=match[2]
+            if col not in protected:return match[0]
+            return match[1]+protected[col]+match[3]+str(int(match[4])+offset)
+        return pattern.sub(replace,formula)
+    for row in rows:
+        n=row['source_row']+offset;out=bynum[n]
+        for field in ['code','qty','jpy_price','amount']:
+            original=row['raw_cells'][field];col=rawfields[field]
+            if original.get('type','n')!=out['types'].get(col,'n'):
+                type_diffs.append({'row':n,'field':field})
+            if original.get('formula') and translated(original['formula'])!=out['formulas'].get(col):
+                formula_diffs.append({'row':n,'field':field,'expected':translated(original['formula']),'actual':out['formulas'].get(col)})
+    check('all protected numeric/code cell types',not type_diffs,type_diffs[:10])
+    check('all protected source formulas relocated',not formula_diffs,formula_diffs[:10])
     check('no missing carton',all(r['raw'].get('carton') for r in rows))
     check('fixed 24 headers',len(bynum[1]['values'])==24)
     check('two sheet names', [s['name'] for s in result['sheets']]==['invoice (計算)','重さとサイズ'])

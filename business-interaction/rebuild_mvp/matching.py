@@ -274,6 +274,24 @@ def _prior_material(row, records):
                 ref['scope']['authority'] = '2026-11-14 user: supplied partial material workbook; carry reliably matched material only'
 
 
+def _sku_specification(record):
+    """Keep the actual SKU descriptor intact, including any quantity wording.
+
+    This is not a box-size parser: role names, item kinds and counts remain
+    source text. Bare order labels/defaults are not meaningful specifications.
+    """
+    text = norm(record['fields'].get('sku_name'))
+    if not known(text):
+        return False
+    if re.fullmatch(r'(?:订单|采购单|定单)\s*[A-Za-z0-9一二三四五六七八九十-]*(?:预定|预订|现货|补款|全款|定金|订金)?', text, re.I):
+        return False
+    if re.fullmatch(r'[A-Za-z]|\d+(?:\.\d+)?', text):
+        return False
+    if re.fullmatch(r'(?:默认(?:款式|款|规格|选项)?|通用|无规格|暂无|待定|未定|待补|待确认|待核|未知|不详|见(?:备注|详情|图|图片)|详见(?:备注|详情|图片)|如图|同图|无|default|n/?a|none)', text, re.I):
+        return False
+    return bool(known(record['fields'].get('sku')) or code(record['fields'].get('code')) or norm(record['fields'].get('ja')))
+
+
 def match_batch(batch, collected, policy=None):
     """Return copies in original order, with no model or side effects."""
     default_policy = json.loads(Path(__file__).with_name('policy.json').read_text(encoding='utf-8'))
@@ -341,10 +359,13 @@ def match_batch(batch, collected, policy=None):
             _choose(row, 'name', catalogues)
         if not row['values'].get('specification') and not any(i['field'] == 'specification' for i in row['issues']):
             if not _choose(row, 'specification', catalogues):
-                # 单品名称 is only a potential specification when it is not an
-                # order label; retain exact original wording, no tail parsing.
                 explicit = [r for r in active if known(r['fields'].get('specification'))]
-                _choose(row, 'specification', explicit, prefer_source_priority=False)
+                if not _choose(row, 'specification', explicit, prefer_source_priority=False) and not any(i['field'] == 'specification' for i in row['issues']):
+                    descriptors = [r for r in active if _sku_specification(r)]
+                    if _choose(row, 'specification', descriptors, 'sku_name', prefer_source_priority=False, label='采购单品规格原文'):
+                        for ref in row['evidence']['specification']:
+                            ref['scope']['adoption_kind'] = 'procurement_sku_name_original_specification'
+                            ref['scope']['quantity_conversion_performed'] = False
         _prior_material(row, prior_index)
         if not row['values'].get('material_reference') and not any(i['field'] == 'material_reference' for i in row['issues']):
             if not _choose(row, 'material_reference', summary, 'material'):
