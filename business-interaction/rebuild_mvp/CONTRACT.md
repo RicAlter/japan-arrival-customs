@@ -1,6 +1,8 @@
 # Matching MVP interface v1 (2026-11-14)
 
-## Current user correction: strict flow and department identity
+## Current user correction: department-independent procurement and Japanese search
+
+Latest user instruction supersedes all department gates below: actual matched procurement can supply missing product fields regardless of department or department absence. Department is provenance only. Unresolved products are searched by their Japanese titles across the audited main summaries, confirmed by user as the same 至今报单汇总. Full exact title matches are the Japanese-name branch; partial text hits are recorded as unadopted candidates with original cells, never guessed identities. Operator-confirmed values, latest-dated same-product reissue YD and benefit-without-YD exemption remain in force. Earlier department restrictions below describe historical runs only.
 
 BUSINESS_FLOW.md + policy.json user_strict_v1 supersede conflicting early restrictions below. Main summary is an actual business-maintained purchase source: its product/specification/JPY quote/channel must be read by confirmed business meaning even with legacy headers 数量/金额. Primary code→PCS→Japanese-name→hand/Bandai department procurement→user judgment; user confirmed 模型部=万代部. No automatic catalogue/other-department bypass. Operator-reviewed applicable values are protected before automatic matching, including reference price/channel; uncertain currency stays explicit, never guessed. Public matching entry rejects any other flow instead of silently falling back.
 

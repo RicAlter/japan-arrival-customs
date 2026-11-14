@@ -325,8 +325,8 @@ def collect_sources(config, batch, progress=None):
             scanned += 1
             fields = record['fields']; codes, names = _identity_keys(fields)
             if fields.get('department'):department_counts[fields['department']]+=1
-            relevant = bool(codes & connected_codes or names & seed_names or
-                            (record['role']=='business_summary' and norm(fields.get('code')) in seed_names))
+            main_name_hit = record['role']=='business_summary' and (norm(fields.get('code')) in seed_names or norm(fields.get('name')) in seed_names)
+            relevant = bool(codes & connected_codes or names & seed_names or main_name_hit)
             if include_related:
                 relevant = relevant or bool(fields.get('yd') in yds or fields.get('order_id') in orders)
             if not relevant:
@@ -336,7 +336,7 @@ def collect_sources(config, batch, progress=None):
                 record['record_id'] = sha256(json.dumps(record_id, ensure_ascii=False).encode()).hexdigest()[:32]
                 records.append(record); collected_ids.add(record_id); kept += 1
             # Do not allow a YD-only hit to bootstrap arbitrary other SKU codes.
-            if codes & connected_codes or names & seed_names:
+            if codes & connected_codes or names & seed_names or main_name_hit:
                 connected_codes.update(codes)
                 if fields.get('yd'):
                     yds.add(fields['yd'])

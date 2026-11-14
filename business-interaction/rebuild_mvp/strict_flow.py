@@ -17,7 +17,6 @@ from .yd_selection import choose_yd, exempt_missing_benefit_yd
 
 MAIN_FIELDS = {'name': 'name', 'specification': 'specification',
                'purchase_price': 'price', 'channel': 'channel'}
-DEPARTMENTS = {'手办部', '万代部'}
 PERMITTED = {'business_summary', 'purchase_list', 'order_detail', 'purchase_order',
              'product_catalog', 'daily_material', 'product_card', 'prior_material',
              'reviewed_basics', 'completed_reference'}
@@ -104,29 +103,6 @@ def _common_main_field(row, target, records, field=None):
                        unit_kind='business_summary_original_sku_quote', packaging_unit=None)
 
 
-def _department(record, policy):
-    fields, scope = record['fields'], record.get('scope', {})
-    aliases = policy.get('department_aliases', {})
-    def canonical(label):
-        label = norm(label)
-        return aliases.get(label, label)
-    direct = norm(fields.get('department'))
-    if direct:
-        mapped = canonical(direct)
-        return mapped if mapped in DEPARTMENTS else None
-    evidence = scope.get('department_evidence') or []
-    if isinstance(evidence, dict):
-        evidence = [evidence]
-    labels = {canonical(ref.get('value', ref.get('department', ''))) for ref in evidence if isinstance(ref, dict)}
-    labels.discard('')
-    return next(iter(labels)) if len(labels) == 1 and labels <= DEPARTMENTS else None
-
-
-def _department_candidates(records, policy):
-    return [record for record in records
-            if record['role'] in {'purchase_list', 'order_detail'} and _department(record, policy) in DEPARTMENTS]
-
-
 def _candidate_note(record, reason):
     return {'role': record['role'], 'source_id': record['source_id'],
             'source_sha256': record['source_sha256'], 'sheet': record['sheet'], 'row': record['row'],
@@ -134,8 +110,9 @@ def _candidate_note(record, reason):
 
 
 def _procurement_fields(row, records, headers):
-    """Only explicitly identified hand-figure/Bandai department fallback."""
-    _choose(row, 'name', records, prefer_source_priority=False)
+    """Actual matched procurement; department is descriptive, never a gate."""
+    named_lists = [r for r in records if r['role']=='purchase_list' and known(r['fields'].get('name'))]
+    _choose(row, 'name', named_lists or records, prefer_source_priority=False)
     _choose(row, 'channel', records, prefer_source_priority=False)
     if not row['values'].get('channel') and not any(issue.get('field') == 'channel' for issue in row['issues']):
         order_ids = {record['fields']['order_id'] for record in records if known(record['fields'].get('order_id'))}
@@ -146,7 +123,7 @@ def _procurement_fields(row, records, headers):
             descriptors = [record for record in records if _sku_specification(record)]
             if _choose(row, 'specification', descriptors, 'sku_name', prefer_source_priority=False):
                 for ref in row['evidence']['specification']:
-                    ref['scope']['adoption_kind'] = 'department_procurement_sku_name_original_specification'
+                    ref['scope']['adoption_kind'] = 'actual_procurement_sku_name_original_specification'
                     ref['scope']['quantity_conversion_performed'] = False
     if not row['values'].get('purchase_price'):
         _price(row, records, False)
@@ -165,6 +142,10 @@ def run_strict(batch, collected, policy):
     # product titles. Third-step exact-name search must include ASCII titles.
     for position, record in enumerate(summary_index.rows):
         lookup = norm(record['fields'].get('code'))
+        for field in ('ja','lookup_text','name'):
+            title = norm(record['fields'].get(field))
+            if title:
+                summary_index.summary_names[title].add(position)
         if lookup:
             summary_index.summary_names[lookup].add(position)
         if lookup and not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.\-/]*', lookup):
@@ -212,7 +193,7 @@ def run_strict(batch, collected, policy):
         procurement = _latest_same_record(_linked(row, procurement_index, related_codes))
         procurement, headers = _order_scope(procurement, by_role['purchase_order'])
         active = [record for record in procurement if _is_active(record)]
-        # Auxiliary YD cannot bypass the user's identity/department chain.
+        # YD and procurement fields require actual product linkage, not department.
         if main:
             choose_yd(row, active, policy)
             _choose(row,'category',main,prefer_source_priority=False)
@@ -235,27 +216,22 @@ def run_strict(batch, collected, policy):
             else:
                 _common_main_field(row, 'purchase_price', main)
         else:
-            eligible = _department_candidates(active, policy)
+            eligible = active
             if eligible:
                 choose_yd(row, eligible, policy)
                 _procurement_fields(row, eligible, headers)
-                path = 'department_procurement'
+                path = 'procurement_identity'
             elif any(ref.get('role') == 'reviewed_basics' for ref in row['evidence'].get('name', [])):
                 path = 'reviewed_identity'
             else:
                 path = 'unresolved'
                 _issue(row, 'PRODUCT_UNMATCHED', 'identity',
-                       '主表主码、PCS、日文名及明确手办部/万代部采购均无确定对应，交用户判断')
-            if active and not eligible:
-                _issue(row, 'DEPARTMENT_SCOPE_MISSING', 'identity',
-                       '采购候选仅见其他部门或部门依据不足，不能当手办部/万代部自动采用')
+                       '主表主码、PCS、日文名及实际采购资料均无确定对应，交用户判断')
         # Other sources are visible as evidence candidates, never substituted
-        # into main four-field matches or an unapproved department branch.
+        # into main four-field matches.
         catalogues = _linked(row, catalog_index, related_codes)
         if catalogues or (not main and active):
             row['unadopted_candidates'] = [_candidate_note(record, 'catalogue_reference_not_prescribed_identity_path') for record in catalogues]
-            if not main:
-                row['unadopted_candidates'].extend(_candidate_note(record, 'department_not_confirmed_or_not_authorized') for record in active if record not in _department_candidates(active, policy))
         _prior_material(row, prior_index)
         if not row['values'].get('material_reference') and not any(issue.get('field') == 'material_reference' for issue in row['issues']):
             if not _choose(row, 'material_reference', main, 'material', prefer_source_priority=False):
@@ -278,19 +254,18 @@ def run_strict(batch, collected, policy):
         for record in main:
             field = matching_field
             if path == 'business_japanese_name':
-                field = 'lookup_text' if known(record['fields'].get('lookup_text')) else (
-                    'ja' if norm(record['fields'].get('ja')) == japanese else 'code')
+                field = next((f for f in ('lookup_text','ja','name','code') if norm(record['fields'].get(f))==japanese),'code')
             basis.append(_ref(record, field))
-        if path == 'department_procurement':
-            basis = [_ref(record, 'department') for record in _department_candidates(active, policy)]
-            for ref, record in zip(basis, _department_candidates(active, policy)):
-                canonical = _department(record, policy)
-                ref['scope']['canonical_department'] = canonical
-                if norm(record['fields'].get('department')) == '模型部' and canonical == '万代部':
-                    ref['scope']['department_alias_authority'] = '2026-11-14 user explicitly confirmed: 万代就是模型部'
+        if path == 'procurement_identity':
+            basis = [_ref(record, 'code' if incoming==code(record['fields'].get('code')) else 'sku') for record in active]
+            for ref in basis:
+                ref['scope']['department_gate'] = 'not_used_user_confirmed'
         if path == 'reviewed_identity':
             basis = deepcopy(row['evidence'].get('name', []))
         row['matching'] = {'path': path or 'unresolved', 'basis': basis,
                            'record_selection': selection, 'policy_version': policy['version'], 'model_inference': False}
         result.append(row)
+    if policy.get('japanese_name_search',{}).get('enabled'):
+        from .japanese_search import attach_search_candidates
+        attach_search_candidates(result,collected.get('sources',[]),policy)
     return result

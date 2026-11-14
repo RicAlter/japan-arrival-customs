@@ -1,6 +1,6 @@
 {
   "schema": "arrival-matching-policy/1",
-  "version": "2026-11-14-user-flow-v5",
+  "version": "2026-11-14-user-flow-v6",
   "flow": "user_strict_v1",
   "department_aliases": {
     "手办部": "手办部",
@@ -13,7 +13,8 @@
     "business_code",
     "business_pcs",
     "business_japanese_name",
-    "hand_or_bandai_procurement",
+    "actual_procurement_any_department",
+    "unresolved_japanese_full_sheet_search",
     "user_judgment"
   ],
   "procurement_channel_roles": [
@@ -100,5 +101,19 @@
     ],
     "confirmed_YD": "preserve",
     "same_date_multiple_YD": "remain_conflict"
+  },
+  "department_gate": "disabled_user_confirmed_department_irrelevant",
+  "procurement_name_priority": "actual purchase list name, order detail supplement; do not strip names or guess",
+  "japanese_name_search": {
+    "enabled": true,
+    "source": "audited business summaries confirmed by user as 至今报单汇总",
+    "exact_fields": [
+      "code",
+      "lookup_text",
+      "ja",
+      "name"
+    ],
+    "unresolved_search": "full_sheet_text",
+    "partial_hits": "evidence_only_no_auto_adoption"
   }
 }

@@ -188,7 +188,7 @@ class MatchingContracts(unittest.TestCase):
             row = run([record('purchase_list', code='1234567890123', sku='SKU1', sku_name=specification)])
             self.assertEqual(row['values']['specification'], specification)
             self.assertEqual(row['evidence']['specification'][0]['source_field'], 'sku_name')
-            self.assertEqual(row['evidence']['specification'][0]['scope']['adoption_kind'], 'department_procurement_sku_name_original_specification')
+        self.assertEqual(row['evidence']['specification'][0]['scope']['adoption_kind'], 'actual_procurement_sku_name_original_specification')
             self.assertNotIn('box_size', row['values']); self.assertNotIn('total_pieces', row['values'])
 
     def test_sku_order_placeholder_is_not_specification(self):

@@ -29,10 +29,10 @@ def run(records, source=None, policy=None):
 
 
 class StrictFlow(unittest.TestCase):
-    def test_unknown_department_cannot_supply_automatic_YD(self):
+    def test_actual_purchase_without_department_can_supply_YD(self):
         result=run([record('purchase_list',code='4573643350147',name='未知部门候选',yd='YDFIG123')])
-        self.assertNotIn('yd',result['values'])
-        self.assertTrue(result['unadopted_candidates'])
+        self.assertEqual(result['values']['yd'],'YDFIG123')
+        self.assertEqual(result['matching']['path'],'procurement_identity')
     def test_existing_main_category_is_retained_alongside_four_fields(self):
         source=batch()
         main=record('business_summary',code=source['rows'][0]['raw']['code'],name='业务名称',category='业务已填品类')
@@ -90,25 +90,25 @@ class StrictFlow(unittest.TestCase):
         for field in ('specification', 'purchase_price', 'channel'):
             self.assertNotIn(field, row['values'])
 
-    def test_unknown_department_not_adopted_even_yd_prefix_or_brand(self):
+    def test_unknown_department_does_not_block_actual_matching_purchase(self):
         row = run([record('purchase_list', code='4573643350147', name='未知部门名', specification='整盒', yd='YDFIG1', brand='万代', price='10', currency='CNY', unit='SKU', channel='B')])
-        self.assertNotIn('name', row['values'])
-        self.assertNotIn('channel', row['values'])
-        self.assertNotIn('purchase_price', row['values'])
-        self.assertNotIn('yd',row['values'])
-        self.assertEqual(row['matching']['path'], 'unresolved')
+        self.assertEqual(row['values']['name'],'未知部门名')
+        self.assertEqual(row['values']['channel'],'B')
+        self.assertEqual(row['values']['purchase_price'],'10元')
+        self.assertEqual(row['values']['yd'],'YDFIG1')
+        self.assertEqual(row['matching']['path'], 'procurement_identity')
 
     def test_hand_figure_and_authorized_model_department_allowed(self):
-        for department in ('手办部', '万代部', '模型部'):
+        for department in ('手办部', '万代部', '模型部','周边部',''):
             row = run([record('purchase_list', code='4573643350147', name='部门商品', sku='SKU1', sku_name='订单A整盒6个入', department=department, price='60', currency='CNY', unit='SKU', channel='实际渠道')])
             self.assertEqual(row['values']['name'], '部门商品')
             self.assertEqual(row['values']['specification'], '订单A整盒6个入')
-            self.assertEqual(row['matching']['path'], 'department_procurement')
-            self.assertEqual(row['matching']['basis'][0]['value'], department)
+            self.assertEqual(row['matching']['path'], 'procurement_identity')
+            self.assertEqual(row['matching']['basis'][0]['value'], '4573643350147')
 
-    def test_model_department_requires_explicit_versioned_alias(self):
+    def test_department_alias_not_required_for_product_adoption(self):
         row = run([record('purchase_list', code='4573643350147', name='不能擅自映射', department='模型部')], policy={'version': 'no-alias'})
-        self.assertNotIn('name', row['values'])
+        self.assertEqual(row['values']['name'],'不能擅自映射')
 
     def test_real_department_evidence_allowed_without_named_department_cell(self):
         row = run([record('purchase_list', code='4573643350147', name='实际关联', scope={'department_evidence': [{'value': '手办部', 'column': 'L', 'row': 5}]})])
@@ -121,11 +121,25 @@ class StrictFlow(unittest.TestCase):
         self.assertEqual(row['values']['channel'], '真实订单渠道')
         self.assertEqual(row['evidence']['channel'][0]['role'], 'purchase_order')
 
-    def test_other_department_and_catalog_not_identity_fallback(self):
+    def test_other_department_procurement_allowed_catalog_stays_reference(self):
         row = run([record('order_detail', code='4573643350147', name='周边采购', department='周边部'),
                    record('product_catalog', code='4573643350147', name='商品导出名', specification='商品导出规格')])
-        self.assertNotIn('name', row['values']); self.assertNotIn('specification', row['values'])
-        self.assertGreaterEqual(len(row['unadopted_candidates']), 2)
+        self.assertEqual(row['values']['name'],'周边采购'); self.assertNotIn('specification', row['values'])
+        self.assertEqual(len(row['unadopted_candidates']), 1)
+
+    def test_purchase_list_title_not_confused_with_order_deposit_label(self):
+        row=run([record('purchase_list',code='4573643350147',name='中文名'),record('order_detail',code='4573643350147',name='模玩熊 中文名预定金')])
+        self.assertEqual(row['values']['name'],'中文名')
+
+    def test_japanese_exact_title_in_main_name_column(self):
+        row=run([record('business_summary',code='OTHER-CODE',name='日文具体商品名',specification='一套3个',channel='主表')])
+        self.assertEqual(row['matching']['path'],'business_japanese_name')
+        self.assertEqual(row['matching']['basis'][0]['source_field'],'name')
+
+    def test_unrelated_purchase_not_adopted_without_department_gate(self):
+        row=run([record('purchase_list',code='UNRELATED',name='不同商品',yd='YD2026010101')])
+        self.assertNotIn('name',row['values'])
+        self.assertEqual(row['matching']['path'],'unresolved')
 
     def test_same_version_ambiguous_main_preserves_only_common_fields(self):
         row = run([record('business_summary', code='4573643350147', name='同名', specification='套组3个', price='30', currency='JPY', channel='A'),
