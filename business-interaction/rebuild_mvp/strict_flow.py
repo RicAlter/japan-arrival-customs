@@ -195,12 +195,15 @@ def run_strict(batch, collected, policy):
         active = [record for record in procurement if _is_active(record)]
         # YD and procurement fields require actual product linkage, not department.
         if main:
-            choose_yd(row, active, policy)
+            main_yd = [record for record in main if known(record['fields'].get('yd'))]
+            choose_yd(row, main_yd or active, policy)
             _choose(row,'category',main,prefer_source_priority=False)
             for field in ('name', 'specification', 'channel'):
                 _common_main_field(row, field, main)
             if path == 'business_japanese_name':
-                if not row['values'].get('purchase_price'):
+                if any(known(record['fields'].get('price')) or str(record['fields'].get('price','')).strip() in {'0','0.0','0.00'} for record in main):
+                    _common_main_field(row, 'purchase_price', main)
+                elif not row['values'].get('purchase_price'):
                     lists = [record for record in active if record['role'] == 'purchase_list']
                     _price(row, lists, True)
                     if not row['values'].get('purchase_price') and not any(issue.get('field') == 'purchase_price' for issue in row['issues']):

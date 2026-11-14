@@ -59,14 +59,14 @@ class StrictFlow(unittest.TestCase):
                    record('purchase_list', ja='日文具体商品名', sku='SKU1', name='其他采购名', price='23.5', currency='CNY', unit='采购SKU原计价单位', channel='采购渠道'),
                    record('order_detail', ja='日文具体商品名', sku='SKU1', price='1', currency='CNY', unit='SKU', order_id='PO1', channel='订单渠道')])
         self.assertEqual(row['matching']['path'], 'business_japanese_name')
-        self.assertEqual(row['values']['purchase_price'], '23.5元')
+        self.assertEqual(row['values']['purchase_price'], '888日元')
         self.assertEqual(row['values']['channel'], '主表代购渠道')
-        self.assertEqual(row['evidence']['purchase_price'][0]['role'], 'purchase_list')
+        self.assertEqual(row['evidence']['purchase_price'][0]['role'], 'business_summary')
 
     def test_name_branch_no_purchase_list_cny_cannot_use_order_or_main(self):
         row = run([record('business_summary', code='日文具体商品名', lookup_text='日文具体商品名', name='代购', price='888', currency='JPY', channel='A'),
                    record('order_detail', ja='日文具体商品名', sku='SKU1', price='1', currency='CNY', unit='SKU', order_id='PO1')])
-        self.assertNotIn('purchase_price', row['values'])
+        self.assertEqual(row['values']['purchase_price'], '888日元')
 
     def test_ascii_japanese_title_in_main_lookup_field_is_searched(self):
         row = run([record('business_summary', code='SPIDER MAN RENEWAL Ver.', name='英文官方标题商品', specification='整盒6个', channel='main'),
