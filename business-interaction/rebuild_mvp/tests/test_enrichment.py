@@ -94,6 +94,13 @@ class EnrichmentTests(unittest.TestCase):
         with patch.object(P,'public_url'),patch.object(P,'build_opener') as b:
             b.return_value.open.return_value=Response(b'<html>verify-human</html>')
             with self.assertRaisesRegex(ValueError,'IMAGE_ACCESS_BLOCKED'):P.download('https://example.com/photo',self.root,self.policy)
+    def test_proxy_fake_dns_only_for_audited_cdn(self):
+        import socket
+        with patch.object(socket,'getaddrinfo',return_value=[(2,1,6,'',('198.18.0.12',443))]):
+            P.public_url('https://img.alicdn.com/a.jpg',self.policy['proxy_dns_cdn_hosts'])
+            with self.assertRaisesRegex(ValueError,'IMAGE_URL_INVALID'):P.public_url('https://unknown.example/a.jpg',self.policy['proxy_dns_cdn_hosts'])
+        with patch.object(socket,'getaddrinfo',return_value=[(2,1,6,'',('127.0.0.1',443))]):
+            with self.assertRaisesRegex(ValueError,'IMAGE_URL_INVALID'):P.public_url('https://img.alicdn.com/a.jpg',self.policy['proxy_dns_cdn_hosts'])
     def test_resume_uses_successful_download(self):
         req=self.request(allow_online=True);rows=read_book(self.input)['sheets'][0]['rows'][1:]
         with patch.object(E,'observations',return_value=([{'codes':['4571696823571'],'yd':'YD2026070101','url':'https://example.com/a'}],[])),patch.object(E,'download',return_value=self.image()) as download:

@@ -14,19 +14,25 @@ R='{http://schemas.openxmlformats.org/package/2006/relationships}'
 RID='{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
 X='{http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing}'
 
-def public_url(url):
+def public_url(url, proxy_hosts=()):
     import ipaddress, socket
     p=urlparse(url)
     if p.scheme not in ('http','https') or not p.hostname or p.username or p.password:
         raise ValueError('IMAGE_URL_INVALID: 非公开HTTP图片链接')
     for value in socket.getaddrinfo(p.hostname,p.port or (443 if p.scheme=='https' else 80),type=socket.SOCK_STREAM):
-        if not ipaddress.ip_address(value[4][0]).is_global:
+        address=ipaddress.ip_address(value[4][0])
+        # Local Clash-style Fake-IP DNS uses 198.18/15. Only the exact
+        # audited CDN hostnames may use that proxy mapping; literal/internal
+        # URLs, redirects to another hostname and loopback remain rejected.
+        proxy_mapping=p.hostname in proxy_hosts and address in ipaddress.ip_network('198.18.0.0/15')
+        if not address.is_global and not proxy_mapping:
             raise ValueError('IMAGE_URL_INVALID: 非公开网络地址')
     return url
 
 class SafeRedirect(HTTPRedirectHandler):
+    def __init__(self,proxy_hosts=()):self.proxy_hosts=proxy_hosts
     def redirect_request(self,req,fp,code,msg,headers,newurl):
-        public_url(newurl)
+        public_url(newurl,self.proxy_hosts)
         return super().redirect_request(req,fp,code,msg,headers,newurl)
 
 def image_rows(path, sheet):
@@ -123,8 +129,8 @@ def download(url, root, policy):
     if receipt.exists():
         value=__import__('json').loads(receipt.read_text(encoding='utf8'))
         if path.exists() and digest(path)==value['sha256']:return value
-    public_url(url)
-    with build_opener(SafeRedirect()).open(Request(url,headers={'User-Agent':'JapanArrival/1'}),timeout=policy['image_timeout_seconds']) as response:
+    public_url(url,policy.get('proxy_dns_cdn_hosts',[]))
+    with build_opener(SafeRedirect(policy.get('proxy_dns_cdn_hosts',[]))).open(Request(url,headers={'User-Agent':'JapanArrival/1'}),timeout=policy['image_timeout_seconds']) as response:
         data=response.read(policy['max_image_bytes']+1)
         if len(data)>policy['max_image_bytes']:raise ValueError('IMAGE_TOO_LARGE')
         if 'text/html' in response.headers.get('Content-Type',''):raise ValueError('IMAGE_ACCESS_BLOCKED: 返回网页或验证页')

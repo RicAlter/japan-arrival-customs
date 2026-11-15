@@ -4,6 +4,7 @@
   "max_site_attempts": 2,
   "image_timeout_seconds": 20,
   "max_image_bytes": 15728640,
+  "proxy_dns_cdn_hosts": ["img.alicdn.com", "gw.alicdn.com", "cbu01.alicdn.com"],
   "row_height_points": 156,
   "image_width_emu": 1663065,
   "image_height_emu": 1847850,
