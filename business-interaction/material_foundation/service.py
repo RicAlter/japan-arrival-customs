@@ -60,6 +60,8 @@ def prepare(req,root):
         if record['jan'] in jobs:
             item=jobs[record['jan']];item.update(status='found',result={'site':'官方资料','url':record.get('url',''),'translation':translate(record['original']),'evidence':record['source']})
     job={'schema':'material-foundation-job/1','code_binding':code_binding(),'source':str(path),'source_sha256':sha(path),'sheet':sheet,'columns':mapping,'policy':policy,'policy_sha256':sha(HERE/'policy.json'),'codes':jobs,'skipped':skipped,'host_ready':{},'request':None,'receipts':{},'created_at':datetime.now(timezone.utc).isoformat()}
+    job['nonblocking']=bool(req.get('nonblocking',False))
+    job['max_site_attempts']=int(req.get('max_site_attempts',2))
     save_json(root/'job.json',job);return current(job)
 
 def current(job):
@@ -81,6 +83,7 @@ def build_request(item,site):
     return {'id':rid,'jan':jan,'site':site,'phase':phase,'url':url,'headers':headers,'transport':'external_fetch' if site in ('hobbysearch','surugaya') else 'http','selected':selected}
 
 def next_request(job):
+    if job.get('nonblocking'):return next_nonblocking(job)
     if job['request']:return {'status':'request_ready','request':job['request']}
     for item in job['codes'].values():
         if item['status'] in ('found','not_found'):continue
@@ -92,6 +95,43 @@ def next_request(job):
             if clock()<ready:return {'status':'waiting','retry_after_seconds':round(ready-clock()+0.01,2),'jan':item['jan'],'site':site}
             request=build_request(item,site);job['request']=request;item['status']='pending';return {'status':'request_ready','request':request}
         item['status']='not_found'
+    return current(job)
+
+def next_nonblocking(job):
+    """Advance other sites/rows while a host cools; errors never mean absent."""
+    if job['request']:return {'status':'request_ready','request':job['request']}
+    waiting=[];sites=job['policy']['sites']
+    for item in job['codes'].values():
+        if item['status'] in ('found','not_found','deferred'):continue
+        deferred=item.setdefault('deferred_sites',[])
+        while True:
+            if item['site_index']>=len(sites):
+                ready=[i for i in deferred if job['host_ready'].get(sites[i],0)<=clock()]
+                if ready:
+                    item['site_index']=ready[0];deferred.remove(ready[0]);item.pop('selected',None)
+                else:
+                    if deferred:
+                        waiting.extend(job['host_ready'].get(sites[i],clock()) for i in deferred)
+                    else:item['status']='deferred' if item.get('unavailable_sites') else 'not_found'
+                    break
+            index=item['site_index'];site=sites[index]
+            if site in item.get('finished_sites',[]):
+                if index in deferred:deferred.remove(index)
+                item['site_index']+=1;continue
+            if site=='jumpcs' and not item['jan'].startswith(job['policy']['jumpcs_prefix']):
+                item['site_index']+=1;continue
+            errors=sum(a.get('status')=='error' and a.get('request',{}).get('site')==site for a in item['attempts'])
+            if errors>=job['max_site_attempts']:
+                if site not in item.setdefault('unavailable_sites',[]):item['unavailable_sites'].append(site)
+                if index in deferred:deferred.remove(index)
+                advance(item);continue
+            if clock()<job['host_ready'].get(site,0):
+                if index not in deferred:deferred.append(index)
+                advance(item);continue
+            if index in deferred:deferred.remove(index)
+            request=build_request(item,site);job['request']=request;item['status']='pending'
+            return {'status':'request_ready','request':request}
+    if waiting:return {'status':'waiting','retry_after_seconds':max(0,round(min(waiting)-clock()+0.01,2))}
     return current(job)
 
 def advance(item):
@@ -135,7 +175,10 @@ def submit(job,root,req):
     elif result['status']=='found':
         translated=translate(result['original']);item.update(status='found',result={'site':site,'url':final if site not in ('colleize','anime_store','amiami') else (f'https://colleize.com/lineup/{next((o.get("artist",{}).get("id","") for o in objects(json.loads(body)) if o.get("material")),"")}/{item.get("selected","")}' if site=='colleize' else f'https://anime-store.jp/products/{item["jan"]}' if site=='anime_store' else f'https://www.amiami.jp/top/detail/detail?gcode={item.get("selected","")}'),'translation':translated,'evidence':attempt})
     elif result['status']=='error':item['status']='retry';job['host_ready'][site]=clock()+65
-    else:advance(item)
+    else:
+        old_index=item['site_index'];advance(item)
+        if job.get('nonblocking') and item['site_index']!=old_index:
+            item.setdefault('finished_sites',[]).append(site)
     return current(job)
 
 def handle(req):

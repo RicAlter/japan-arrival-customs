@@ -275,6 +275,13 @@ def execute(request):
 
 def handle(request):
     try:
+        enrichment=request.get('mode')=='enrich_review'
+        if not enrichment and request.get('task_root'):
+            jobfile=Path(request['task_root'])/'job.json'
+            enrichment=jobfile.is_file() and load_json(jobfile).get('mode')=='enrich_review'
+        if enrichment:
+            from .enrichment import handle as enrich
+            return enrich(request)
         return execute(request)
     except Exception as exc:
         code = getattr(exc, 'code', str(exc).split(':', 1)[0])

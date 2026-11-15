@@ -1,0 +1,12 @@
+{
+  "version": "review-enrichment-20261115-v1",
+  "max_operations": 50,
+  "max_site_attempts": 2,
+  "image_timeout_seconds": 20,
+  "max_image_bytes": 15728640,
+  "row_height_points": 156,
+  "image_width_emu": 1663065,
+  "image_height_emu": 1847850,
+  "source_roles": ["purchase_list"],
+  "dg_prefix_requires_yd": true
+}

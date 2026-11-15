@@ -11,6 +11,7 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--runtime', required=True)
     parser.add_argument('--action', choices=['prepare','current','resume'], required=True)
+    parser.add_argument('--responses',help='外部网页工具原文回传JSON；仅resume，模型不得编造材质')
     args=parser.parse_args()
     try:
         runtime=json.loads(Path(args.runtime).read_text(encoding='utf-8-sig'))
@@ -21,6 +22,9 @@ def main():
         request={'workflow':'rebuild_mvp_v1','action':args.action}
         if args.action=='prepare':request.update(config)
         else:request['task_root']=config['output']
+        if args.responses:
+            if args.action!='resume':raise ValueError('INPUT_INVALID: responses仅用于resume')
+            request['responses']=json.loads(Path(args.responses).read_text(encoding='utf-8-sig'))
         folder=Path(runtime['request_directory']);folder.mkdir(parents=True,exist_ok=True)
         raw=json.dumps(request,ensure_ascii=False,sort_keys=True,indent=2)
         name=hashlib.sha256(raw.encode()).hexdigest()+'.json'

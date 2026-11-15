@@ -1,4 +1,6 @@
-2026-11-15最新固化先读[FOUNDATION_SNAPSHOT_20261115.md](FOUNDATION_SNAPSHOT_20261115.md)。本批已有190行网站材质及101行采购图片补充；最终采购图片WPS核验未完成，业务查询已停止。本次仅固化及治理更新，outputs脚本不作为日常底座。
+2026-11-15用户已批准两日接入方案并授权实施及真实验证。统一run.py新增rebuild_mvp_v1的mode=enrich_review，操作说明见business-interaction/rebuild_mvp/ENRICHMENT.md；旧匹配接口保持兼容。当前验收以本机enrichment-integration-20261115报告为准，WPS、Terra、运营及正式安装分别登记。
+
+此前固化见[FOUNDATION_SNAPSHOT_20261115.md](FOUNDATION_SNAPSHOT_20261115.md)。旧停止指令已由本次实施授权在上述范围内替代，历史业务文件继续只读，outputs脚本不作为日常底座。
 
 # 当前开发入口（2026-11-13）
 

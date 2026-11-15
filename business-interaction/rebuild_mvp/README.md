@@ -27,3 +27,7 @@
 真实整批只读核验：`python -X utf8 -B tools/verify_matching_mvp.py --task <本批运行目录> --report <新报告>`。原文件及业务报告均留本地，不提交Git。
 
 冻结使用既有tools/freeze_unified.py从干净提交生成新运行副本并还原旧依赖锁定字节，不改工作树冻结依赖。日常模型运行目录只放本Skill及绑定入口；不要求读完整开发SOP。强模型和Terra必须用同一冻结版本、来源和规则，比较逐行业务内容与证据；技术自测不等同运营认可或正式安装。
+# 材质与采购图片统一补充（2026-11-15）
+
+现有run.py入口新增mode=enrich_review，完整配置、恢复和外部网页回传说明见[ENRICHMENT.md](ENRICHMENT.md)。原匹配流程兼容。新模式最后填图，只补空R材质，保全原业务内容；实际WPS、Terra和业务验收以本机报告为准。
+

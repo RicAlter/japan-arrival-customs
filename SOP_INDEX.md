@@ -18,3 +18,5 @@
 - BUSINESS_RULES.md：已确认业务口径；repro/BASELINE.md：能力边界及后续开发顺序。
 
 run.py → submission.Service → CalculationView 为当前计算入口。历史测试为 test-final → presentation-preview，后者只改变版式，不做专业批准。正常第二阶段提交到B00/A04的桥接尚未完成，不能把它写成已交付流程。真实SOP/程序/用例/行证据对应表见stage2-calculation.md。
+- 2026-11-15统一补充：business-interaction/rebuild_mvp/ENRICHMENT.md，prepare.mode=enrich_review；采购清单图片链接、材质查询及最后写表通过原run.py执行。旧默认无图匹配模式保持原范围。
+

@@ -1,5 +1,7 @@
 # Matching MVP interface v1 (2026-11-14)
 
+2026-11-15扩展：已授权材质与采购图片补充模式见ENRICHMENT.md。prepare.mode=enrich_review，current/resume自动分流；原匹配默认无图片的接口不变。新模式不依赖outputs源码，不新增业务列。旧无图片限制继续约束原匹配模式。
+
 ## Final review-draft contract from real batch
 
 See ../../FOUNDATION_REVIEW.md. The user explicitly permits full-name matches, translations and multiple provisional choices inside the review workbook, with short notes. This supersedes historical instructions below that kept all uncertain candidates out of the workbook. Existing adopted values and raw shipment facts stay protected. Review candidates retain separate per-option evidence and confirmed=false, and never become confirmed SQLite facts automatically. The final candidate-export module exists; preparing its name-search/translation inputs and integrating it into the daily prepare/current/resume workflow remains unfinished.
