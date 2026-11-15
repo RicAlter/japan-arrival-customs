@@ -1,3 +1,5 @@
+- [FOUNDATION_SNAPSHOT_20261115.md](FOUNDATION_SNAPSHOT_20261115.md)：当前成果、采购图片来源、网站材质范围、底座差距与项目进度；优先于下面已过期的当前状态描述。
+
 # 当前SOP索引（2026-11-13）
 
 - material_foundation/README.md（位于business-interaction）：2026-11-14按用户网站查询手册建立的新材质流程，统一run.py的material_query_v1；六站调度、错误重试、完整翻译、证据及只补空格写回，网页实测范围单列。
