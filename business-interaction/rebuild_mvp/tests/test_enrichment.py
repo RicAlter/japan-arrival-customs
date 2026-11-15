@@ -58,6 +58,21 @@ class EnrichmentTests(unittest.TestCase):
         r=handle(self.request());self.assertNotEqual(r['status'],'failed',r)
         again=handle({'action':'resume','task_root':str(self.root/'run')});self.assertEqual(r['business_files'],again['business_files']);self.assertEqual(r['semantic_sha256'],again['semantic_sha256'])
         self.assertEqual(handle({'action':'current','task_root':str(self.root/'run')})['summary']['blank_picture_rows'],1)
+    def test_raw_material_response_reaches_review_without_changing_manual_material(self):
+        first=handle(self.request(materials=True,pictures=False,allow_online=False))
+        self.assertEqual(first['status'],'partial',first)
+        child=json.loads((self.root/'run/materials/job.json').read_text(encoding='utf8'))
+        request=child['request']
+        response={'request_id':request['id'],'http_status':200,
+                  'body':json.dumps({'product':{'variants':[{'barcode':'4571696823571'}],'body_html':'■素材：綿100%'}},ensure_ascii=False)}
+        second=handle({'action':'resume','task_root':str(self.root/'run'),'responses':[response]})
+        self.assertNotEqual(second['status'],'failed',second)
+        self.assertEqual(second['summary']['materials_added'],1,second)
+        values=read_book(second['business_files'][0])['sheets'][0]['rows'][1]['values']
+        self.assertEqual(values['R'],'100%棉');self.assertEqual(values['O'],'人工O');self.assertEqual(values['S'],'参考S')
+        third=handle({'action':'resume','task_root':str(self.root/'run'),'responses':[response]})
+        self.assertEqual(second['semantic_sha256'],third['semantic_sha256'])
+        self.assertEqual(second['business_files'],third['business_files'])
     def test_source_change_rejected(self):
         handle(self.request());self.input.write_bytes(b'changed')
         r=handle({'action':'resume','task_root':str(self.root/'run')});self.assertEqual(r['error']['code'],'SOURCE_CHANGED')
