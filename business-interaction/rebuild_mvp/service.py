@@ -77,7 +77,7 @@ def writer(root):
 def validated_config(request):
     config = {k: copy.deepcopy(v) for k, v in request.items()
               if k not in {'action', 'request_id', 'workflow', 'task_root'}}
-    allowed = {'batch_id', 'input_file', 'sources', 'layout_contract', 'output', 'policy'}
+    allowed = {'batch_id', 'input_file', 'sources', 'layout_contract', 'output', 'policy','candidate_review','translation_file'}
     if set(config) - allowed:
         raise MvpError('CONFIG_INVALID', '不支持的配置字段：' + ','.join(sorted(set(config) - allowed)))
     if not re.fullmatch(r'[\w.-]{1,100}', str(config.get('batch_id', ''))):
@@ -97,6 +97,9 @@ def validated_config(request):
     if Path(config['input_file']).suffix.lower() != '.xlsx':
         raise MvpError('INPUT_INVALID', '本MVP只接收xlsx原表')
     config['policy'] = str(Path(config.get('policy', HERE / 'policy.json')).resolve())
+    if 'candidate_review' in config and (not isinstance(config['candidate_review'],dict) or set(config['candidate_review'])-{'enabled'} or not isinstance(config['candidate_review'].get('enabled',False),bool)):
+        raise MvpError('CONFIG_INVALID','candidate_review只支持enabled布尔开关')
+    if config.get('translation_file'):config['translation_file']=str(Path(config['translation_file']).resolve(strict=True))
     for source in config['sources']:
         source['path'] = str(Path(source['path']).resolve())
     output = Path(config['output'])
@@ -109,6 +112,7 @@ def validated_config(request):
 def version_manifest(config):
     paths = [(config['input_file'], 'japanese_batch'), (config['layout_contract'], 'layout'), (config['policy'], 'policy')]
     paths += [(s['path'], s['role']) for s in config['sources']]
+    if config.get('translation_file'):paths.append((config['translation_file'],'translation_candidates'))
     files = []
     for path, role in paths:
         p = Path(path)
@@ -166,7 +170,7 @@ def public(job):
             'error': job.get('error'), 'next_action': 'current' if job['step'] == 'exported' else 'resume',
             'acceptance': {'technical_verified': False, 'terra_verified': False,
                            'operator_approved': False, 'formally_installed': False},
-            'message': '基础资料匹配核对稿；未开发回传保存、完整计算或正式安装。'}
+            'message': '基础资料及候选核对稿；运营修改通过独立review_return任务接收，完整计算与正式安装尚未完成。'}
 
 
 def execute(request):
@@ -231,6 +235,8 @@ def execute(request):
             rows = store.get_checkpoint('matched')
             if rows is None:
                 rows = match_batch(batch, collected, policy=load_json(config['policy']))
+                from .candidate_pipeline import apply_candidates
+                rows = apply_candidates(rows,config)
                 if [x['row_id'] for x in rows] != [x['row_id'] for x in batch['rows']]:
                     raise MvpError('TASK_CONFLICT', '匹配改变了商品原行序或身份')
                 store.save_matches(config['batch_id'], rows)
@@ -275,6 +281,13 @@ def execute(request):
 
 def handle(request):
     try:
+        mode=request.get('mode')
+        if not mode and request.get('task_root'):
+            jf=Path(request['task_root'])/'job.json'
+            if jf.is_file():mode=load_json(jf).get('mode')
+        if mode=='review_return':
+            from .review_return import handle as review_return
+            return review_return(request)
         enrichment=request.get('mode')=='enrich_review'
         if not enrichment and request.get('task_root'):
             jobfile=Path(request['task_root'])/'job.json'

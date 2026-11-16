@@ -49,6 +49,9 @@ class Store:
             FOREIGN KEY(batch_id,row_id) REFERENCES batch_rows);
         CREATE TABLE IF NOT EXISTS checkpoints(
             step TEXT PRIMARY KEY, content_sha256 TEXT NOT NULL, payload TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS candidate_fields(
+            batch_id TEXT NOT NULL,row_id TEXT NOT NULL,field TEXT NOT NULL,payload TEXT NOT NULL,
+            PRIMARY KEY(batch_id,row_id,field));
         ''')
         version = self.db.execute("SELECT value FROM metadata WHERE key='schema'").fetchone()
         if version and version[0] != 'arrival-mvp-candidate/1':
@@ -119,9 +122,13 @@ class Store:
                 # Replaying the deterministic same checkpoint never accumulates facts.
                 self.db.execute('DELETE FROM adopted_fields WHERE batch_id=? AND row_id=?', (batch_id, row['row_id']))
                 self.db.execute('DELETE FROM issues WHERE batch_id=? AND row_id=?', (batch_id, row['row_id']))
+                self.db.execute('DELETE FROM candidate_fields WHERE batch_id=? AND row_id=?',(batch_id,row['row_id']))
+                for field,payload in row.get('review_candidates',{}).items():
+                    self.db.execute('INSERT INTO candidate_fields VALUES(?,?,?,?)',(batch_id,row['row_id'],field,canonical(payload)))
                 for field, value in row.get('values', {}).items():
                     if value in ('', None):
                         continue
+                    if field in row.get('review_candidates',{}):continue
                     evidence = row.get('evidence', {}).get(field, [])
                     if not evidence:
                         raise ValueError(f'TASK_CONFLICT: adopted field has no evidence: {field}')

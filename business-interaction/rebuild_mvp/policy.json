@@ -31,7 +31,7 @@
     "channel": "渠道"
   },
   "master_code_pcs_price": "same master record JPY only; no procurement override",
-  "master_japanese_name_price": "CNY from actual purchase_list only",
+  "master_japanese_name_price": "master JPY first; CNY from actual purchase_list only when master price missing",
   "prior_material_fields": [
     "material",
     "website_material",

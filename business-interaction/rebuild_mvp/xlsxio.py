@@ -395,6 +395,7 @@ def write_book(raw_source, output, rows, layout_contract, manifest):
             target[col_number(col) - 1] = value or None
         for field, col in value_cols.items():
             value = r.get('values', {}).get(field, '')
+            if field=='purchase_price' and isinstance(value,str):value=re.sub(r'(?<=\d)\s*(?:日元|JPY|円)', '',value,flags=re.I)
             target[col_number(col) - 1] = value if value != '' else None
     payload = {'sheet': batch['sheet'], 'weight_sheet': batch['weight_sheet'], 'matrix': matrix,
                'cols': ls['layout'].get('cols', []), 'output': '', 'preview': '',

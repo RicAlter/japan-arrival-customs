@@ -13,6 +13,10 @@ def main():
     parser.add_argument('--action', choices=['prepare','current','resume'], required=True)
     parser.add_argument('--responses',help='外部网页工具原文回传JSON；仅resume，模型不得编造材质')
     parser.add_argument('--finalize-pictures',action='store_true',help='仅resume：下载并嵌入已登记图片链接')
+    parser.add_argument('--submitted-file')
+    parser.add_argument('--expected-revision',type=int)
+    parser.add_argument('--expected-reference-sha256')
+    parser.add_argument('--clear-cells',nargs='*')
     args=parser.parse_args()
     try:
         runtime=json.loads(Path(args.runtime).read_text(encoding='utf-8-sig'))
@@ -29,6 +33,10 @@ def main():
         if args.finalize_pictures:
             if args.action!='resume':raise ValueError('INPUT_INVALID: finalize-pictures仅用于resume')
             request['finalize_pictures']=True
+        if args.submitted_file:
+            if args.action!='resume':raise ValueError('INPUT_INVALID: submitted-file仅用于resume')
+            request.update(submitted_file=args.submitted_file,expected_revision=args.expected_revision,expected_reference_sha256=args.expected_reference_sha256)
+            if args.clear_cells is not None:request['clear_cells']=args.clear_cells
         folder=Path(runtime['request_directory']);folder.mkdir(parents=True,exist_ok=True)
         raw=json.dumps(request,ensure_ascii=False,sort_keys=True,indent=2)
         name=hashlib.sha256(raw.encode()).hexdigest()+'.json'
