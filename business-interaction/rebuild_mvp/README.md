@@ -1,3 +1,11 @@
+# 当前说明（2026-11-16）
+
+当前已支持统一候选及review_return技术回传。最新能力/限制见[BUSINESS_FLOW.md](BUSINESS_FLOW.md)、[SKILL.md](SKILL.md)和[项目同步审计](../../docs/PROJECT_AUDIT_20261116.md)。下方旧“未接统一入口/回传未开发”等条款仅保留历史范围。新MVP下一开发阶段为R3，不自动启动业务验证。
+
+---
+
+# 历史接口说明
+
 # 基础资料匹配MVP
 
 本次实跑复盘与后续定版依据见[FOUNDATION_REVIEW.md](../../FOUNDATION_REVIEW.md)。用户已明确确认表应先填候选：名称匹配、译名及多条记录可直接填入对应单元格，短注待选；已确认值保留。最终候选导出为`python -m rebuild_mvp.review_candidates --task ... --search ... --gaps ... --translations ... --output <新目录>`，使用固定查询/翻译资料及来源版本；目前尚未串入prepare/current/resume，不能声称基础prepare已经完成最终候选表。

@@ -1,18 +1,18 @@
 ---
 name: japan-arrival-matching-mvp
-description: 处理日本到货基础匹配，或按已配置的补充模式查询材质和填采购图片。
+description: 日本到货匹配、候选、材质/采购图片补充及版本化运营回传。
 ---
 
-# 日本到货基础匹配
+# 日常操作
 
-只用部署时提供的Python、operate.py和runtime.json，不读取完整SOP、不自行编辑配置或数据库。
+使用开发部署提供的Python、operate.py及runtime.json，模型不临时改规则、配置或数据库。按任务配置执行prepare/current/resume，交付business_files中的文件，并说明summary、issues和状态。
 
-1. 处理本批：`<Python> -X utf8 -B <operate.py> --runtime <runtime.json> --action prepare`。
-2. 查看结果：同一命令使用 `--action current`。
-3. 中断续做：同一命令使用 `--action resume`；不要另建批次或改输出路径。
+匹配：prepare/current/resume包含配置启用的名称候选补查和版本化译名。候选不是已确认事实，不自动审批材质/税率。只在配置授权范围内处理。
 
-工具负责全部匹配、材质承接、字段来源和Excel生成。只交付`business_files`中的文件，并简报`summary`及需要处理的`issues`。`partial`表示可交付但有缺项，不等于失败；`failed`时按`error.code/message`报告，只有`retryable=true`才重试resume。来源变化、配置或行身份冲突交开发人员处理，不猜测商品、不修改文件补值。
+图片补充：enrich_review新任务默认先在E列存唯一核对链接，统计缺链接与待嵌图；最后明确要求填图时，使用resume --finalize-pictures。已有图片和人工内容保留。材质R只补空，外部网页原文通过resume --responses提供，不编造成功状态或材质结论。
 
-本轮不放图片、不处理运营回传保存、不做完整计算或正式安装。收到回传时说明该能力尚未开发，保留文件交后续处理；不能声称已经保存。技术测试、Terra运行、运营验收及正式安装分别报告。
+运营回传：使用部署绑定的review_return runtime，先current取得revision和reference_sha256。用户回传文件后，使用resume --submitted-file <文件> --expected-revision <版本> --expected-reference-sha256 <SHA>。需要明确清空时另带--clear-cells <单元格...>；普通空格不自动清空。校验合格范围由程序保存，异常只报告，不重复要求确认已提交内容。reviewed_source供后续任务承接。专业批准仍独立。
 
-配置为enrich_review时，上段“不放图片”不适用：工具按实际采购清单补图、查询R网站材质，最后出表。仍只用prepare/current/resume，不自行写脚本或改规则。partial按next_action续做；requests由现有网页工具取真实原文，使用operate.py --action resume --responses <回传JSON>提交；不得编造网页、材质或成功状态。completed_with_gaps交付表和summary.pending_reason_file，说明空格原因。WPS实际核验和运营确认分别记录。
+partial可以表示有待核字段；failed按error.code/message处理。来源、程序或版本冲突时保留现文件交开发核对，不能强改job摘要或把旧回传覆盖新结果。旧冻结任务用原程序继续，不直接套用新版本。
+
+完整R3计算、最终双表、实际运营验收及正式安装仍待完成。用户停止本批补充时，不因旧任务存在而自动恢复查询或下载。本次文档同步不表示重跑了业务验证。

@@ -73,3 +73,7 @@ Thumbs.db
 
 # Independent rc.5 source successor; sanitized progress only.
 !/docs/WEEKLY_PROGRESS_20261030.md
+
+# Current portable rebuild audit and roadmap; no local business evidence.
+!/docs/PROJECT_AUDIT_20261116.md
+!/docs/REBUILD_ROADMAP.md

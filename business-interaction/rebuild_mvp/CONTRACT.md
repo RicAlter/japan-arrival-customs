@@ -1,3 +1,11 @@
+# 当前说明（2026-11-16）
+
+当前已支持统一候选及review_return技术回传。最新能力/限制见[BUSINESS_FLOW.md](BUSINESS_FLOW.md)、[SKILL.md](SKILL.md)和[项目同步审计](../../docs/PROJECT_AUDIT_20261116.md)。下方旧“未接统一入口/回传未开发”等条款仅保留历史范围。新MVP下一开发阶段为R3，不自动启动业务验证。
+
+---
+
+# 历史接口说明
+
 # Matching MVP interface v1 (2026-11-14)
 
 2026-11-15扩展：已授权材质与采购图片补充模式见ENRICHMENT.md。prepare.mode=enrich_review，current/resume自动分流；原匹配默认无图片的接口不变。新模式不依赖outputs源码，不新增业务列。旧无图片限制继续约束原匹配模式。

@@ -1,3 +1,11 @@
+# 当前开发入口（2026-11-16）
+
+先读[同步审计](docs/PROJECT_AUDIT_20261116.md)、[重建路线](docs/REBUILD_ROADMAP.md)与[生效SOP](business-interaction/rebuild_mvp/BUSINESS_FLOW.md)。当前MVP已实现统一候选、图片两阶段及运营回传技术闭环，下一开发阶段为R3。验证先保留待办，本批剩余补充停止。旧批次、旧冻结和已采纳基线分别登记，不自动迁移或安装。
+
+---
+
+# 历史启动说明（以下旧当前状态不作为新MVP选择依据）
+
 2026-11-16用户已暂停测试。先读[开发进度与底座现状](DEVELOPMENT_STATUS_20261116.md)，本次仅更新文档和交接；后续业务查询、下载及测试等待用户明确恢复。下文旧授权和旧状态保留历史范围。
 
 2026-11-15用户已批准两日接入方案并授权实施及真实验证。统一run.py新增rebuild_mvp_v1的mode=enrich_review，操作说明见business-interaction/rebuild_mvp/ENRICHMENT.md；旧匹配接口保持兼容。当前验收以本机enrichment-integration-20261115报告为准，WPS、Terra、运营及正式安装分别登记。

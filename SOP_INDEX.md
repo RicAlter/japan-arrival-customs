@@ -1,3 +1,13 @@
+# 当前SOP索引（2026-11-16）
+
+- [生效业务SOP](business-interaction/rebuild_mvp/BUSINESS_FLOW.md)：来源、匹配、候选、H显示、图片链接和回传。
+- [重建路线](docs/REBUILD_ROADMAP.md)与[同步审计](docs/PROJECT_AUDIT_20261116.md)：阶段及旧代码范围。
+- [轻量操作说明](business-interaction/rebuild_mvp/SKILL.md)：prepare/current/resume与回传参数。
+
+---
+
+# 历史SOP索引（冲突时不用作日常规则）
+
 - [FOUNDATION_SNAPSHOT_20261115.md](FOUNDATION_SNAPSHOT_20261115.md)：当前成果、采购图片来源、网站材质范围、底座差距与项目进度；优先于下面已过期的当前状态描述。
 
 # 当前SOP索引（2026-11-13）
