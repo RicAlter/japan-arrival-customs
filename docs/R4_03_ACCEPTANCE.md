@@ -1,3 +1,7 @@
+<!-- CNY-DOWNSTREAM-VERSIONS-20261116 -->
+2026-11-16最新：已保存的人民币成本reviewed_source已由统一入口生成2861行R3-01/02/03和R4-02新版本。整批技术验收通过，63个H修订及原数据/人工值/公式缓存/图片保全，8次current/resume一致；旧任务绑定保留。缺项继续待核，新文件WPS显示未执行，R3/R4整体与运营/专业批准仍未完成。运行仍绑定冻结4b48d0d，本次仅同步进度文档，不改程序、正式安装/main或数据库。详见[新版本说明](CNY_DOWNSTREAM_VERSIONS.md)。以下旧阶段状态保留历史时点。
+<!-- /CNY-DOWNSTREAM-VERSIONS-20261116 -->
+
 # R4-03 只读验收与真实整批范围
 
 开发验收工具 `tools/verify_pair_acceptance.py` 只读取已经保存的 `arrival-dual-projection/1` pair_source，不运行业务 prepare、不补资料、不重算或修改旧任务。报告写到新目录，不创建、覆盖或重存业务 Excel。正式安装、main 和已采纳基线保持。

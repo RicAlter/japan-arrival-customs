@@ -1,3 +1,7 @@
+<!-- CNY-DOWNSTREAM-VERSIONS-20261116 -->
+2026-11-16最新：已保存的人民币成本reviewed_source已由统一入口生成2861行R3-01/02/03和R4-02新版本。整批技术验收通过，63个H修订及原数据/人工值/公式缓存/图片保全，8次current/resume一致；旧任务绑定保留。缺项继续待核，新文件WPS显示未执行，R3/R4整体与运营/专业批准仍未完成。运行仍绑定冻结4b48d0d，本次仅同步进度文档，不改程序、正式安装/main或数据库。详见[新版本说明](docs/CNY_DOWNSTREAM_VERSIONS.md)。以下旧阶段状态保留历史时点。
+<!-- /CNY-DOWNSTREAM-VERSIONS-20261116 -->
+
 2026-11-16 R3-03：箱号、箱货关联及去重重量统一入口已实现，契约见[business-interaction/rebuild_mvp/LOGISTICS_CONTRACT.md](business-interaction/rebuild_mvp/LOGISTICS_CONTRACT.md)。承接原R3-01/R3-02版本，旧绑定和原数据保全。下一开发任务R4-02未启动；R3整体运营验收与最终双表仍未完成。下方旧状态按历史时点保留。
 
 以下为此前阶段说明；与上述本次范围冲突的状态仅保留历史时点。
