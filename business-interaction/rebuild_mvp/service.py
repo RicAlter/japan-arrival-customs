@@ -285,6 +285,9 @@ def handle(request):
         if not mode and request.get('task_root'):
             jf=Path(request['task_root'])/'job.json'
             if jf.is_file():mode=load_json(jf).get('mode')
+        if mode=='quantity_conversion':
+            from .quantity_conversion import handle as quantity_conversion
+            return quantity_conversion(request)
         if mode=='review_return':
             from .review_return import handle as review_return
             return review_return(request)

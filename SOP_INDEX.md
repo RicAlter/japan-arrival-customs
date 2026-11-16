@@ -1,3 +1,5 @@
+2026-11-16 R3-01数量与包装实现见[business-interaction/rebuild_mvp/QUANTITY_CONTRACT.md](business-interaction/rebuild_mvp/QUANTITY_CONTRACT.md)。统一MVP入口承接R2已保存版本，下一任务R3-02；仅本单元完成，R3整体未完成，旧安装/绑定保持。
+
 # 当前SOP索引（2026-11-16）
 
 - [生效业务SOP](business-interaction/rebuild_mvp/BUSINESS_FLOW.md)：来源、匹配、候选、H显示、图片链接和回传。

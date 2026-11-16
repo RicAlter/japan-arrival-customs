@@ -1,3 +1,5 @@
+2026-11-16 R3-01当前新增：统一prepare/current/resume支持mode=quantity_conversion，承接R2保存版本，数量与包装规则/输出见[QUANTITY_CONTRACT.md](QUANTITY_CONTRACT.md)。只补空白U/V/W/X并保全I/K/L/M和原图。用户确认不存在正常同码不同包装场景；异常来源仍保留防护。R3-02及其后阶段未实施。
+
 # 当前说明（2026-11-16）
 
 当前已支持统一候选及review_return技术回传。最新能力/限制见[BUSINESS_FLOW.md](BUSINESS_FLOW.md)、[SKILL.md](SKILL.md)和[项目同步审计](../../docs/PROJECT_AUDIT_20261116.md)。下方旧“未接统一入口/回传未开发”等条款仅保留历史范围。新MVP下一开发阶段为R3，不自动启动业务验证。

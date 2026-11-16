@@ -1,3 +1,5 @@
+2026-11-16 R3-01数量与包装实现见[business-interaction/rebuild_mvp/QUANTITY_CONTRACT.md](business-interaction/rebuild_mvp/QUANTITY_CONTRACT.md)。统一MVP入口承接R2已保存版本，下一任务R3-02；仅本单元完成，R3整体未完成，旧安装/绑定保持。
+
 # 当前状态（2026-11-16）
 
 以[同步审计](docs/PROJECT_AUDIT_20261116.md)为当前摘要：R0最低可用范围及R1/R2部分能力已实现，R2实际运营验收待办；R3新架构计算箱重未开始，为下一开发阶段；R4已有图片能力，最终双表未完成。先不开展新的业务验证。本次只同步文档并推送开发分支。

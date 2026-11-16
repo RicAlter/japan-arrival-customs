@@ -1,3 +1,5 @@
+2026-11-16 R3-01数量与包装实现见[business-interaction/rebuild_mvp/QUANTITY_CONTRACT.md](business-interaction/rebuild_mvp/QUANTITY_CONTRACT.md)。统一MVP入口承接R2已保存版本，下一任务R3-02；仅本单元完成，R3整体未完成，旧安装/绑定保持。
+
 # 当前开发入口（2026-11-16）
 
 先读[同步审计](docs/PROJECT_AUDIT_20261116.md)、[重建路线](docs/REBUILD_ROADMAP.md)与[生效SOP](business-interaction/rebuild_mvp/BUSINESS_FLOW.md)。当前MVP已实现统一候选、图片两阶段及运营回传技术闭环，下一开发阶段为R3。验证先保留待办，本批剩余补充停止。旧批次、旧冻结和已采纳基线分别登记，不自动迁移或安装。
