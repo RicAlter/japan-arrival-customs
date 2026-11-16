@@ -179,6 +179,8 @@ def _latest_same_record(records):
 
 
 def _price(row, records, name_branch):
+    from .cny_cost import normalize_options
+    if row['values'].get('purchase_price') not in (None,''):return
     original = _latest_same_record(records)
     records = [r for r in original if _price_eligible(r)]
     if name_branch:
@@ -210,6 +212,17 @@ def _price(row, records, name_branch):
     values = defaultdict(list)
     for (value, currency, unit, sku, channel), pairs in groups.items():
         values[(value, currency, unit, channel)].extend(pairs)
+    cny = normalize_options([{'value':key[0],'currency':key[1],'unit':key[2],
+                              'packaging':r.get('scope',{}).get('packaging_unit') or r['fields'].get('specification'),
+                              'record':r,'field':f,'channel':key[3]}
+                             for key,pairs in values.items() for r,f in pairs])
+    if cny:
+        row['purchase_price_selection'] = {'rule':cny['rule'],'currency':'CNY','unit':cny['unit'],
+            'selected_value':cny['value'],'all_quotes':[{'value':o['value'],'channel':o['channel'],
+            'source':_ref(o['record'],o['field'])}for o in cny['options']],
+            'display_equivalent_prices_deduplicated':len(cny['groups'])<len(cny['options'])}
+        pairs=[(o['record'],o['field'])for o in cny['selected']]
+        values={(cny['value'],'CNY',cny['unit'],None):pairs}
     if len(values) != 1:
         _issue(row, 'PROCUREMENT_CONFLICT', 'purchase_price', '存在不同采购报价、币种、单位或渠道，未自动选价',
                [{'value': key[0], 'currency': key[1], 'unit': key[2], 'channel': key[3], 'sources': [_ref(r, f) for r, f in pairs]} for key, pairs in sorted(values.items())])
@@ -217,7 +230,7 @@ def _price(row, records, name_branch):
     key, pairs = next(iter(values.items()))
     record, field = sorted(pairs, key=lambda pair: _record_order(pair[0]))[0]
     currency = key[1]
-    row['values']['purchase_price'] = record['fields'][field] + ('元' if currency == 'CNY' else ('日元' if currency == 'JPY' else currency))
+    row['values']['purchase_price'] = (key[0] if cny else record['fields'][field]) + ('元' if currency == 'CNY' else ('日元' if currency == 'JPY' else currency))
     row['evidence']['purchase_price'] = []
     for r, f in sorted(pairs, key=lambda pair: _record_order(pair[0])):
         ref = _ref(r, f)

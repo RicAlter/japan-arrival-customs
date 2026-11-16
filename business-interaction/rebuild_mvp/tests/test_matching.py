@@ -78,12 +78,12 @@ class MatchingContracts(unittest.TestCase):
                    record('purchase_list', 2, code='9999999999999', yd='YD1', sku='SKU2', channel='B')])
         self.assertEqual(row['values']['channel'], 'A')
 
-    def test_two_prices_or_channels_remain_conflicts(self):
+    def test_cny_highest_price_selected_channel_conflict_remains(self):
         records = [record('purchase_list', code='1234567890123', yd='YD1', sku='SKU1', channel='A', price='10', currency='CNY', unit='原SKU单位'),
                    record('purchase_list', 2, code='1234567890123', yd='YD1', sku='SKU1', channel='B', price='12', currency='CNY', unit='原SKU单位')]
         row = run(records)
-        self.assertNotIn('channel', row['values']); self.assertNotIn('purchase_price', row['values'])
-        self.assertTrue(any(i['code'] == 'PROCUREMENT_CONFLICT' for i in row['issues']))
+        self.assertNotIn('channel', row['values']); self.assertEqual(row['values']['purchase_price'],'12元')
+        self.assertEqual(row['purchase_price_selection']['rule'],'highest-comparable-cny-cost/20261116')
 
     def test_missing_price_basis_does_not_block_name(self):
         row = run([record('purchase_list', code='1234567890123', name='名称', price='10', currency='CNY')])

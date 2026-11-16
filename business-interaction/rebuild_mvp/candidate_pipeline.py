@@ -1,6 +1,7 @@
 """Versioned provisional candidates; never overwrite accepted values or store as facts."""
 from collections import defaultdict
 from .candidate_display import candidate_text
+from .cny_cost import display_selection
 from .sources import _iter_records,norm,known
 from .matching import _ref,_is_active,_latest_same_record,_order_scope,_price_eligible
 from .service import digest,load_json,MvpError
@@ -19,6 +20,19 @@ def apply_candidates(rows,config):
             if not refs or any(not isinstance(e,dict) or not (e.get('source_id') and e.get('sheet') and e.get('row') and e.get('column') or e.get('source_file') and e.get('source_sha256')) for e in refs):continue
             if str(value).strip():distinct.setdefault(str(value).strip(),[]).extend(refs)
         if not distinct:return
+        cny=display_selection(list(distinct.items()))if field=='purchase_price'else None
+        if cny:
+            original_options=[{'value':v,'evidence':ev}for v,ev in distinct.items()]
+            normalized={v+'元':[ref for option in group for ref in option['evidence']]for v,group in cny['groups'].items()}
+            row.setdefault('review_candidates',{})[field]={'confirmed':False,'note':note,
+                'selection_rule':cny['rule'],'selected_value':cny['value']+'元',
+                'original_options':original_options,'options':[{'value':v,'evidence':ev}for v,ev in normalized.items()]}
+            resolved=[issue for issue in row['issues'] if issue.get('field')=='purchase_price' and issue.get('code')in {'FIELD_CONFLICT','PROCUREMENT_CONFLICT','FIELD_MISSING'}]
+            row.setdefault('resolved_price_issues',[]).extend(resolved)
+            row['issues']=[issue for issue in row['issues']if issue not in resolved]
+            row['values'][field]=cny['value']+'元'
+            row['evidence'][field]=[ref for o in cny['selected']for ref in o['evidence']]
+            return
         row.setdefault('review_candidates',{})[field]={'confirmed':False,'note':note,'options':[{'value':v,'evidence':ev} for v,ev in distinct.items()]}
         row['values'][field]=candidate_text(field,list(distinct),note)
         row['evidence'][field]=[e for ev in distinct.values() for e in ev]
@@ -35,6 +49,8 @@ def apply_candidates(rows,config):
                     if not currency:continue
                     value=price(value,currency)
                     if c.get('channel'):value+=' / '+c['channel']
+                if field=='purchase_price':
+                    ev=[{**ref,'currency':currency,'unit':c.get('unit') or ref.get('unit')}for ref in ev]
                 choices.append((value,ev))
             fill(row,field,choices,'待确认')
     targets=defaultdict(list)
