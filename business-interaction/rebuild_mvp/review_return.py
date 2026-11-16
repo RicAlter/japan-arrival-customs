@@ -58,7 +58,7 @@ def handle(req):
             if len(book['sheets'])!=2:raise MvpError('INPUT_INVALID','要求固定两张表')
             sheet=book['sheets'][0]
             header=sheet['rows'][0]['values']
-            if header.get('E')!='商品图片' or header.get('R')!='网站查找材质':raise MvpError('INPUT_INVALID','要求固定24列核对表')
+            if header.get('E')!='商品图片' or header.get('R')!='网站查找材质' or set(header)!={chr(65+i) for i in range(24)}:raise MvpError('INPUT_INVALID','要求固定24列核对表')
             job={'mode':'review_return','batch_id':req['batch_id'],'source':str(source),'code':code_version(),'sheet':sheet['name'],'initial_sha256':digest(source)}
             save_json(jf,job)
         job=json.loads(jf.read_text(encoding='utf8'))

@@ -60,7 +60,8 @@ def apply_candidates(rows,config):
         for r in records:
             f=r['fields'];currency=f.get('currency','');value=f.get('actual_price') if known(f.get('actual_price')) else f.get('price')
             if known(value) and currency in ('JPY','日元','日币','CNY','RMB','人民币'):
-                choices.append((price(value,currency)+(' / '+f['channel'] if f.get('channel') else ''),_ref(r,'actual_price' if known(f.get('actual_price')) else 'price')))
+                ref=_ref(r,'actual_price' if known(f.get('actual_price')) else 'price');ref.update(currency=currency,unit=f.get('unit'))
+                choices.append((price(value,currency)+(' / '+f['channel'] if f.get('channel') else ''),ref))
         fill(row,'purchase_price',choices,'采购候选')
     if config.get('translation_file'):
         data=load_json(config['translation_file'])
