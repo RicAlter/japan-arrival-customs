@@ -1,4 +1,4 @@
-2026-11-16 R3-02：统一 prepare/current/resume 新增 mode=price_tax，承接 quantity_source，计算有来源的单个价、金额差及原价税基的参考税金。只补新副本空白 I；原价金额、人工值、数量、公式/cache、图片及重量表保全。契约见[PRICE_TAX_CONTRACT.md](PRICE_TAX_CONTRACT.md)。R3-01继续原绑定，下一任务R3-03未启动，R3整体未完成。
+2026-11-16 R3-03：统一MVP mode=carton_weight承接quantity_source和pricing_source，提供有来源箱号范围、箱货集合关联和唯一实物箱去重重量。副本与上游价税Excel字节相同，全部人工值/原数据/图片/公式缓存保留；详情见[LOGISTICS_CONTRACT.md](LOGISTICS_CONTRACT.md)。R3三个计算单元已具备限定技术实现，运营认可及R3整体验收仍待办；下一开发任务R4-02未启动，本轮不生成最终双表。
 
 # 当前说明（2026-11-16）
 

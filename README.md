@@ -2,7 +2,7 @@
 
 当前隔离开发分支：`codex/mvp-kmt20261101-20261114`。项目进度、旧代码适用范围和剩余工作见[同步审计](docs/PROJECT_AUDIT_20261116.md)，总体方案见[重建路线](docs/REBUILD_ROADMAP.md)。正式安装及main不随本分支推送切换。
 
-新任务使用`business-interaction/run.py`，明确指定`workflow=rebuild_mvp_v1`。已实现基础匹配、版本化候选、材质/图片补充与运营回传技术闭环；R3-01数量与包装已接统一入口，R3-02价格金额与参考税金已接通 quantity_source，下一任务R3-03。实际运营验收、箱重和最终双表仍未完成，参考税金不等于专业关务批准。
+新任务使用`business-interaction/run.py`，明确指定`workflow=rebuild_mvp_v1`。已实现基础匹配、版本化候选、材质/图片补充与运营回传技术闭环；R3-01数量与包装已接统一入口，R3-02价格金额与参考税金已接通 quantity_source，R3-03箱货关联和去重重量也已接通两份上游契约，下一开发任务R4-02。实际运营验收、R3整体验收和最终双表仍未完成，参考税金不等于专业关务批准。
 
 - [生效业务SOP](business-interaction/rebuild_mvp/BUSINESS_FLOW.md)
 - [统一接口说明](business-interaction/rebuild_mvp/CONTRACT.md)
@@ -16,3 +16,5 @@
 - [R3-01数量契约及R3-02读取说明](business-interaction/rebuild_mvp/QUANTITY_CONTRACT.md)
 
 - [R3-02价税契约及R3-03读取说明](business-interaction/rebuild_mvp/PRICE_TAX_CONTRACT.md)
+
+- [R3-03箱重契约及R4读取说明](business-interaction/rebuild_mvp/LOGISTICS_CONTRACT.md)

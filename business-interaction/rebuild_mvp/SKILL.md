@@ -20,3 +20,5 @@ partial可以表示有待核字段；failed按error.code/message处理。来源�
 数量阶段：配置mode=quantity_conversion时沿用prepare/current/resume。程序校验已保存R2及来源、生成新副本和quantity_source；只交付business_files及待核说明。模型不判断单位、不编写包装倍率、不把partial当失败，也不自行覆盖旧值或启动R3-02。
 
 价格金额与税金：使用部署绑定的 price_tax runtime，prepare/current/resume 承接 quantity_source，生成新副本、pricing_source、价格税金计算明细及待核清单。只补有可比依据的空白I，其他人工值和原始价格金额不改。税率缺失不补零，不让模型猜计价单位/税率。参考税金不是专业批准；partial按字段原因交付，不启动箱重或最终双表。
+
+箱号重量：使用部署绑定的carton_weight runtime，prepare/current/resume承接quantity_source与pricing_source，交付business_files、logistics_source及箱货关联/箱重明细/待核CSV。程序仅在真实合并范围内承接箱号，按唯一实物箱计重，区间数量不均分、商品重量不分摊。副本保全所有原格，模型不改箱重或猜未知值。partial只限制对应结果，不自行改旧job、安装或生成最终双表。

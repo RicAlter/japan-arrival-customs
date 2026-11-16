@@ -1,4 +1,4 @@
-2026-11-16 R3-02数量承接后的价格/金额/参考税金已实现，详见[business-interaction/rebuild_mvp/PRICE_TAX_CONTRACT.md](business-interaction/rebuild_mvp/PRICE_TAX_CONTRACT.md)。新模式不改原始K/L/M、人工值或图片；下一任务R3-03未启动，R3整体未完成。旧安装、runtime和既有业务任务保持原绑定。
+2026-11-16 R3-03：箱号、箱货关联及去重重量统一入口已实现，契约见[business-interaction/rebuild_mvp/LOGISTICS_CONTRACT.md](business-interaction/rebuild_mvp/LOGISTICS_CONTRACT.md)。承接原R3-01/R3-02版本，旧绑定和原数据保全。下一开发任务R4-02未启动；R3整体运营验收与最终双表仍未完成。下方旧状态按历史时点保留。
 
 以下为此前阶段说明；与上述本次范围冲突的状态仅保留历史时点。
 
