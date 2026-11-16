@@ -122,10 +122,10 @@ def extract_reviewed(upstream):
 
 
 class Evidence:
-    def __init__(self, path):
+    def __init__(self, path, schema='arrival-quantity-evidence/1', extra_roles=()):
         self.path = str(Path(path).resolve(strict=True))
         self.data = load_json(self.path)
-        if self.data.get('schema') != 'arrival-quantity-evidence/1':
+        if self.data.get('schema') != schema:
             raise MvpError('CONFIG_INVALID', '数量依据契约须为arrival-quantity-evidence/1')
         self.sources, self.cells = {}, {}
         for source in self.data.get('sources', []):
@@ -136,11 +136,11 @@ class Evidence:
             source['path'] = str(Path(source['path']).resolve(strict=True))
             role = source['role']
             if role not in {'japanese_batch','reviewed_basics','completed_reference','business_summary',
-                            'purchase_list','order_detail','product_catalog','product_card'}:
+                            'purchase_list','order_detail','product_catalog','product_card'} | set(extra_roles):
                 raise MvpError('SOURCE_FORBIDDEN', '数量用途未许可来源角色')
             # Reuse exclusion/lineage/hash checks; raw invoices have no matching role.
             validation = {**source, 'source_type': role}
-            if role == 'japanese_batch':
+            if role == 'japanese_batch' or role in extra_roles:
                 validation['role'] = 'reviewed_basics'
             validate_source(validation)
             self.sources[sid] = source

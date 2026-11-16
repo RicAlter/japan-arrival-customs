@@ -76,7 +76,9 @@ def compare(source, output, sheet, changes):
             'images_and_weight_parts_preserved':True}
 
 
-def export(source, destination, sheet, changes):
+def export(source, destination, sheet, changes, allowed_columns='UVWX'):
+    if allowed_columns not in {'UVWX','I'}:
+        raise MvpError('INPUT_INVALID','不支持的空格覆盖范围')
     source, destination = Path(source), Path(destination)
     member = next(s['path'] for s in sheet_info(source) if s['name'] == sheet)
     temp = destination.with_suffix('.quantity.tmp')
@@ -86,7 +88,7 @@ def export(source, destination, sheet, changes):
         cells = {c.get('r'): c for c in tree.findall(Q+'sheetData/'+Q+'row/'+Q+'c')}
         rows = {r.get('r'): r for r in tree.findall(Q+'sheetData/'+Q+'row')}
         for address, value in sorted(changes.items()):
-            if not re.fullmatch('[UVWX][0-9]+', address):
+            if not re.fullmatch('['+allowed_columns+'][0-9]+', address):
                 raise MvpError('INPUT_INVALID', '数量导出只允许U/V/W/X')
             cell = cells.get(address)
             if cell is not None and (cell.find(Q+'f') is not None or cell.find(Q+'v') is not None or ''.join(cell.itertext()).strip()):

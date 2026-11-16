@@ -1,4 +1,4 @@
-2026-11-16 R3-01当前新增：统一prepare/current/resume支持mode=quantity_conversion，承接R2保存版本，数量与包装规则/输出见[QUANTITY_CONTRACT.md](QUANTITY_CONTRACT.md)。只补空白U/V/W/X并保全I/K/L/M和原图。用户确认不存在正常同码不同包装场景；异常来源仍保留防护。R3-02及其后阶段未实施。
+2026-11-16 R3-02：统一 prepare/current/resume 新增 mode=price_tax，承接 quantity_source，计算有来源的单个价、金额差及原价税基的参考税金。只补新副本空白 I；原价金额、人工值、数量、公式/cache、图片及重量表保全。契约见[PRICE_TAX_CONTRACT.md](PRICE_TAX_CONTRACT.md)。R3-01继续原绑定，下一任务R3-03未启动，R3整体未完成。
 
 # 当前说明（2026-11-16）
 

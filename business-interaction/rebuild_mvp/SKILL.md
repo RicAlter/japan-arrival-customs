@@ -1,6 +1,6 @@
 ---
 name: japan-arrival-matching-mvp
-description: 日本到货匹配、候选、材质/采购图片补充及版本化运营回传。
+description: 日本到货匹配、候选、材质/采购图片补充、版本化运营回传和有来源数量/价税计算。
 ---
 
 # 日常操作
@@ -18,3 +18,5 @@ partial可以表示有待核字段；failed按error.code/message处理。来源�
 完整R3计算、最终双表、实际运营验收及正式安装仍待完成。用户停止本批补充时，不因旧任务存在而自动恢复查询或下载。本次文档同步不表示重跑了业务验证。
 
 数量阶段：配置mode=quantity_conversion时沿用prepare/current/resume。程序校验已保存R2及来源、生成新副本和quantity_source；只交付business_files及待核说明。模型不判断单位、不编写包装倍率、不把partial当失败，也不自行覆盖旧值或启动R3-02。
+
+价格金额与税金：使用部署绑定的 price_tax runtime，prepare/current/resume 承接 quantity_source，生成新副本、pricing_source、价格税金计算明细及待核清单。只补有可比依据的空白I，其他人工值和原始价格金额不改。税率缺失不补零，不让模型猜计价单位/税率。参考税金不是专业批准；partial按字段原因交付，不启动箱重或最终双表。
