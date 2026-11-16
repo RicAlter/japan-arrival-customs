@@ -17,6 +17,12 @@ def export_marks(rows, offset):
         number = row['source_row'] + offset
         marks.extend({'row': number, 'field': issue.get('field'), 'code': issue.get('code')}
                      for issue in row.get('issues', []))
+        selection=row.get('purchase_price_selection',{})
+        if selection.get('rule')=='highest-comparable-cny-cost/20261116':
+            from .cny_cost import decimal_text
+            prices={decimal_text(quote.get('value'))for quote in selection.get('all_quotes',[])}-{None}
+            if len(prices)>1:
+                marks.append({'row':number,'field':'purchase_price','code':'CNY_SOURCE_PRICE_CONFLICT'})
         for field, data in row.get('review_candidates', {}).items():
             distinct = {str(option.get('value', '')).strip() for option in data.get('options', [])}
             distinct.discard('')

@@ -45,3 +45,10 @@ class CandidateDisplay(unittest.TestCase):
         self.assertEqual(candidate_text('yd',['YD1'],'待确认'),'YD1（待确认）')
     def test_cancelled_name_result_not_shown(self):
         self.assertNotIn('yd',self.apply([{'yd':'YD2026010101','status':'取消'}])['values'])
+
+    def test_selected_highest_cny_still_marks_genuinely_different_records(self):
+        row=self.row();row['purchase_price_selection']={'rule':'highest-comparable-cny-cost/20261116','all_quotes':[{'value':'31'},{'value':'35'}]}
+        self.assertEqual(export_marks([row],0),[{'row':18,'field':'purchase_price','code':'CNY_SOURCE_PRICE_CONFLICT'}])
+    def test_same_cny_numeric_records_do_not_create_false_orange(self):
+        row=self.row();row['purchase_price_selection']={'rule':'highest-comparable-cny-cost/20261116','all_quotes':[{'value':'32'},{'value':'32.0'}]}
+        self.assertEqual(export_marks([row],0),[])
