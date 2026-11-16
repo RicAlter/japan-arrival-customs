@@ -63,7 +63,7 @@ def analyse_group(facts):
         scale={'CM':F(1,100),'MM':F(1,1000),'M':F(1)}.get(g['dimension_unit'])
         if scale is None:raise ValueError('DIMENSION_UNIT_UNSUPPORTED')
         dims=[number(g['raw'].get(k))for k in ['width','height','depth']]
-        if 'volume'in blocked or count is None or count<=0 or any(x is None or x<=0 for x in dims):issue('VOLUME_INPUT_INVALID','volume')
+        if 'volume'in blocked or states.get('count')not in USABLE or any(x is None or x<=0 for x in dims):issue('VOLUME_INPUT_INVALID','volume')
         else:
             calculated=count*dims[0]*dims[1]*dims[2]*scale**3
             observed=number(g['raw'].get('volume'))

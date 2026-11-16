@@ -60,7 +60,9 @@ class LogisticsMath(unittest.TestCase):
         for v in ['-1','','NaN','Infinity','#N/A',True,'0']:
             with self.subTest(v=v):self.assertNotIn(group(weight=v)['field_states']['weight'],{'source_checked','derived'})
     def test_invalid_count_not_inferred_from_range(self):
-        for v in ['','0','-1','2.5','NaN',True]:self.assertEqual(group(count=v)['field_states']['count'],'pending')
+        for v in ['','0','-1','2.5','NaN',True]:
+            g=group(dimension_unit='CM',raw={'count':v,'total_weight':'12','unit_weight':'4','width':'10','height':'20','depth':'30'})
+            self.assertEqual(g['field_states']['count'],'pending');self.assertEqual(g['field_states']['volume'],'pending')
     def test_existing_total_conflict_retained(self):
         g=group(weight='13');self.assertEqual(frac(g['total_weight_kg']),13);self.assertEqual(g['raw']['total_weight'],'13');self.assertEqual(g['field_states']['weight'],'conflict')
     def test_grams_explicit_conversion(self):
@@ -114,6 +116,13 @@ class LogisticsEntry(unittest.TestCase):
         with zipfile.ZipFile(self.source)as z:parts={n:z.read(n)for n in z.namelist()}
         tree=ET.fromstring(parts['xl/worksheets/sheet1.xml']);c=next(c for c in tree.iter(Q+'c')if c.get('r')==cell);c.attrib.pop('t',None);c[:]=[];ET.SubElement(c,Q+'f').text=text
         if cache is not None:ET.SubElement(c,Q+'v').text=cache
+        parts['xl/worksheets/sheet1.xml']=ET.tostring(tree)
+        with zipfile.ZipFile(self.source,'w')as z:
+            for n,p in parts.items():z.writestr(n,p)
+        self.rebind()
+    def boolean_cell(self,address):
+        with zipfile.ZipFile(self.source)as z:parts={n:z.read(n)for n in z.namelist()}
+        tree=ET.fromstring(parts['xl/worksheets/sheet1.xml']);c=next(c for c in tree.iter(Q+'c')if c.get('r')==address);c.set('t','b');c[:]=[];ET.SubElement(c,Q+'v').text='1'
         parts['xl/worksheets/sheet1.xml']=ET.tostring(tree)
         with zipfile.ZipFile(self.source,'w')as z:
             for n,p in parts.items():z.writestr(n,p)
@@ -226,11 +235,19 @@ class LogisticsEntry(unittest.TestCase):
         self.records.append(['','3','1','3']);self.make_weight();self.data['note_rows']=[3];self.rebind();self.assertEqual(handle(self.req)['error']['code'],'CONFIG_INVALID')
     def test_auxiliary_count_reference_not_misread_as_weight(self):
         self.records.extend([['','','1','2.5','','','','0.006'],['','','合計','1','ctn']]);self.make_weight();self.data['summary_rows']=[3];self.data['auxiliary_rows']=[{'row':4,'reason':'count_reference_only','references':{'D':'C3'}}];self.rebind();self.formula('D4','C3','1');_,d=self.result();self.assertEqual(len(d['groups']),1);self.assertEqual(frac(d['totals']['inventory']['weight_kg']['value']),F('2.5'))
+        self.boolean_cell('D4');self.formula('D4','C3','1')
+        with zipfile.ZipFile(self.source)as z:parts={n:z.read(n)for n in z.namelist()}
+        tree=ET.fromstring(parts['xl/worksheets/sheet1.xml']);next(c for c in tree.iter(Q+'c')if c.get('r')=='D4').set('t','b');parts['xl/worksheets/sheet1.xml']=ET.tostring(tree)
+        with zipfile.ZipFile(self.source,'w')as z:
+            for n,p in parts.items():z.writestr(n,p)
+        self.rebind()
+        with self.assertRaisesRegex(ValueError,'辅助汇总缓存'):WeightEvidence(self.binding,'B',self.quantity,self.price['pricing_source']).group_facts()
     def test_arbitrary_numeric_row_not_auxiliary_summary(self):
         self.records.append(['','3','1','3']);self.make_weight();self.data['auxiliary_rows']=[{'row':3,'reason':'try_hide','references':{'D':'D2'}}];self.rebind();self.assertEqual(handle(self.req)['error']['code'],'CONFIG_INVALID')
     def test_summaries_excluded_and_reconciled(self):
         self.records.append(['','','1','2.5','','','','0.006']);self.make_weight();self.data['summary_rows']=[3];self.rebind();self.formula('D3','SUM(D2:D2)','2.5');_,d=self.result();self.assertEqual(len(d['groups']),1);self.assertEqual(len(d['excluded_rows']),1);self.assertTrue(all(x['state']=='source_checked'for x in d['summary_checks']))
     def test_wrong_summary_not_counted_as_extra_weight(self):
         self.records.append(['','','1','9','','','','0.006']);self.make_weight();self.data['summary_rows']=[3];self.rebind();_,d=self.result();self.assertEqual(frac(d['totals']['inventory']['weight_kg']['value']),F('2.5'));self.assertTrue(d['totals']['issues'])
+        self.boolean_cell('C3');checks,issues=WeightEvidence(self.binding,'B',self.quantity,self.price['pricing_source']).audit_summaries(d['totals']['inventory']);self.assertTrue(any(x['field']=='count'and x['state']=='pending'for x in checks))
     def test_actual_run_py_dispatch(self):
         request=self.root/'logistics-request.json';request.write_text(json.dumps({'workflow':'rebuild_mvp_v1',**self.req}),encoding='utf8');entry=Path(__file__).resolve().parents[2]/'run.py';p=subprocess.run([sys.executable,'-X','utf8','-B',str(entry),'--request',str(request)],capture_output=True,text=True,encoding='utf8');self.assertEqual(p.returncode,0,p.stdout+p.stderr);self.assertEqual(json.loads(p.stdout)['step'],'exported')

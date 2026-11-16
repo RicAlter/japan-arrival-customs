@@ -126,7 +126,7 @@ class WeightEvidence(Evidence):
                     if not m or int(m[2])not in self.summaries or m[1]not in allowed or re.sub(r'[\s$=]','',formula or'')!=target:
                         raise MvpError('CONFIG_INVALID','辅助数字只能直接引用已登记主汇总，不能隐藏箱重明细')
                     expected=number(self.rows[int(m[2])]['values'].get(m[1]))
-                    if expected is None or number(value)!=expected:raise MvpError('INPUT_INVALID','辅助汇总缓存与原始引用不符')
+                    if r['types'].get(col)in {'b','e'}or expected is None or number(value)!=expected:raise MvpError('INPUT_INVALID','辅助汇总缓存与原始引用不符')
                     checked.append({'column':col,'formula':formula,'value':value,'summary_reference':target})
                 if set(references)!={x['column']for x in checked}:raise MvpError('CONFIG_INVALID','辅助引用坐标不完整')
                 excluded.append({'row':n,'reason':spec['reason'],'evidence':proofs,'checked_summary_references':checked});continue
@@ -170,7 +170,7 @@ class WeightEvidence(Evidence):
                 expected=number(total['value'])if metric=='count'else frac(total['value'])
                 if key=='total_weight'and expected is not None:expected*=factor
                 formula_ok=not p['formula']or re.sub(r'[\s$=]','',p['formula']).upper()==f"SUM({p['column']}{self.start}:{p['column']}{self.end})"
-                ok=total['complete']and expected is not None and observed==expected and formula_ok
+                ok=total['complete']and expected is not None and observed==expected and formula_ok and p['type']not in {'b','e'}
                 output.append({'field':metric,'evidence':p,'expected':exact(expected)if expected is not None else None,
                                'state':'source_checked'if ok else'pending'})
                 if not ok:issues.append({'code':'WEIGHT_SUMMARY_UNRESOLVED','field':metric,'row':n})
