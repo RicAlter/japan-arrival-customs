@@ -5,7 +5,8 @@ features. No historical customs workbook is copied into the new package.
 """
 from pathlib import Path
 from copy import deepcopy
-import json,os,re,subprocess,zipfile,xml.etree.ElementTree as ET
+import json,math,os,re,subprocess,zipfile,xml.etree.ElementTree as ET
+from fractions import Fraction
 from .service import MvpError,save_json,load_json,digest,HERE
 from .storage import identity
 from .xlsxio import Q,read_book,sheet_info,col_letter
@@ -47,19 +48,41 @@ def finite_text(value):
     return repr(value)if isinstance(value,float)else str(value)
 
 
-def check_author(path,plan):
+def sum_roundoff(plan,n,c,value,actual):
+    """One-ULP Artifact SUM residue only; exact plan and final file stay strict."""
+    from .quantity_math import number
+    col=col_letter(c)
+    if (n!=plan['footer_row'] or not isinstance(value,float) or not math.isfinite(value)
+            or plan['formulas'].get(col+str(n))!=f'SUM({col}2:{col}{n-1})'):
+        return None
+    terms=[row[c-1] for row in plan['matrix'][1:n-1] if row[c-1] is not None]
+    if any(isinstance(x,bool) or not isinstance(x,(int,float)) or not math.isfinite(x) for x in terms):return None
+    if sum((number(x) for x in terms),Fraction(0))!=number(value):return None
+    observed=number(actual)
+    if observed is None or abs(observed-number(value))>Fraction.from_float(math.ulp(value)):return None
+    return {'cell':col+str(n),'formula':plan['formulas'][col+str(n)],'artifact_cache':actual,
+            'exact_plan_cache':str(value),'maximum_absolute_error':repr(math.ulp(value)),
+            'classification':'one_ULP_SUM_engine_residue','final_cache_policy':'exact_versioned_result_required'}
+
+
+def check_author(path,plan,allow_sum_roundoff=False):
     book=read_book(path)
     if len(book['sheets'])!=1 or book['sheets'][0]['name']!=plan['sheet']:raise MvpError('TASK_CONFLICT','海关生成器工作表不符')
-    rows={r['row']:r for r in book['sheets'][0]['rows']}
+    rows={r['row']:r for r in book['sheets'][0]['rows']};roundoff=[]
     from .quantity_math import number
     for n,expected in enumerate(plan['matrix'],1):
         for c,value in enumerate(expected,1):
             col=col_letter(c);actual=rows.get(n,{}).get('values',{}).get(col,'')
-            if isinstance(value,(int,float))and number(actual)!=number(value):raise MvpError('RUNTIME_FAILURE','Artifact数值/公式重算与版本化结果不符：'+col+str(n))
+            if isinstance(value,(int,float))and number(actual)!=number(value):
+                residue=sum_roundoff(plan,n,c,value,actual)if allow_sum_roundoff else None
+                if residue is None:raise MvpError('RUNTIME_FAILURE','Artifact数值/公式重算与版本化结果不符：'+col+str(n))
+                roundoff.append(residue)
             if value is None and actual not in {'',None}:raise MvpError('RUNTIME_FAILURE','缺项被误填数值：'+col+str(n))
             if isinstance(value,str)and actual not in {value,"'"+value}:raise MvpError('RUNTIME_FAILURE','Artifact文本不符：'+col+str(n))
             if rows.get(n,{}).get('formulas',{}).get(col)!=plan['formulas'].get(col+str(n)):
                 raise MvpError('RUNTIME_FAILURE','Artifact公式位置或写法不符：'+col+str(n))
+
+    return roundoff
 
 
 def element(text):
@@ -175,5 +198,8 @@ def export_customs(rows,total,output,renderer,tokens):
     output=Path(output);plan=author_plan(rows,total,output.with_suffix('.authoring.xlsx'),renderer)
     if output.exists():return verify_customs(output,plan,tokens)
     run_author(plan,renderer,output.with_suffix('.author-plan.json'))
-    check_author(plan['output'],plan);finalize_native(plan['output'],plan);proof=verify_customs(plan['output'],plan,tokens)
+    roundoff=check_author(plan['output'],plan,allow_sum_roundoff=True)
+    save_json(output.with_suffix('.author-roundoff.json'),{'formula_roundoff':roundoff,'final_verification':'strict_exact'})
+    finalize_native(plan['output'],plan);proof=verify_customs(plan['output'],plan,tokens)
+    proof['artifact_formula_roundoff']=roundoff
     os.replace(plan['output'],output);proof.update(path=str(output),sha256=digest(output));return proof
