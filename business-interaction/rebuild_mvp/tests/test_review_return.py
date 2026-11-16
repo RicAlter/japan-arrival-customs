@@ -88,5 +88,11 @@ class CandidateBoundary(unittest.TestCase):
   with patch('rebuild_mvp.candidate_pipeline.digest',return_value='a'*64),patch('rebuild_mvp.candidate_pipeline._iter_records',return_value=iter([rec])):
    apply_candidates(rows,{'candidate_review':{'enabled':True},'sources':[{'role':'purchase_list','path':'test'}]})
   self.assertNotIn('yd',rows[0]['values'])
+ def test_main_missing_price_only_adds_purchase_candidate(self):
+  rows=[{'row_id':'r','raw':{'code':'1','ja':'日本原文'},'matching':{'path':'business_code'},'values':{'name':'主表名称','specification':'主表规格','channel':'主表渠道','yd':'YDKEEP'},'evidence':{},'issues':[]}]
+  rec={'role':'purchase_list','source_id':'s','source_sha256':'a'*64,'sheet':'采购','row':8,'columns':{'price':'P'},'fields':{'name':'日本原文','price':'99','currency':'CNY','unit':'原SKU单位'},'scope':{}}
+  with patch('rebuild_mvp.candidate_pipeline.digest',return_value='a'*64),patch('rebuild_mvp.candidate_pipeline._iter_records',return_value=iter([rec])):
+   apply_candidates(rows,{'candidate_review':{'enabled':True},'sources':[{'role':'purchase_list','path':'test'}]})
+  self.assertEqual(rows[0]['values']['name'],'主表名称');self.assertEqual(rows[0]['values']['yd'],'YDKEEP');self.assertIn('99元',rows[0]['values']['purchase_price'])
 
 if __name__=='__main__':unittest.main()

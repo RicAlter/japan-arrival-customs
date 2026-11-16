@@ -38,7 +38,7 @@ def apply_candidates(rows,config):
             fill(row,field,choices,'待确认')
     targets=defaultdict(list)
     for row in rows:
-        if row.get('matching',{}).get('path')=='unresolved' or not row['values'].get('yd'):
+        if row.get('matching',{}).get('path')=='unresolved' or any(not row['values'].get(f) for f in ('name','specification','purchase_price','channel')) or (not row['values'].get('yd') and row.get('yd_requirement',{}).get('status')!='not_required'):
             for name in {norm(row['raw'].get('ja')),norm(row['values'].get('name'))}:
                 if known(name):targets[name].append(row)
     hits=defaultdict(list);headers=[]
