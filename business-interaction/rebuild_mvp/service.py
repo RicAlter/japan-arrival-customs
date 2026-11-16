@@ -9,6 +9,7 @@ import json
 import os
 import re
 import traceback
+import time
 
 from . import SCHEMA
 from .storage import Store, canonical, identity
@@ -37,7 +38,17 @@ def save_json(path, value):
         json.dump(value, stream, ensure_ascii=False, indent=2, sort_keys=True)
         stream.flush()
         os.fsync(stream.fileno())
-    os.replace(temporary, path)
+    # Windows indexers/readers may briefly hold a destination open between
+    # checkpoint writes. Retry only sharing/access-denied errors, preserving
+    # the completed temporary file and the old destination on exhaustion.
+    for attempt in range(8):
+        try:
+            os.replace(temporary, path)
+            break
+        except PermissionError as exc:
+            if getattr(exc, 'winerror', None) not in {5, 32, 33} or attempt == 7:
+                raise
+            time.sleep(0.015 * (2 ** attempt))
 
 
 def load_json(path):
