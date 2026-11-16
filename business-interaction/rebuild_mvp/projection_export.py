@@ -201,5 +201,4 @@ def export_customs(rows,total,output,renderer,tokens):
     roundoff=check_author(plan['output'],plan,allow_sum_roundoff=True)
     save_json(output.with_suffix('.author-roundoff.json'),{'formula_roundoff':roundoff,'final_verification':'strict_exact'})
     finalize_native(plan['output'],plan);proof=verify_customs(plan['output'],plan,tokens)
-    proof['artifact_formula_roundoff']=roundoff
     os.replace(plan['output'],output);proof.update(path=str(output),sha256=digest(output));return proof

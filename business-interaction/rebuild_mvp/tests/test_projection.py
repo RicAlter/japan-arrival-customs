@@ -238,3 +238,15 @@ class ProjectionEntry(unittest.TestCase):
             tree=ET.fromstring(z.read('xl/worksheets/sheet1.xml'))
             code=next(c for c in tree.findall(Q+'sheetData/'+Q+'row/'+Q+'c')if c.get('r')=='B2')
             self.assertEqual(code.get('t'),'inlineStr');self.assertEqual(''.join(code.itertext()),self.q['rows'][0]['scope']['code'])
+
+    def test_receipt_interrupt_after_contract_resumes_without_proof_drift(self):
+        from rebuild_mvp.dual_projection import save_json as original
+        def fail(path,value):
+            if Path(path).name=='pair-save-receipt.json':raise RuntimeError('before receipt')
+            return original(path,value)
+        with patch('rebuild_mvp.dual_projection.save_json',side_effect=fail):
+            self.assertEqual(handle(self.req)['status'],'failed')
+        self.assertTrue((Path(self.req['output'])/'pair-results.json').is_file())
+        count=self.mock.call_count
+        r=handle({'action':'resume','task_root':self.req['output']})
+        self.assertEqual(r['step'],'saved');self.assertEqual(self.mock.call_count,count)
