@@ -1,0 +1,768 @@
+{
+  "schema": "arrival-dual-template/1",
+  "internal_id": "arrival-completion-24/20261114",
+  "customs_id": "accepted-stage5-33/20261023",
+  "legacy_layout_sha256": "8b7d30ff73bb4c1bc85452a06dd6268b4b0c991ba86257f759f67e30ade2ef83",
+  "customs": {
+    "sheet": "图片处理",
+    "columns": 33,
+    "source_sha256": "7915da95ef075e4477ebe8d89b14f32bfb07da86eb182c15a606dbee39178937",
+    "headers": [
+      "箱号",
+      "品番",
+      "Items & Descriptions",
+      "原產地",
+      "数量（盒装",
+      "Qty（数量按单个）",
+      "單價",
+      "品牌",
+      "品名",
+      "品类",
+      "是否\n盲盒",
+      "是否需要打标签",
+      "材质",
+      "尺寸",
+      "规格",
+      "金額",
+      "箱数CTNs",
+      "G/W (KG)",
+      "Total G/W (kgs)",
+      "L(m) / W(m) / H(m)",
+      null,
+      null,
+      null,
+      null,
+      "Meas.(M)",
+      "M3 Total",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "header_styles": [
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"14\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"￥\"#,##0;\"￥\"\\-#,##0"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"left\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"微软雅黑 Light\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "[$¥-411]#,##0.00_);[Red]\\([$¥-411]#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "0_);[Red]\\(0\\)"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      }
+    ],
+    "data_styles": [
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><color theme=\"1\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill patternType=\"solid\"><fgColor theme=\"9\" tint=\"0.6\" /><bgColor indexed=\"64\" /></patternFill></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><color theme=\"1\" /><sz val=\"11\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill patternType=\"solid\"><fgColor theme=\"9\" tint=\"0.6\" /><bgColor indexed=\"64\" /></patternFill></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "0"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"left\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><color rgb=\"FF002060\" /><sz val=\"11\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill patternType=\"solid\"><fgColor theme=\"9\" tint=\"0.6\" /><bgColor indexed=\"64\" /></patternFill></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"Century Gothic\" /><charset val=\"134\" /><color rgb=\"FF002060\" /><sz val=\"10\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"Times New Roman\" /><charset val=\"134\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "\"￥\"#,##0;\"￥\"\\-#,##0"
+      },
+      {
+        "font": "<font><name val=\"Times New Roman\" /><charset val=\"134\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "[$¥-411]#,##0.00_);[Red]\\([$¥-411]#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><color rgb=\"FF002060\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"left\" vertical=\"center\" wrapText=\"1\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"134\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"134\" /><b val=\"1\" /><color rgb=\"FF002060\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "[$¥-411]#,##0.00_);[Red]\\([$¥-411]#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"Times New Roman\" /><charset val=\"134\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "[$¥-411]#,##0.00_);[Red]\\([$¥-411]#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"134\" /><b val=\"1\" /><color rgb=\"FF002060\" /><sz val=\"11\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"Times New Roman\" /><charset val=\"134\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "[$¥-411]#,##0.00_);[Red]\\([$¥-411]#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"Times New Roman\" /><charset val=\"134\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "[$¥-411]#,##0.00_);[Red]\\([$¥-411]#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"Times New Roman\" /><charset val=\"134\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"right\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "[$¥-411]#,##0.00_);[Red]\\([$¥-411]#,##0.00\\)"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"10\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"128\" /><sz val=\"11\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "0.0000_ "
+      },
+      {
+        "font": "<font><name val=\"細明體\" /><charset val=\"136\" /><b val=\"1\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment horizontal=\"center\" vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "0.0000"
+      },
+      {
+        "font": "<font><name val=\"新細明體\" /><charset val=\"136\" /><sz val=\"12\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"新細明體\" /><charset val=\"136\" /><sz val=\"20\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"新細明體\" /><charset val=\"136\" /><sz val=\"20\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"新細明體\" /><charset val=\"136\" /><sz val=\"20\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"新細明體\" /><charset val=\"136\" /><sz val=\"20\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"新細明體\" /><charset val=\"136\" /><sz val=\"20\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left style=\"thin\"><color auto=\"1\" /></left><right style=\"thin\"><color auto=\"1\" /></right><top style=\"thin\"><color auto=\"1\" /></top><bottom style=\"thin\"><color auto=\"1\" /></bottom><diagonal /></border>",
+        "alignment": "<alignment vertical=\"center\" />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      },
+      {
+        "font": "<font><name val=\"宋体\" /><charset val=\"136\" /><color theme=\"1\" /><sz val=\"12\" /><scheme val=\"minor\" /></font>",
+        "fill": "<fill><patternFill /></fill>",
+        "border": "<border><left /><right /><top /><bottom /><diagonal /></border>",
+        "alignment": "<alignment />",
+        "protection": "<protection locked=\"1\" hidden=\"0\" />",
+        "number_format": "General"
+      }
+    ],
+    "column_dimensions": {
+      "A": {
+        "width": 9.25,
+        "hidden": false,
+        "min": 1,
+        "max": 1
+      },
+      "B": {
+        "width": 20.375,
+        "hidden": false,
+        "min": 2,
+        "max": 2
+      },
+      "C": {
+        "width": 30.625,
+        "hidden": false,
+        "min": 3,
+        "max": 3
+      },
+      "D": {
+        "width": 17.0,
+        "hidden": false,
+        "min": 4,
+        "max": 4
+      },
+      "E": {
+        "width": 15.3333333333333,
+        "hidden": false,
+        "min": 5,
+        "max": 5
+      },
+      "F": {
+        "width": 15.3333333333333,
+        "hidden": false,
+        "min": 6,
+        "max": 6
+      },
+      "G": {
+        "width": 13.0083333333333,
+        "hidden": false,
+        "min": 7,
+        "max": 7
+      },
+      "H": {
+        "width": 12.85,
+        "hidden": false,
+        "min": 8,
+        "max": 8
+      },
+      "I": {
+        "width": 38.625,
+        "hidden": false,
+        "min": 9,
+        "max": 9
+      },
+      "J": {
+        "width": 22.3166666666667,
+        "hidden": false,
+        "min": 10,
+        "max": 10
+      },
+      "K": {
+        "width": 13.4833333333333,
+        "hidden": false,
+        "min": 11,
+        "max": 11
+      },
+      "L": {
+        "width": 17.0,
+        "hidden": false,
+        "min": 12,
+        "max": 12
+      },
+      "M": {
+        "width": 19.75,
+        "hidden": false,
+        "min": 13,
+        "max": 13
+      },
+      "N": {
+        "width": 10.0,
+        "hidden": false,
+        "min": 14,
+        "max": 14
+      },
+      "O": {
+        "width": 13.6666666666667,
+        "hidden": false,
+        "min": 15,
+        "max": 15
+      },
+      "P": {
+        "width": 18.2583333333333,
+        "hidden": false,
+        "min": 16,
+        "max": 16
+      },
+      "Q": {
+        "width": 10.125,
+        "hidden": false,
+        "min": 17,
+        "max": 17
+      },
+      "R": {
+        "width": 11.6666666666667,
+        "hidden": false,
+        "min": 18,
+        "max": 18
+      },
+      "S": {
+        "width": 7.66666666666667,
+        "hidden": false,
+        "min": 19,
+        "max": 19
+      },
+      "T": {
+        "width": 3.10833333333333,
+        "hidden": false,
+        "min": 20,
+        "max": 20
+      },
+      "U": {
+        "width": 9.0,
+        "hidden": false,
+        "min": 21,
+        "max": 21
+      },
+      "V": {
+        "width": 4.10833333333333,
+        "hidden": false,
+        "min": 22,
+        "max": 22
+      },
+      "W": {
+        "width": 9.0,
+        "hidden": false,
+        "min": 23,
+        "max": 23
+      },
+      "X": {
+        "width": 15.0583333333333,
+        "hidden": false,
+        "min": 24,
+        "max": 24
+      },
+      "Y": {
+        "width": 16.8833333333333,
+        "hidden": false,
+        "min": 25,
+        "max": 25
+      },
+      "Z": {
+        "width": 13.775,
+        "hidden": false,
+        "min": 26,
+        "max": 31
+      },
+      "AF": {
+        "width": 7.66666666666667,
+        "hidden": false,
+        "min": 32,
+        "max": 32
+      },
+      "AG": {
+        "width": 7.66666666666667,
+        "hidden": false,
+        "min": 33,
+        "max": 16381
+      },
+      "XFB": {
+        "width": 7.66666666666667,
+        "hidden": false,
+        "min": 16382,
+        "max": 16384
+      }
+    },
+    "header_height": 42.75,
+    "data_height": 50.0,
+    "freeze_panes": "A2",
+    "show_grid_lines": null
+  },
+  "customs_merges": [
+    "T1:X1",
+    "AA1:AF1"
+  ],
+  "approval_scope": "layout_only_no_historical_business_values_or_approvals",
+  "theme_xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<a:theme xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" name=\"Office 佈景主題\"><a:themeElements><a:clrScheme name=\"Office\"><a:dk1><a:sysClr val=\"windowText\" lastClr=\"000000\"/></a:dk1><a:lt1><a:sysClr val=\"window\" lastClr=\"FFFFFF\"/></a:lt1><a:dk2><a:srgbClr val=\"1F497D\"/></a:dk2><a:lt2><a:srgbClr val=\"EEECE1\"/></a:lt2><a:accent1><a:srgbClr val=\"4F81BD\"/></a:accent1><a:accent2><a:srgbClr val=\"C0504D\"/></a:accent2><a:accent3><a:srgbClr val=\"9BBB59\"/></a:accent3><a:accent4><a:srgbClr val=\"8064A2\"/></a:accent4><a:accent5><a:srgbClr val=\"4BACC6\"/></a:accent5><a:accent6><a:srgbClr val=\"F79646\"/></a:accent6><a:hlink><a:srgbClr val=\"0000FF\"/></a:hlink><a:folHlink><a:srgbClr val=\"800080\"/></a:folHlink></a:clrScheme><a:fontScheme name=\"Office\"><a:majorFont><a:latin typeface=\"Cambria\"/><a:ea typeface=\"\"/><a:cs typeface=\"\"/><a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/><a:font script=\"Hang\" typeface=\"맑은 고딕\"/><a:font script=\"Hans\" typeface=\"宋体\"/><a:font script=\"Hant\" typeface=\"新細明體\"/><a:font script=\"Arab\" typeface=\"Times New Roman\"/><a:font script=\"Hebr\" typeface=\"Times New Roman\"/><a:font script=\"Thai\" typeface=\"Tahoma\"/><a:font script=\"Ethi\" typeface=\"Nyala\"/><a:font script=\"Beng\" typeface=\"Vrinda\"/><a:font script=\"Gujr\" typeface=\"Shruti\"/><a:font script=\"Khmr\" typeface=\"MoolBoran\"/><a:font script=\"Knda\" typeface=\"Tunga\"/><a:font script=\"Guru\" typeface=\"Raavi\"/><a:font script=\"Cans\" typeface=\"Euphemia\"/><a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/><a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/><a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/><a:font script=\"Thaa\" typeface=\"MV Boli\"/><a:font script=\"Deva\" typeface=\"Mangal\"/><a:font script=\"Telu\" typeface=\"Gautami\"/><a:font script=\"Taml\" typeface=\"Latha\"/><a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Orya\" typeface=\"Kalinga\"/><a:font script=\"Mlym\" typeface=\"Kartika\"/><a:font script=\"Laoo\" typeface=\"DokChampa\"/><a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/><a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/><a:font script=\"Viet\" typeface=\"Times New Roman\"/><a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/><a:font script=\"Geor\" typeface=\"Sylfaen\"/></a:majorFont><a:minorFont><a:latin typeface=\"Calibri\"/><a:ea typeface=\"\"/><a:cs typeface=\"\"/><a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/><a:font script=\"Hang\" typeface=\"맑은 고딕\"/><a:font script=\"Hans\" typeface=\"宋体\"/><a:font script=\"Hant\" typeface=\"新細明體\"/><a:font script=\"Arab\" typeface=\"Arial\"/><a:font script=\"Hebr\" typeface=\"Arial\"/><a:font script=\"Thai\" typeface=\"Tahoma\"/><a:font script=\"Ethi\" typeface=\"Nyala\"/><a:font script=\"Beng\" typeface=\"Vrinda\"/><a:font script=\"Gujr\" typeface=\"Shruti\"/><a:font script=\"Khmr\" typeface=\"DaunPenh\"/><a:font script=\"Knda\" typeface=\"Tunga\"/><a:font script=\"Guru\" typeface=\"Raavi\"/><a:font script=\"Cans\" typeface=\"Euphemia\"/><a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/><a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/><a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/><a:font script=\"Thaa\" typeface=\"MV Boli\"/><a:font script=\"Deva\" typeface=\"Mangal\"/><a:font script=\"Telu\" typeface=\"Gautami\"/><a:font script=\"Taml\" typeface=\"Latha\"/><a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Orya\" typeface=\"Kalinga\"/><a:font script=\"Mlym\" typeface=\"Kartika\"/><a:font script=\"Laoo\" typeface=\"DokChampa\"/><a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/><a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/><a:font script=\"Viet\" typeface=\"Arial\"/><a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/><a:font script=\"Geor\" typeface=\"Sylfaen\"/></a:minorFont></a:fontScheme><a:fmtScheme name=\"Office\"><a:fillStyleLst><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:gradFill rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"phClr\"><a:tint val=\"50000\"/><a:satMod val=\"300000\"/></a:schemeClr></a:gs><a:gs pos=\"35000\"><a:schemeClr val=\"phClr\"><a:tint val=\"37000\"/><a:satMod val=\"300000\"/></a:schemeClr></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"phClr\"><a:tint val=\"15000\"/><a:satMod val=\"350000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"16200000\" scaled=\"1\"/></a:gradFill><a:gradFill rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"phClr\"><a:shade val=\"51000\"/><a:satMod val=\"130000\"/></a:schemeClr></a:gs><a:gs pos=\"80000\"><a:schemeClr val=\"phClr\"><a:shade val=\"93000\"/><a:satMod val=\"130000\"/></a:schemeClr></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"phClr\"><a:shade val=\"94000\"/><a:satMod val=\"135000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"16200000\" scaled=\"0\"/></a:gradFill></a:fillStyleLst><a:lnStyleLst><a:ln w=\"9525\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"phClr\"><a:shade val=\"95000\"/><a:satMod val=\"105000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/></a:ln><a:ln w=\"25400\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:prstDash val=\"solid\"/></a:ln><a:ln w=\"38100\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:prstDash val=\"solid\"/></a:ln></a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst><a:outerShdw blurRad=\"40000\" dist=\"20000\" dir=\"5400000\" rotWithShape=\"0\"><a:srgbClr val=\"000000\"><a:alpha val=\"38000\"/></a:srgbClr></a:outerShdw></a:effectLst></a:effectStyle><a:effectStyle><a:effectLst><a:outerShdw blurRad=\"40000\" dist=\"23000\" dir=\"5400000\" rotWithShape=\"0\"><a:srgbClr val=\"000000\"><a:alpha val=\"35000\"/></a:srgbClr></a:outerShdw></a:effectLst></a:effectStyle><a:effectStyle><a:effectLst><a:outerShdw blurRad=\"40000\" dist=\"23000\" dir=\"5400000\" rotWithShape=\"0\"><a:srgbClr val=\"000000\"><a:alpha val=\"35000\"/></a:srgbClr></a:outerShdw></a:effectLst><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d><a:sp3d><a:bevelT w=\"63500\" h=\"25400\"/></a:sp3d></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:gradFill rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"phClr\"><a:tint val=\"40000\"/><a:satMod val=\"350000\"/></a:schemeClr></a:gs><a:gs pos=\"40000\"><a:schemeClr val=\"phClr\"><a:tint val=\"45000\"/><a:shade val=\"99000\"/><a:satMod val=\"350000\"/></a:schemeClr></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"phClr\"><a:shade val=\"20000\"/><a:satMod val=\"255000\"/></a:schemeClr></a:gs></a:gsLst><a:path path=\"circle\"><a:fillToRect l=\"50000\" t=\"-80000\" r=\"50000\" b=\"180000\"/></a:path></a:gradFill><a:gradFill rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"phClr\"><a:tint val=\"80000\"/><a:satMod val=\"300000\"/></a:schemeClr></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"phClr\"><a:shade val=\"30000\"/><a:satMod val=\"200000\"/></a:schemeClr></a:gs></a:gsLst><a:path path=\"circle\"><a:fillToRect l=\"50000\" t=\"50000\" r=\"50000\" b=\"50000\"/></a:path></a:gradFill></a:bgFillStyleLst></a:fmtScheme></a:themeElements><a:objectDefaults/></a:theme>",
+  "layout_only_source_shas": [
+    "7915da95ef075e4477ebe8d89b14f32bfb07da86eb182c15a606dbee39178937",
+    "203ad3c70618a789ebeae1d453770b59ab549eee8c92a657b4cbd026499d752b"
+  ]
+}

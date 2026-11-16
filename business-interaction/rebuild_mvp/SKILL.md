@@ -1,7 +1,9 @@
 ---
 name: japan-arrival-matching-mvp
-description: 日本到货匹配、候选、材质/采购图片补充、版本化运营回传和有来源数量/价税计算。
+description: 日本到货匹配、候选、材质/采购图片补充、版本化运营回传和有来源数量/价税/箱重和双模板草稿保存。
 ---
+
+双模板保存：使用部署绑定的 dual_projection runtime，prepare/current/resume 只读承接 R2 保存文件及 R3 三个版本化结果。保存成功后交付两份 business_files、pair_source 和双表待核.csv；draft_with_gaps 不等于失败或正式可外发。不得从内部名字、日文名或未知材质推海关字段，不为补齐而改原表，不恢复暂停的图片下载，不将预览或技术测试称作真人认可。输入漂移另建新任务，不改旧绑定。R4-03 整批验收未开始。详情见 DUAL_PROJECTION_CONTRACT.md。
 
 # 日常操作
 

@@ -1,3 +1,7 @@
+<!-- R4-02-DUAL-PROJECTION-20261116 -->
+2026-11-16 R4-02：统一 MVP mode=dual_projection 已实现承接 R2 reviewed_source 与 R3 quantity_source/pricing_source/logistics_source。内部两页24列表原字节保全，海关草稿按原认可33列版式另建，缺项标色并另存待核清单；历史模板只作版式，不作业务来源。逐行检查点和双文件联合回执保证可恢复、输入漂移拒绝、未完整保存不发布 pair_source。海关名/材质只接有实际表头与商品范围的许可来源，不回填内部名称或日文名；箱重只在唯一实体首次归属处计一次。技术范围/真实样本/运营认可分列，以本机最终冻结报告为准。下一任务 R4-03 真实整批验收未开始，R4 整体未完成；不更改正式安装/main，不恢复暂停的材质及图片补查。以下旧“最终双表未开发/下一R4-02”保留历史时点。 见[投影及保存契约](DUAL_PROJECTION_CONTRACT.md)。
+<!-- /R4-02-DUAL-PROJECTION-20261116 -->
+
 2026-11-16 R3-03：统一MVP mode=carton_weight承接quantity_source和pricing_source，提供有来源箱号范围、箱货集合关联和唯一实物箱去重重量。副本与上游价税Excel字节相同，全部人工值/原数据/图片/公式缓存保留；详情见[LOGISTICS_CONTRACT.md](LOGISTICS_CONTRACT.md)。R3三个计算单元已具备限定技术实现，运营认可及R3整体验收仍待办；下一开发任务R4-02未启动，本轮不生成最终双表。
 
 # 生效业务SOP：来源、匹配、核对与交付

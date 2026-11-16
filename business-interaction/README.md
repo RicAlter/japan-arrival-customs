@@ -1,3 +1,7 @@
+<!-- R4-02-DUAL-PROJECTION-20261116 -->
+2026-11-16 R4-02：统一 MVP mode=dual_projection 已实现承接 R2 reviewed_source 与 R3 quantity_source/pricing_source/logistics_source。内部两页24列表原字节保全，海关草稿按原认可33列版式另建，缺项标色并另存待核清单；历史模板只作版式，不作业务来源。逐行检查点和双文件联合回执保证可恢复、输入漂移拒绝、未完整保存不发布 pair_source。海关名/材质只接有实际表头与商品范围的许可来源，不回填内部名称或日文名；箱重只在唯一实体首次归属处计一次。技术范围/真实样本/运营认可分列，以本机最终冻结报告为准。下一任务 R4-03 真实整批验收未开始，R4 整体未完成；不更改正式安装/main，不恢复暂停的材质及图片补查。以下旧“最终双表未开发/下一R4-02”保留历史时点。 见[投影及保存契约](rebuild_mvp/DUAL_PROJECTION_CONTRACT.md)。
+<!-- /R4-02-DUAL-PROJECTION-20261116 -->
+
 # 日本到货资料准备与分阶段交付
 
 2026-11-09最终Codex候选：[业务版SOP](workbuddy/japan-arrival-customs-trial/references/business-preparation-sop.md)已绑定prepare实际会话。prepare/current交付前执行`interaction.delivery_review`，检查原事实/金额公式cache/箱重、逐行资料检索、E实际图片锚点与媒体、网站响应快照与身份绑定及缺项原因，并返回completeness。缺失与未执行有原因时可继续核对，但明确未全部补齐；原事实变化、缺执行记录、图片虚报或证据/SOP漂移则拒绝交付。`run.py --config <session> --request <delivery-review-request>`亦可只读审计已有表；请求action=delivery-review，output指定独立后台JSON路径。

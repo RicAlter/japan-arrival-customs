@@ -285,6 +285,9 @@ def handle(request):
         if not mode and request.get('task_root'):
             jf=Path(request['task_root'])/'job.json'
             if jf.is_file():mode=load_json(jf).get('mode')
+        if mode=='dual_projection':
+            from .dual_projection import handle as dual_projection
+            return dual_projection(request)
         if mode=='carton_weight':
             from .logistics_conversion import handle as carton_weight
             return carton_weight(request)
