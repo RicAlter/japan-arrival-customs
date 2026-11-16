@@ -1,7 +1,7 @@
 """Versioned provisional candidates; never overwrite accepted values or store as facts."""
 from collections import defaultdict
 from .sources import _iter_records,norm,known
-from .matching import _ref
+from .matching import _ref,_is_active,_latest_same_record,_order_scope,_price_eligible
 from .service import digest,load_json,MvpError
 
 FIELDS={'name','specification','purchase_price','channel','yd','material_reference'}
@@ -41,16 +41,18 @@ def apply_candidates(rows,config):
         if row.get('matching',{}).get('path')=='unresolved' or not row['values'].get('yd'):
             for name in {norm(row['raw'].get('ja')),norm(row['values'].get('name'))}:
                 if known(name):targets[name].append(row)
-    hits=defaultdict(list)
-    for source in config['sources']:
-        if source['role'] not in {'purchase_list','order_detail'}:continue
+    hits=defaultdict(list);headers=[]
+    for source in config['sources'] if targets else []:
+        if source['role'] not in {'purchase_list','order_detail','purchase_order'}:continue
         h=digest(source['path']);meta={'source_id':'SRC-'+h[:24]+'-'+source['role'],'sha256':h,'version':source.get('version')}
         audit={'field_maps':[],'skipped_sheets':[]}
         for record in _iter_records(source,meta,audit):
+            if source['role']=='purchase_order':headers.append(record);continue
             matched={r['row_id']:r for f in ('name','sku_name','ja') for r in targets.get(norm(record['fields'].get(f)),[])}
             for row in matched.values():hits[row['row_id']].append(record)
     for row in rows:
-        records=hits[row['row_id']]
+        records,_=_order_scope(_latest_same_record(hits[row['row_id']]),headers)
+        records=[r for r in records if _is_active(r)]
         row['procurement_name_search']={'status':'candidates_only' if records else 'not_found','count':len(records),'automatic_identity_adoption':False}
         if row.get('yd_requirement',{}).get('status')!='not_required':
             fill(row,'yd',[(r['fields']['yd'],_ref(r,'yd')) for r in records if known(r['fields'].get('yd'))],'按名称补')
@@ -59,7 +61,7 @@ def apply_candidates(rows,config):
         choices=[]
         for r in records:
             f=r['fields'];currency=f.get('currency','');value=f.get('actual_price') if known(f.get('actual_price')) else f.get('price')
-            if known(value) and currency in ('JPY','日元','日币','CNY','RMB','人民币'):
+            if known(value) and currency in ('JPY','日元','日币','CNY','RMB','人民币') and _price_eligible(r):
                 ref=_ref(r,'actual_price' if known(f.get('actual_price')) else 'price');ref.update(currency=currency,unit=f.get('unit'))
                 choices.append((price(value,currency)+(' / '+f['channel'] if f.get('channel') else ''),ref))
         fill(row,'purchase_price',choices,'采购候选')

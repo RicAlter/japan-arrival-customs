@@ -82,5 +82,11 @@ class CandidateBoundary(unittest.TestCase):
   with patch('rebuild_mvp.candidate_pipeline.digest',return_value='a'*64),patch('rebuild_mvp.candidate_pipeline._iter_records',return_value=iter([rec])):
    apply_candidates(rows,{'candidate_review':{'enabled':True},'sources':[{'role':'purchase_list','path':'test'}]})
   self.assertEqual(rows[0]['values']['name'],'人工值');self.assertIn('按名称补',rows[0]['values']['yd']);self.assertEqual(rows[0]['review_candidates']['yd']['options'][0]['evidence'][0]['row'],8)
+ def test_cancelled_name_quote_does_not_enter_candidates(self):
+  rows=[{'row_id':'r','raw':{'code':'1','ja':'日本原文'},'matching':{'path':'unresolved'},'values':{},'evidence':{},'issues':[]}]
+  rec={'role':'purchase_list','source_id':'s','source_sha256':'a'*64,'sheet':'采购','row':8,'columns':{'yd':'B'},'fields':{'name':'日本原文','yd':'YD2026010101','status':'取消'},'scope':{}}
+  with patch('rebuild_mvp.candidate_pipeline.digest',return_value='a'*64),patch('rebuild_mvp.candidate_pipeline._iter_records',return_value=iter([rec])):
+   apply_candidates(rows,{'candidate_review':{'enabled':True},'sources':[{'role':'purchase_list','path':'test'}]})
+  self.assertNotIn('yd',rows[0]['values'])
 
 if __name__=='__main__':unittest.main()
