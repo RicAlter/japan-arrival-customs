@@ -63,3 +63,8 @@ class CnyCost(unittest.TestCase):
         self.assertIsNone(existing_cell_selection('1. 32元\n2. 35元'))
         for text in ['1. 32日元\n2. 35日元','1. 32元/个\n2. 35元/盒','1. 32元\n2. 35美元','32元']:
             self.assertIsNone(existing_cell_selection(text,same_original_cost_field=True))
+
+    def test_cny_highest_across_eligible_purchase_and_order_quotes(self):
+        row=run([record('purchase_list',code='1234567890123',price='35',currency='CNY',unit='个'),record('order_detail',2,code='1234567890123',order_id='PO1',price='31',currency='CNY',unit='个')])
+        self.assertEqual(row['values']['purchase_price'],'35元')
+        self.assertEqual(len(row['purchase_price_selection']['all_quotes']),2)

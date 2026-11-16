@@ -185,9 +185,10 @@ def _price(row, records, name_branch):
     records = [r for r in original if _price_eligible(r)]
     if name_branch:
         records = [r for r in records if _currency(r['fields'].get('currency')) == 'CNY']
-    # Valid actual order quotation outranks an unbound purchase-list quote.
+    # CNY cost uses the highest comparable eligible quote across the permitted
+    # procurement pool. Other currencies retain actual-order precedence.
     actual_orders = [r for r in records if r['role'] == 'order_detail' and r['fields'].get('order_id') and known(r['fields'].get('price'))]
-    if actual_orders:
+    if actual_orders and any(_currency(r['fields'].get('currency'))!='CNY' for r in records):
         records = actual_orders
     groups = defaultdict(list)
     for record in records:
