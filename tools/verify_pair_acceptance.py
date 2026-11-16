@@ -32,7 +32,7 @@ def preserved(r2,internal,main_name):
         old={r['row']:r for r in source['rows']};new={r['row']:r for r in target['rows']}
         for n in sorted(set(old)|set(new)):
             a=old.get(n,{});b=new.get(n,{})
-            for col in set(a.get('types',{}))|set(b.get('types',{})):
+            for col in sorted(set(a.get('types',{}))|set(b.get('types',{}))):
                 x,y=cell(a,col),cell(b,col)
                 blank=x[0]==''and x[2]is None and x[1]not in {'e','b'}
                 permitted=source['name']==main_name and n>1 and col in {'I','U','V','W','X'}and blank

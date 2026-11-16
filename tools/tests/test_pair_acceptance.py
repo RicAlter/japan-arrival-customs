@@ -1,6 +1,6 @@
 """Synthetic guard tests; actual source and WPS receipts stay outside Git."""
 from pathlib import Path
-import sys,tempfile,unittest,copy,zipfile
+import sys,tempfile,unittest,copy,zipfile,subprocess,os
 import xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT/'tools'),str(ROOT/'business-interaction'),str(ROOT/'business-interaction/rebuild_mvp/tests')]
@@ -59,6 +59,11 @@ class AcceptanceGuards(unittest.TestCase):
         p=self.check();self.assertFalse(p['errors']);self.assertTrue(p['media_drawing_parts_preserved'])
     def test_blank_quantity_fill_allowed(self):
         patch_cell(self.out,'U2','2',typ='n');self.assertFalse(self.check()['errors']);self.assertEqual(len(self.check()['authorized_blank_fills']),1)
+    def test_evidence_order_is_stable_across_process_hash_seeds(self):
+        patch_cell(self.out,'U2','2',typ='n');patch_cell(self.out,'V2','4',typ='n')
+        code='import json,sys;from verify_pair_acceptance import preserved;print(json.dumps(preserved(sys.argv[1],sys.argv[2],sys.argv[3]),sort_keys=True))'
+        results=[subprocess.check_output([sys.executable,'-X','utf8','-B','-c',code,str(self.src),str(self.out),self.expected['sheet']],env={**os.environ,'PYTHONPATH':str(ROOT/'tools'),'PYTHONHASHSEED':seed})for seed in ['1','2']]
+        self.assertEqual(results[0],results[1])
     def test_existing_manual_quantity_never_overwritten(self):
         patch_cell(self.out,'V3','99');self.assertTrue(any(e['code']=='PROTECTED_CELL_CHANGED'for e in self.check()['errors']))
     def test_raw_price_change_detected(self):
