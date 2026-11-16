@@ -110,6 +110,10 @@ def match(rows, records, occupied):
     for row in rows:
         n=row['row'];v=row['values'];jan=code(v.get('C'))
         if n in occupied:continue
+        existing=str(v.get('E','')).strip()
+        if existing.startswith(('http://','https://')):
+            result[str(n)]={'code':jan,'status':'queued','reason':'','url':existing,'evidence':[{'source':'input_workbook','row':n,'column':'E','url':existing}]}
+            continue
         yds=set(re.findall(r'YD[A-Za-z0-9]+',str(v.get('Q','')),re.I))
         exact=[r for r in records if jan in r['codes']]
         if not exact:

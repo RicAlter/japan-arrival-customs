@@ -10,10 +10,11 @@ C='{http://schemas.openxmlformats.org/package/2006/content-types}'
 
 def serialize(root):return ET.tostring(root,encoding='utf-8',xml_declaration=True)
 
-def export(source,destination,sheet,materials,pictures,policy):
+def export(source,destination,sheet,materials,pictures,policy,image_links=None):
+    image_links=image_links or {}
     source=Path(source);destination=Path(destination)
     source_sha=digest(source)
-    signature=hashlib.sha256(json.dumps([source_sha,sheet,materials,{n:v['sha256'] for n,v in pictures.items()},policy],sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+    signature=hashlib.sha256(json.dumps([source_sha,sheet,materials,{n:v['sha256'] for n,v in pictures.items()},policy,image_links],sort_keys=True,ensure_ascii=False).encode()).hexdigest()
     receipt=destination.with_suffix('.export.json')
     if receipt.exists():
         old=json.loads(receipt.read_text(encoding='utf8'))
@@ -28,10 +29,12 @@ def export(source,destination,sheet,materials,pictures,policy):
     rowmap={r['row']:r for r in rows};member=next(s['path'] for s in before['sheets'] if s['name']==sheet)
     relname=posixpath.dirname(member)+'/_rels/'+posixpath.basename(member)+'.rels'
     edits={int(n):v for n,v in materials.items() if not rowmap[int(n)]['values'].get('R') and 'R' not in rowmap[int(n)]['formulas']}
+    link_edits={int(n):v for n,v in image_links.items() if not rowmap[int(n)]['values'].get('E') and 'E' not in rowmap[int(n)]['formulas'] and str(v).startswith(('https://','http://'))}
     with zipfile.ZipFile(source) as z:
         names=set(z.namelist());data=z.read(member)
-        for n,v in edits.items():
-            addr='R'+str(n);pattern=rb'<(?:\w+:)?c\b(?=[^>]*\br="'+addr.encode()+rb'")[^>]*?(?:/>|>.*?</(?:\w+:)?c>)'
+        cell_edits={**{'R'+str(n):v for n,v in edits.items()},**{'E'+str(n):v for n,v in link_edits.items()}}
+        for addr,v in cell_edits.items():
+            n=int(re.search(r'\d+',addr)[0]);pattern=rb'<(?:\w+:)?c\b(?=[^>]*\br="'+addr.encode()+rb'")[^>]*?(?:/>|>.*?</(?:\w+:)?c>)'
             def replace(m):
                 start=m.group(0).split(b'>',1)[0].rstrip(b'/')
                 start=re.sub(rb'\s+t="[^"]*"',b'',start)
@@ -116,12 +119,15 @@ def export(source,destination,sheet,materials,pictures,policy):
                 if x['name']==sheet and r['row'] in edits:
                     assert s['values']['R']==edits[r['row']]
                     for obj in (r,s):obj['values'].pop('R',None);obj['types'].pop('R',None)
+                if x['name']==sheet and r['row'] in link_edits:
+                    assert s['values']['E']==link_edits[r['row']]
+                    for obj in (r,s):obj['values'].pop('E',None);obj['types'].pop('E',None)
                 assert r==s,('NON_TARGET_CHANGED',x['name'],r['row'])
         with zipfile.ZipFile(temporary) as check:
             assert check.testzip() is None
             for name in names-changes.keys():assert z.read(name)==check.read(name)
         if digest(source)!=source_sha:raise ValueError('SOURCE_CHANGED: 写出时输入变化')
-    result={'path':str(destination.resolve()),'sha256':digest(temporary),'material_rows':len(edits),'new_picture_rows':len(pic_edits),'non_target_differences':0}
+    result={'path':str(destination.resolve()),'sha256':digest(temporary),'material_rows':len(edits),'image_link_rows':len(link_edits),'new_picture_rows':len(pic_edits),'non_target_differences':0}
     save_json(receipt,{'signature':signature,'temporary':str(temporary.resolve()),'result':result})
     temporary.replace(destination)
     return result

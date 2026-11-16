@@ -160,7 +160,7 @@ def submit(job,root,req):
     if req.get('transport_error') or status in (0,403,429) or status>=500 or not body.strip() and status==200:
         attempt['status']='error';item['status']='retry';job['host_ready'][site]=clock()+job['policy']['retry_seconds'];item['attempts'].append(attempt);job['request']=None;job['receipts'][rid]=digest;return {'status':'retry','error':{'code':'ACCESS_BLOCKED' if status in (403,429) else 'NETWORK_ERROR','retryable':True},'retry_after_seconds':job['policy']['retry_seconds'],'jan':item['jan'],'site':site}
     job['host_ready'][site]=clock()+job['policy']['interval_seconds'][site]
-    if status==404:result={'status':'not_found'}
+    if status==404:result={'status':'error','error_code':'HTTP_404_UNVERIFIED','reason':'地址或访问结果待核实，404不作为商品不存在依据'}
     elif status!=200:result={'status':'error'}
     elif site in ('hobbysearch','surugaya') and request['phase']=='search':
         result=parse(site,item['jan'],'detail',body,final)

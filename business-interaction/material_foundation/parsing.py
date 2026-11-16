@@ -68,6 +68,7 @@ def parse(site,jan,phase,body,url,selected=None):
     try:data=json.loads(body)
     except (ValueError,TypeError):data=None
     if isinstance(data,dict) and (data.get('error') or data.get('errors')):return {'status':'error'}
+    if site in ('anime_store','colleize','amiami') and not isinstance(data,dict):return {'status':'error','error_code':'INVALID_API_RESPONSE'}
     if phase=='search' and site in ('colleize','amiami'):
         key='janCode' if site=='colleize' else 'jancode'
         matches=[o for o in objects(data) if str(o.get(key,''))==jan]

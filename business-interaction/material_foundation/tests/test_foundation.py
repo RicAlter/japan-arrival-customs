@@ -97,5 +97,6 @@ class Flow(unittest.TestCase):
         for expected in ('anime_store','colleize','amiami','hobbysearch','jumpcs','surugaya'):
             with patch('material_foundation.service.clock',return_value=99999999999):request=self.call('next')['request']
             self.assertEqual(request['site'],expected)
-            self.call('submit',request_id=request['id'],http_status=404,body='not sold here')
+            body=json.dumps({'product':{'variants':[{'barcode':JAN}],'body_html':'サイズ：20mm'}}) if expected=='anime_store' else json.dumps({'goods':[]}) if expected=='colleize' else json.dumps({'items':[]}) if expected=='amiami' else 'JAN：'+JAN+' サイズ：20mm'
+            self.call('submit',request_id=request['id'],http_status=200,body=body)
         self.assertEqual(self.call('next')['counts'],{'not_found':1})

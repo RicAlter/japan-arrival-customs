@@ -13,3 +13,12 @@ prepare最小配置：batch_id、input_file、output；sources为实际采购清
 current返回任务阶段、pending数量、文件、缺项原因、外部取页请求和等待时间。completed_with_gaps代表所有已配置路径结束但仍有缺项，partial代表还有待下载/续查；都不代表运营认可或正式安装。业务Excel、来源链接、图片与网页证据仅本机保存，不提交Git。
 
 验证：rebuild_mvp/tests/test_enrichment.py；实际run.py整批运行、WPS和Terra结果另见本机任务报告，不把合成测试当业务验收。
+
+
+## 2026-11-16 链接预填与材质修复
+
+新任务默认picture_mode=links：E列空格先填唯一核实的采购图片URL；已有图片和人工文字保留。此阶段不下载图片，current分别列picture_link_rows、missing_picture_link_rows、blank_picture_rows，待补CSV区分缺链接与已有链接待最后嵌图。链接存在不等于图片已下载或已嵌入。E列已有HTTP链接可作为本行来源继续使用。
+
+最后在同一任务resume传finalize_pictures=true，或operate.py --action resume --finalize-pictures，才下载并嵌图；仍需allow_online=true。旧任务未设置picture_mode时维持原嵌图模式；旧冻结程序及状态不迁移。显式picture_mode=embed可直接嵌图。
+
+材质404记HTTP_404_UNVERIFIED错误，可重试；接口返回HTML、null或数组记INVALID_API_RESPONSE，不再当成功空结果。非阻塞模式继续其他站点，重试耗尽保留deferred，不当作查无。站点实际可用性仍须真实联网验证。

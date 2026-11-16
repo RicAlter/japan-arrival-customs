@@ -33,7 +33,7 @@ class EnrichmentTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name);self.input=self.root/'input.xlsx';book(self.input)
         self.policy=json.loads((E.HERE/'enrichment_policy.json').read_text(encoding='utf8'))
-    def request(self,**extra):return {'workflow':'rebuild_mvp_v1','action':'prepare','mode':'enrich_review','batch_id':'TEST','input_file':str(self.input),'output':str(self.root/'run'),'materials':False,'pictures':True,**extra}
+    def request(self,**extra):return {'workflow':'rebuild_mvp_v1','action':'prepare','mode':'enrich_review','batch_id':'TEST','input_file':str(self.input),'output':str(self.root/'run'),'materials':False,'pictures':True,'picture_mode':'embed',**extra}
     def image(self):
         p=self.root/'photo.png';Image.new('RGB',(20,10),'blue').save(p);return {'path':str(p),'sha256':digest(p),'width':20,'height':10}
     def test_export_preserves_manual_formulas_cache_and_weight(self):

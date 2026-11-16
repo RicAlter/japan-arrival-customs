@@ -39,11 +39,13 @@ def validate(job):
         if not Path(p).is_file() or digest(p)!=job['output_sha256']:raise ValueError('SOURCE_CHANGED: 已生成确认表被修改，请保留并另建任务')
 
 def prepare(req,root):
-    keys={'batch_id','input_file','sources','sheet','materials','pictures','allow_online','max_operations'}
+    keys={'batch_id','input_file','sources','sheet','materials','pictures','allow_online','max_operations','picture_mode'}
     config={k:req[k] for k in keys if k in req}
     if not config.get('batch_id') or not config.get('input_file'):raise ValueError('INPUT_INVALID: batch_id/input_file必填')
     config.setdefault('sources',[]);config.setdefault('materials',True);config.setdefault('pictures',True);config.setdefault('allow_online',False)
     config.setdefault('max_operations',50)
+    config.setdefault('picture_mode','links')
+    if config['picture_mode'] not in ('links','embed'):raise ValueError('CONFIG_INVALID: picture_mode为links或embed')
     if any(not isinstance(config[k],bool) for k in ('materials','pictures','allow_online')):raise ValueError('CONFIG_INVALID: 开关必须为JSON布尔值')
     if not isinstance(config['max_operations'],int) or not 1<=config['max_operations']<=100:raise ValueError('CONFIG_INVALID: max_operations为1至100')
     if not config['materials'] and not config['pictures']:raise ValueError('CONFIG_INVALID: 至少选择材质或图片')
@@ -74,12 +76,16 @@ def prepare(req,root):
 def resume(job,root,req):
     from material_foundation.service import handle as material_handle
     config=job['config'];online=config['allow_online'];budget=config['max_operations'];job['external_requests']=[];job['retry_after_seconds']=0
+    if 'finalize_pictures' in req:
+        if not isinstance(req['finalize_pictures'],bool):raise ValueError('CONFIG_INVALID: finalize_pictures必须为布尔值')
+        if req['finalize_pictures']:job['finalize_pictures']=True
+    embed=job.get('finalize_pictures',False) or config.get('picture_mode','embed')=='embed'
     # Downloads and material queries receive independent bounded budgets, so a
     # slow/blocked website cannot starve procurement pictures.
     count=0;cache={}
     for n,pic in sorted(job['pictures'].items(),key=lambda x:int(x[0])):
         if pic['status'] not in ('queued','retry') or count>=budget:continue
-        if not online:continue
+        if not online or not embed:continue
         if pic.get('attempts',0)>=2:pic.update(status='unresolved',reason='采购图片链接访问失败');continue
         count+=1;pic['attempts']=pic.get('attempts',0)+1
         try:
@@ -110,7 +116,8 @@ def resume(job,root,req):
             if not child.get('request') and all(x['status'] in ('found','not_found','deferred') for x in child['codes'].values()):break
         material=json.loads((mr/'job.json').read_text(encoding='utf8'))
     values,evidence=material_values(job,material);pics={n:x['download'] for n,x in job['pictures'].items() if x['status']=='found'}
-    issues=[];pending=any(p['status'] in ('queued','retry') for p in job['pictures'].values());bycode=(material or {}).get('codes',{})
+    links={n:x['url'] for n,x in job['pictures'].items() if x.get('url')}
+    issues=[];pending=embed and any(p['status'] in ('queued','retry') for p in job['pictures'].values());bycode=(material or {}).get('codes',{})
     reason_rows=[];blank_material=0;blank_images=0
     for row in job['rows']:
         n=row['row'];v=row['values'];code=str(v['C']);m='';p=''
@@ -122,13 +129,13 @@ def resume(job,root,req):
             elif item['status']=='deferred':m='网站访问受限或失败，未完成核实'
             else:m='待续查';pending=True
         if n not in job['occupied_picture_rows'] and str(n) not in pics:
-            blank_images+=1;p=job['pictures'].get(str(n),{}).get('reason') or ('待下载' if config['pictures'] else '本任务未补图片')
+            blank_images+=1;p=job['pictures'].get(str(n),{}).get('reason') or ('已有链接，待最后嵌图' if str(n) in links else '待查图片链接' if config['pictures'] else '本任务未补图片')
         if m or p:reason_rows.append([n,code,v.get('F',''),v.get('J',''),m,p])
-    key=hashlib.sha256(json.dumps({'materials':values,'pictures':{n:v['sha256'] for n,v in pics.items()},'reasons':reason_rows},ensure_ascii=False,sort_keys=True).encode()).hexdigest()
+    key=hashlib.sha256(json.dumps({'materials':values,'pictures':{n:v['sha256'] for n,v in pics.items()},'links':links,'reasons':reason_rows},ensure_ascii=False,sort_keys=True).encode()).hexdigest()
     validate(job)
     if key!=job.get('semantic_sha256'):
         revision=job['revision']+1;outfile=root/f'运营核对表_{revision:03d}.xlsx'
-        result=export(config['input_file'],outfile,config['sheet'],values,pics,job['policy'])
+        result=export(config['input_file'],outfile,config['sheet'],values,pics,job['policy'],image_links=links)
         job.update(revision=revision,business_files=[result['path']],output_sha256=result['sha256'],export=result,semantic_sha256=key)
         save_json(root/'job.json',job)
     csvfile=root/f'待补原因_{job["revision"]:03d}.csv'
@@ -138,6 +145,8 @@ def resume(job,root,req):
     job.update(pending=pending,status='partial' if pending else 'completed_with_gaps' if reason_rows else 'completed',step='exported',
                summary={'product_rows':len(job['rows']),'materials_added':len(values),'purchase_picture_rows_added':len(pics),
                         'picture_rows':len(job['occupied_picture_rows'])+len(pics),'blank_website_material_rows':blank_material,'blank_picture_rows':blank_images,
+                        'picture_link_rows':len(links),'missing_picture_link_rows':sum(n not in job['occupied_picture_rows'] and str(n) not in links for n in (r['row'] for r in job['rows'])),
+                        'picture_stage':'embed' if embed else 'links',
                         'source_sheets_with_issues':len(job['source_audit']),'pending_reason_file':str(csvfile)},issue_sample=reason_rows[:8])
     save_json(root/'job.json',job);return report(job,root)
 
