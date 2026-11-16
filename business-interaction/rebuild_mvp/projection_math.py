@@ -108,6 +108,11 @@ def project_row(q,p,l,public,issues,weights,tokens,output_row=None):
         numeric('S',w['weight_kg'],'deduplicated_weight','reference')
     # Repeated boxes intentionally have no second count or weight, not a gap.
     if not l['cartons']:missing('physical_cartons','Q','CARTON_UNRESOLVED')
+    # The recognized legacy header merges T:X and labels Y/Z ambiguously.
+    # Keep upstream dimensions/volume available by contract, but do not choose
+    # a row/box representation without a verified display mapping.
+    for field,col in [('carton_dimensions','T'),('carton_measure','Y'),('carton_volume','Z')]:
+        missing(field,col,'TEMPLATE_DIMENSION_MAPPING_REVIEW')
     for issue in pricing['issues']:
         if issue['code']in {'ORIGINAL_AMOUNT_CONFLICT','ORIGINAL_AMOUNT_INVALID'}:
             problems.append({'field':'original_amount','column':'P','code':issue['code']})

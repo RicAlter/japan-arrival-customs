@@ -71,7 +71,10 @@ class ProjectionMath(unittest.TestCase):
     def test_amount_mismatch_not_balanced(self):
         q,p,l,w=simple_row();p['pricing']['results']['rounded_line_amount']['value']=exact(F(12345));r=project_row(q,p,l,{},[],w,[]);self.assertNotIn('P',r['values']);self.assertTrue(any(i['code']=='PRICE_QUANTITY_CONFLICT'for i in r['issues']))
     def test_unknown_blind_not_inferred(self):self.assertNotIn('K',self.make()['values'])
-    def test_no_material_or_speculation_without_licensed_field(self):self.assertNotIn('M',self.make()['values']);self.assertNotIn('O',self.make()['values'])
+    def test_no_material_or_speculation_without_licensed_field(self):
+        row=self.make();self.assertNotIn('M',row['values']);self.assertNotIn('O',row['values'])
+        for col in ['T','Y','Z']:
+            self.assertNotIn(col,row['values']);self.assertEqual(row['cells'][col]['reason'],'TEMPLATE_DIMENSION_MAPPING_REVIEW')
     def test_private_text_in_public_source_not_published(self):
         q,p,l,w=simple_row();r=project_row(q,p,l,{'customs_name':{'value':'内部专属名称 公示','state':'reviewed_value'}},[],w,['内部专属名称']);self.assertNotIn('C',r['values'])
     def test_long_counts_and_nonterminating_values_not_rounded_silently(self):
