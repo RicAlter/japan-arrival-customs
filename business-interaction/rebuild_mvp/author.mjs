@@ -49,7 +49,7 @@ for (const issue of p.issues) {
   const cell = `${col}${issue.row}`;
   if (done.has(cell)) continue;
   done.add(cell);
-  sheet.getRange(cell).format.fill = /CONFLICT|AMBIGU/.test(issue.code || '') ? '#FCE4D6' : '#FFF2CC';
+  sheet.getRange(cell).format.fill = /CONFLICT|AMBIGU/.test(issue.code || '') ? (p.candidate_orange || '#FCE4D6') : '#FFF2CC';
 }
 wb.recalculate();
 console.log((await wb.inspect({kind: 'table', range: `'${p.sheet}'!A1:D4`, tableMaxRows: 4, tableMaxCols: 4, maxChars: 1000})).ndjson);

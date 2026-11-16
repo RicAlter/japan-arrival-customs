@@ -7,6 +7,7 @@ No workbook is saved through openpyxl or through the legacy business runtime.
 from __future__ import annotations
 
 import copy
+from .candidate_display import export_marks, ORANGE, RULE
 import hashlib
 import json
 import math
@@ -399,8 +400,7 @@ def write_book(raw_source, output, rows, layout_contract, manifest):
             target[col_number(col) - 1] = value if value != '' else None
     payload = {'sheet': batch['sheet'], 'weight_sheet': batch['weight_sheet'], 'matrix': matrix,
                'cols': ls['layout'].get('cols', []), 'output': '', 'preview': '',
-               'issues': [{'row': r['source_row'] + offset, 'field': i.get('field'), 'code': i.get('code')}
-                          for r in rows for i in r.get('issues', [])], 'value_columns': value_cols}
+               'issues': export_marks(rows, offset), 'value_columns': value_cols, 'candidate_orange': ORANGE}
     node = os.environ.get('ARRIVAL_NODE') or str(Path.home() / '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe')
     dependencies = os.environ.get('ARRIVAL_NODE_MODULES') or str(Path.home() / '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules')
     if not Path(node).is_file() or not Path(dependencies).is_dir():
@@ -430,8 +430,8 @@ def write_book(raw_source, output, rows, layout_contract, manifest):
             strings = _strings(authored)
             header_styles = ls['row_style_profiles'][0]['cell_styles']
             body_styles = next(p['cell_styles'] for p in ls['row_style_profiles'] if p['row'] == 2)
-            issue_addresses = {value_cols[i.get('field')] + str(r['source_row'] + offset)
-                               for r in rows for i in r.get('issues', []) if i.get('field') in value_cols}
+            issue_addresses = {value_cols[i['field']] + str(i['row'])
+                               for i in payload['issues'] if i.get('field') in value_cols}
             for c in main.iter(Q + 'c'):
                 address = c.get('r')
                 col = re.match('[A-Z]+', address)[0]
@@ -604,7 +604,7 @@ def write_book(raw_source, output, rows, layout_contract, manifest):
                 partname = x.get('PartName', '').lstrip('/')
                 if partname and partname not in parts:
                     content.remove(x)
-            backend = {**manifest, 'layout': {'columns': HEADERS, 'row_offset': offset,
+            backend = {**manifest, 'candidate_display_rule': RULE, 'layout': {'columns': HEADERS, 'row_offset': offset,
                        'source_sha256': batch['source']['sha256'], 'weight_xml_sha256': hashlib.sha256(parts[weight_member]).hexdigest()},
                        'original_auxiliary_rows': batch['metadata']['other_raw_rows']}
             parts['customXml/arrival-mvp-manifest.json'] = json.dumps(backend, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf8')

@@ -2,6 +2,7 @@
 from pathlib import Path
 from copy import deepcopy
 from collections import Counter
+from .candidate_display import candidate_text
 import argparse,json,hashlib
 from .xlsxio import write_book,read_book
 
@@ -26,8 +27,7 @@ def build(task,search,gaps,translations,output):
             if not value or value in seen:continue
             seen.add(value);clean.append((value,evidence))
         if not clean:return
-        value=clean[0][0] if len(clean)==1 else '\n'.join(f'{i+1}. {v}' for i,(v,_) in enumerate(clean))
-        row['values'][field]=value+'（'+('待选' if len(clean)>1 else note)+'）'
+        row['values'][field]=candidate_text(field,[v for v,_ in clean],note)
         row.setdefault('review_candidates',{})[field]={'note':note,'options':[{'value':v,'evidence':ev} for v,ev in clean],'confirmed':False}
         adoptions.append({'source_row':row['source_row'],'field':field,'options':len(clean),'note':note})
     for row in rows:
@@ -64,7 +64,7 @@ def build(task,search,gaps,translations,output):
             fill(row,field,[(value,{'source':'japanese_batch','raw_japanese_name':row['raw']['ja'],'authority':'user permits translation and provisional judgment'})],'译名待确认' if field=='name' else '待确认')
     output.mkdir(parents=True)
     outfile=output/'KMT20261101_运营确认表_候选已填.xlsx'
-    export=write_book(job['config']['input_file'],outfile,rows,job['config']['layout_contract'],{'schema':'arrival-candidate-review/1','source_task':job['task_id'],'provisional':True,'notes':'按名称补；多个候选待选；译名待确认'})
+    export=write_book(job['config']['input_file'],outfile,rows,job['config']['layout_contract'],{'schema':'arrival-candidate-review/1','source_task':job['task_id'],'provisional':True,'notes':'名称补查唯一YD不附标注；多个不同候选分条标橙待选；译名待确认'})
     # Independent comparison checks source row facts and all existing values.
     assert [(r['row_id'],r['raw'],r['raw_cells']) for r in rows]==[(r['row_id'],r['raw'],r['raw_cells']) for r in original]
     assert all(r['values'].get(f)==v for r,o in zip(rows,original) for f,v in o['values'].items() if v not in ('',None))
@@ -78,7 +78,7 @@ def build(task,search,gaps,translations,output):
     assert before['sheets'][1]==after['sheets'][1]
     summary={'changes':dict(Counter(x['field'] for x in adoptions)),'rows_updated':len({x['source_row'] for x in adoptions}),'original_rows':len(rows),'remaining_blank_name':sum(not r['values'].get('name') for r in rows),'remaining_blank_required_YD':sum(not r['values'].get('yd') and r.get('yd_requirement',{}).get('status')!='not_required' for r in rows),'provisional':True,'original_values_preserved':True,'export':export}
     save(output/'field-evidence.json',{'rows':rows});save(output/'review-adoptions.json',adoptions);save(output/'review-summary.json',summary)
-    (output/'说明.md').write_text('候选已填入对应单元格。备注仅用：按名称补、采购候选、待选、译名待确认。候选不是已确认事实。原有人工值和日方数量金额、公式缓存、箱重保留；无图片、固定24列两张表。详细来源见field-evidence.json。\n',encoding='utf-8')
+    (output/'说明.md').write_text('候选已填入对应单元格。唯一名称补查YD不附按名称补标注，详细依据仍在后台；多个不同候选分条标橙待选，其余使用采购候选、待选、译名待确认。候选不是已确认事实。原有人工值和日方数量金额、公式缓存、箱重保留；无图片、固定24列两张表。详细来源见field-evidence.json。\n',encoding='utf-8')
     print(json.dumps(summary,ensure_ascii=False))
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--task',required=True);p.add_argument('--search',required=True);p.add_argument('--gaps',required=True);p.add_argument('--translations',required=True);p.add_argument('--output',required=True);a=p.parse_args();build(a.task,a.search,a.gaps,a.translations,a.output)

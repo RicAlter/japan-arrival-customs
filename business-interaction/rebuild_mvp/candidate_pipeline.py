@@ -1,5 +1,6 @@
 """Versioned provisional candidates; never overwrite accepted values or store as facts."""
 from collections import defaultdict
+from .candidate_display import candidate_text
 from .sources import _iter_records,norm,known
 from .matching import _ref,_is_active,_latest_same_record,_order_scope,_price_eligible
 from .service import digest,load_json,MvpError
@@ -19,7 +20,7 @@ def apply_candidates(rows,config):
             if str(value).strip():distinct.setdefault(str(value).strip(),[]).extend(refs)
         if not distinct:return
         row.setdefault('review_candidates',{})[field]={'confirmed':False,'note':note,'options':[{'value':v,'evidence':ev} for v,ev in distinct.items()]}
-        row['values'][field]='\n'.join((str(i)+'. ' if len(distinct)>1 else '')+v for i,v in enumerate(distinct,1))+'（'+('待选' if len(distinct)>1 else note)+'）'
+        row['values'][field]=candidate_text(field,list(distinct),note)
         row['evidence'][field]=[e for ev in distinct.values() for e in ev]
     for row in rows:
         for issue in row['issues']:
