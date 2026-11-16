@@ -1,3 +1,5 @@
+2026-11-16用户已暂停测试。先读[开发进度与底座现状](DEVELOPMENT_STATUS_20261116.md)，本次仅更新文档和交接；后续业务查询、下载及测试等待用户明确恢复。下文旧授权和旧状态保留历史范围。
+
 2026-11-15用户已批准两日接入方案并授权实施及真实验证。统一run.py新增rebuild_mvp_v1的mode=enrich_review，操作说明见business-interaction/rebuild_mvp/ENRICHMENT.md；旧匹配接口保持兼容。当前验收以本机enrichment-integration-20261115报告为准，WPS、Terra、运营及正式安装分别登记。
 
 此前固化见[FOUNDATION_SNAPSHOT_20261115.md](FOUNDATION_SNAPSHOT_20261115.md)。旧停止指令已由本次实施授权在上述范围内替代，历史业务文件继续只读，outputs脚本不作为日常底座。
