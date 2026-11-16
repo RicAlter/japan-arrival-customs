@@ -8,7 +8,7 @@ import test_pricing as PricingTest
 from test_enrichment import book
 from rebuild_mvp.service import handle,digest
 from rebuild_mvp.logistics_math import expand,analyse_group,inventory,associate,reconcile,frac
-from rebuild_mvp.logistics_sources import carton_cell,WeightEvidence
+from rebuild_mvp.logistics_sources import carton_cell,WeightEvidence,item_fact
 from rebuild_mvp.logistics_conversion import read_logistics_source
 from rebuild_mvp.xlsxio import read_book,Q
 
@@ -88,6 +88,10 @@ class LogisticsMath(unittest.TestCase):
     def test_merged_cell_only_inherits_within_declared_merge(self):
         sheet={'rows':[{'row':2,'values':{'A':'A1-3'},'formulas':{}},{'row':3,'values':{},'formulas':{}},{'row':4,'values':{},'formulas':{}}],'merges':['A2:A3']}
         self.assertEqual(carton_cell(sheet,3)[0],'A1-3');self.assertEqual(carton_cell(sheet,4)[0],'');self.assertEqual(carton_cell(sheet,3)[1]['source_row'],2)
+    def test_excel_boolean_carton_is_not_numeric_box_one(self):
+        sheet={'rows':[{'row':2,'values':{'A':'1'},'types':{'A':'b'},'formulas':{}}],'merges':[]}
+        q={'row_id':'r1','row':2,'sheet':'invoice','scope':{'carton':'1'}};fact=item_fact(q,{},sheet,{'path':'test','sha256':'test'})
+        rows,_,_=run_math([fact],[group('1','1','4','4')]);self.assertFalse(rows[0]['cartons']);self.assertTrue(rows[0]['issues'])
 
 
 class LogisticsEntry(unittest.TestCase):
@@ -205,6 +209,15 @@ class LogisticsEntry(unittest.TestCase):
         self.formula('D2','B2*C2',None);_,d=self.result();self.assertEqual(d['groups'][0]['field_states']['weight'],'pending')
     def test_unrecognized_formula_not_executed(self):
         self.formula('D2','SUM(B2:C2)','2.5');_,d=self.result();self.assertEqual(d['groups'][0]['field_states']['weight'],'pending')
+    def test_excel_boolean_count_weight_cells_not_numbers(self):
+        with zipfile.ZipFile(self.source)as z:parts={n:z.read(n)for n in z.namelist()}
+        tree=ET.fromstring(parts['xl/worksheets/sheet1.xml'])
+        for c in tree.iter(Q+'c'):
+            if c.get('r')in {'C2','D2'}:c.set('t','b');c[:]=[];ET.SubElement(c,Q+'v').text='1'
+        parts['xl/worksheets/sheet1.xml']=ET.tostring(tree)
+        with zipfile.ZipFile(self.source,'w')as z:
+            for n,p in parts.items():z.writestr(n,p)
+        self.rebind();_,d=self.result();self.assertEqual(d['groups'][0]['field_states']['count'],'pending');self.assertEqual(d['groups'][0]['field_states']['weight'],'pending')
     def test_extra_numeric_rows_cannot_silently_disappear(self):
         self.records.append(['','3','1','3']);self.make_weight();self.rebind();r,d=self.result();self.assertEqual(r['status'],'partial');self.assertFalse(d['totals']['inventory']['weight_kg']['complete']);self.assertTrue(any(x['code']=='WEIGHT_UNCLASSIFIED_SOURCE_ROW'for x in d['totals']['issues']))
     def test_declared_non_numeric_note_preserved_out_of_totals(self):

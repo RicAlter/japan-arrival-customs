@@ -140,6 +140,9 @@ class WeightEvidence(Evidence):
                 issues.append({'code':'WEIGHT_UNCLASSIFIED_SOURCE_ROW','field':'source','row':n,'evidence':proofs});continue
             raw={k:p['value']for k,p in proofs.items()};problems=[]
             for key,p in proofs.items():
+                if p['type']in {'b','e'}:
+                    field={'total_weight':'weight','carton':'identity','unit_weight':'unit_weight','count':'count'}.get(key,'volume')
+                    problems.append({'code':'WEIGHT_CELL_TYPE_INVALID','field':field,'evidence':p})
                 formula=p['formula']
                 if not formula:continue
                 normalized=re.sub(r'[\s$=]','',formula).upper()
@@ -182,13 +185,14 @@ def carton_cell(sheet,n):
             if m and int(m[1])<=n<=int(m[2]):source=int(m[1]);merge=label;break
     raw=rows[source]
     return raw['values'].get('A',''),{'source_row':source,'column':'A','value':raw['values'].get('A',''),
-                                     'formula':raw['formulas'].get('A'),'merged_range':merge,'inherited_to_row':n if merge else None}
+                                     'formula':raw['formulas'].get('A'),'type':raw.get('types',{}).get('A'),'merged_range':merge,'inherited_to_row':n if merge else None}
 
 
 def item_fact(qrow,prow,sheet,delivery):
     value,proof=carton_cell(sheet,qrow['row']);issues=[]
     if norm(value)!=norm(qrow['scope']['carton']):issues.append({'code':'CARTON_SCOPE_MISMATCH','field':'carton'})
     if proof['formula']:issues.append({'code':'CARTON_FORMULA_UNSUPPORTED','field':'carton'})
+    if proof['type']in {'b','e'}:issues.append({'code':'CARTON_CELL_TYPE_INVALID','field':'carton'})
     return {'row_id':qrow['row_id'],'row':qrow['row'],'sheet':qrow['sheet'],'scope':qrow['scope'],'carton_raw':value,
             'quantity_row_sha256':identity(qrow),'pricing_row_sha256':identity(prow),'issues':issues,
             'evidence':{**proof,'path':delivery['path'],'sha256':delivery['sha256']}}
