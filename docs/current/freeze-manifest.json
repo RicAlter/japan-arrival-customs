@@ -1,0 +1,37 @@
+{
+  "schema": "arrival-sop-foundation-freeze/1",
+  "version": "arrival-sop-foundation/20261116.1",
+  "accepted_development_git_sha": "d3c3196a4c0e98fdcaa100fcd0a7f1680263b596",
+  "executable_source_git_sha": "a178d1812716bd91b33d8733b1d9e0f4ff78e451",
+  "source_tree": "b815cd1608e88d2242bdc8c1cca1af2fbb2f6018",
+  "non_markdown_source_file_count": 566,
+  "non_markdown_source_fingerprint": "39aa0a118dae700698b3387618bd0fc9612d4b19de8c1f73b27f9f3f68c90e03",
+  "pair_source": {
+    "result_id": "3a422fcdfb4d3f99a1d2e2103c98b9c9f3402de27612e5b5618be04873f15352",
+    "schema": "arrival-dual-projection/1",
+    "semantic_sha256": "3a422fcdfb4d3f99a1d2e2103c98b9c9f3402de27612e5b5618be04873f15352",
+    "sha256": "d95204489fde7da4b5b6ad152e7406779fc13f65fca87174af7ff498d462dd44"
+  },
+  "protected_local_artifact_count": 8,
+  "business_processing_paused": true,
+  "program_changed": false,
+  "historical_program_test_passed": 481,
+  "historical_program_tests_rerun": false,
+  "tail_acceptance_specs": 19,
+  "tail_program_implemented": false,
+  "local_documentation_sha256": {
+    "EFFECTIVE_SOP_20261116.md": "81f0cb29500e601b275990779194fa55dd66417b1328c935a5fde12bb7c59afe",
+    "SOP_FOUNDATION_FREEZE_20261116.md": "46e57697dff51bb8be67d86503f1fd69d889ddf0da5b2ed963511592da9ec7a6",
+    "SOP_PENDING_CONFIRMATIONS_20261116.md": "1920407345014a294dd275fad3a4899984ec851ee447c4a678d03e799d890eb0",
+    "PROJECT_PROGRESS_CURRENT_20261116.md": "826e5fc175fd13bb6ac62f4e52b7b9e180212f187b52102a06de223d22ceb214",
+    "CUSTOMS_TAIL_RECONCILIATION_SOP_20261116.md": "59c3d7a563445dbb9a39ba38cd747a317cde85d6fb290fcd90d84829133b3b07"
+  },
+  "published_documentation_sha256": {
+    "CUSTOMS_TAIL_RECONCILIATION_SOP_20261116.md": "07321cd7edae8ece8952ce22c0bc509bbe3e160a39894792fcd252bface528e3",
+    "EFFECTIVE_SOP_20261116.md": "81f0cb29500e601b275990779194fa55dd66417b1328c935a5fde12bb7c59afe",
+    "PROJECT_PROGRESS_CURRENT_20261116.md": "1540db948a6a3a5f82ce67af4e833cc9501a39704852095b17d4dbd37ff8bbf3",
+    "SOP_FOUNDATION_FREEZE_20261116.md": "46e57697dff51bb8be67d86503f1fd69d889ddf0da5b2ed963511592da9ec7a6",
+    "SOP_PENDING_CONFIRMATIONS_20261116.md": "d80071347935bf79d0ed941760e595700a2963570e738540dc525901d74e9b28"
+  },
+  "publication_scope": "Documentation snapshot; tail appendix links adapted, original local evidence remains unchanged"
+}
